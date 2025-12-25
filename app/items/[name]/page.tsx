@@ -130,8 +130,10 @@ export default async function ItemDetailPage(props: Props) {
 
   // Sort by vote count (descending)
   const sortedOccurrences = itemOccurrences.sort((a, b) => {
-    const aVoteCount = Array.isArray(a.tier_lists) ? a.tier_lists[0]?.vote_count : a.tier_lists?.vote_count;
-    const bVoteCount = Array.isArray(b.tier_lists) ? b.tier_lists[0]?.vote_count : b.tier_lists?.vote_count;
+    const aTierList = a.tier_lists as any;
+    const bTierList = b.tier_lists as any;
+    const aVoteCount = Array.isArray(aTierList) ? aTierList[0]?.vote_count : aTierList?.vote_count;
+    const bVoteCount = Array.isArray(bTierList) ? bTierList[0]?.vote_count : bTierList?.vote_count;
     return (bVoteCount || 0) - (aVoteCount || 0);
   });
 

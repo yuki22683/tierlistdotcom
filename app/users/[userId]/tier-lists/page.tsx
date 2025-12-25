@@ -49,7 +49,7 @@ export default async function UserTierListsPage(props: Props) {
     console.error('Error fetching user tier lists:', listError)
   }
 
-  const totalVotes = tierLists?.reduce((sum, list) => sum + (list.vote_count || 0), 0) || 0
+  const totalVotes = tierLists?.reduce((sum: number, list: any) => sum + (list.vote_count || 0), 0) || 0
 
   // Check Current User Admin Status
   const { data: { user } } = await supabase.auth.getUser()
