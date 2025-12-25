@@ -772,7 +772,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const handleShare = async () => {
     const shareText = `${tierList.title}に投票しました。
 
-#ティアリストドットコム
+#ティアリストcom
 
 `
     const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(shareText)}`
