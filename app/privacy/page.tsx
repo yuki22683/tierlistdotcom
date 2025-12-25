@@ -31,7 +31,7 @@ export default function PrivacyPage() {
             <li>メールアドレス</li>
             <li>ユーザー名（表示名）</li>
             <li>プロフィール画像（任意）</li>
-            <li>パスワード（暗号化して保存）</li>
+            <li>パスワード（Supabase Authにより安全にハッシュ化して保存）</li>
           </ul>
 
           <h3 className="text-xl font-semibold mb-3 mt-6">2.2 ユーザー生成コンテンツ</h3>
@@ -169,7 +169,7 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-disc pl-6 mb-4 text-gray-700 dark:text-gray-300">
             <li>通信の暗号化（HTTPS/SSL）</li>
-            <li>パスワードの暗号化保存</li>
+            <li>認証基盤（Supabase Auth）による安全なパスワード管理</li>
             <li>アクセス制御とアクセスログの記録</li>
             <li>定期的なセキュリティ監査</li>
             <li>不正アクセス防止のための技術的対策</li>
