@@ -11,40 +11,50 @@ export async function middleware(request: NextRequest) {
     })
   }
 
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value)
-          })
-          response = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          )
-        },
+  try {
+    let response = NextResponse.next({
+      request: {
+        headers: request.headers,
       },
-    }
-  )
+    })
 
-  // This will refresh session if needed - required for Server Components
-  // https://supabase.com/docs/guides/auth/server-side/nextjs
-  await supabase.auth.getUser()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              request.cookies.set(name, value)
+            })
+            response = NextResponse.next({
+              request,
+            })
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
 
-  return response
+    // This will refresh session if needed - required for Server Components
+    // https://supabase.com/docs/guides/auth/server-side/nextjs
+    await supabase.auth.getUser()
+
+    return response
+  } catch (error) {
+    // If middleware fails, allow the request to continue
+    console.error('Middleware error:', error)
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+  }
 }
 
 export const config = {
