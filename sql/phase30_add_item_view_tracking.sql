@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.item_views (
 -- Create index for sorting by view count
 CREATE INDEX IF NOT EXISTS idx_item_views_view_count ON public.item_views(view_count DESC);
 
--- 2. Update get_trending_items function to use item_views instead of tier_list view aggregation
+-- 2. Update get_trending_items function to use item_views with fallback to tier_list view aggregation
 CREATE OR REPLACE FUNCTION get_trending_items(
   limit_count INT,
   offset_val INT DEFAULT 0
@@ -24,16 +24,17 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   SELECT
-    iv.name,
+    i.name,
     (ARRAY_AGG(i.image_url ORDER BY tl.view_count DESC) FILTER (WHERE i.image_url IS NOT NULL))[1] as image_url,
-    iv.view_count::BIGINT as total_views,
+    COALESCE(iv.view_count, 0)::BIGINT as total_views,
     COUNT(DISTINCT i.tier_list_id) as count_lists
-  FROM item_views iv
-  JOIN items i ON i.name = iv.name
+  FROM items i
   JOIN tier_lists tl ON i.tier_list_id = tl.id
-  WHERE iv.view_count > 0
-  GROUP BY iv.name, iv.view_count
-  ORDER BY iv.view_count DESC
+  LEFT JOIN item_views iv ON i.name = iv.name
+  WHERE i.name IS NOT NULL AND i.name != ''
+  GROUP BY i.name, iv.view_count
+  HAVING COALESCE(iv.view_count, 0) > 0 OR SUM(tl.view_count) > 0
+  ORDER BY COALESCE(iv.view_count, 0) DESC
   LIMIT limit_count
   OFFSET offset_val;
 END;
@@ -45,9 +46,15 @@ RETURNS BIGINT AS $$
 DECLARE
   total BIGINT;
 BEGIN
-  SELECT COUNT(*) INTO total
-  FROM item_views
-  WHERE view_count > 0;
+  SELECT COUNT(*) INTO total FROM (
+    SELECT i.name
+    FROM items i
+    JOIN tier_lists tl ON i.tier_list_id = tl.id
+    LEFT JOIN item_views iv ON i.name = iv.name
+    WHERE i.name IS NOT NULL AND i.name != ''
+    GROUP BY i.name, iv.view_count
+    HAVING COALESCE(iv.view_count, 0) > 0 OR SUM(tl.view_count) > 0
+  ) AS subquery;
 
   RETURN total;
 END;
