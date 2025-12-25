@@ -13,7 +13,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
   if (totalPages <= 0) return null
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-8">
+    <div className="flex items-center justify-center gap-2 mt-8 mb-28">
       {/* First Page */}
       <Link
         href={getUrl(1)}
