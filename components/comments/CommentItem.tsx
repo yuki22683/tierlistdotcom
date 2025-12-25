@@ -53,6 +53,9 @@ export default function CommentItem({
   const [isLikePending, setIsLikePending] = useState(false)
   const [isReporting, setIsReporting] = useState(false)
   const [reportReason, setReportReason] = useState('')
+  const [isReplySubmitting, setIsReplySubmitting] = useState(false)
+  const [isReportSubmitting, setIsReportSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const isLiked = comment.likes?.some(l => l.user_id === currentUserId)
   const isDisliked = comment.dislikes?.some(d => d.user_id === currentUserId)
@@ -85,43 +88,66 @@ export default function CommentItem({
   }
 
   const handleDelete = async () => {
+    if (isDeleting) return
     if (!confirm('本当に削除しますか？')) return
-    await deleteComment(comment.id, window.location.pathname)
+
+    setIsDeleting(true)
+    try {
+      await deleteComment(comment.id, window.location.pathname)
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   const handleReport = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!reportReason.trim()) return
+    if (!reportReason.trim() || isReportSubmitting) return
 
-    const result = await reportComment(comment.id, reportReason)
-    if (result.error) {
-      alert(result.error)
-    } else {
-      alert('通報しました。ご協力ありがとうございます。')
-      setIsReporting(false)
-      setReportReason('')
+    setIsReportSubmitting(true)
+    try {
+      const result = await reportComment(comment.id, reportReason)
+      if (result.error) {
+        alert(result.error)
+      } else {
+        alert('通報しました。ご協力ありがとうございます。')
+        setIsReporting(false)
+        setReportReason('')
+      }
+    } catch (error) {
+      console.error('Failed to submit report:', error)
+    } finally {
+      setIsReportSubmitting(false)
     }
   }
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!replyContent.trim()) return
+    if (!replyContent.trim() || isReplySubmitting) return
 
-    const formData = new FormData()
-    formData.append('content', replyContent)
-    if (tierListId) formData.append('tierListId', tierListId)
-    if (itemName) formData.append('itemName', itemName)
-    formData.append('parentId', comment.id)
+    setIsReplySubmitting(true)
+    try {
+      const formData = new FormData()
+      formData.append('content', replyContent)
+      if (tierListId) formData.append('tierListId', tierListId)
+      if (itemName) formData.append('itemName', itemName)
+      formData.append('parentId', comment.id)
 
-    const result = await addComment(null, formData)
-    if (result?.error) {
-      alert(result.error)
-      return
+      const result = await addComment(null, formData)
+      if (result?.error) {
+        alert(result.error)
+        return
+      }
+
+      setIsReplying(false)
+      setReplyContent('')
+      setShowReplies(true)
+    } catch (error) {
+      console.error('Failed to submit reply:', error)
+    } finally {
+      setIsReplySubmitting(false)
     }
-
-    setIsReplying(false)
-    setReplyContent('')
-    setShowReplies(true)
   }
 
   return (
@@ -213,9 +239,10 @@ export default function CommentItem({
           {(currentUserId === comment.user_id || isAdmin || isTierListOwner) && (
             <button
               onClick={handleDelete}
-              className="hover:bg-red-50 text-red-500 p-1 rounded transition"
+              disabled={isDeleting}
+              className="hover:bg-red-50 text-red-500 p-1 rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              削除
+              {isDeleting ? '削除中...' : '削除'}
             </button>
           )}
         </div>
@@ -228,13 +255,23 @@ export default function CommentItem({
               onChange={e => setReportReason(e.target.value)}
               className="w-full text-sm px-3 py-1 border rounded"
               placeholder="通報理由を入力"
+              disabled={isReportSubmitting}
             />
             <div className="flex justify-end gap-2 mt-2">
-              <button type="button" onClick={() => setIsReporting(false)} className="text-xs">
+              <button
+                type="button"
+                onClick={() => setIsReporting(false)}
+                disabled={isReportSubmitting}
+                className="text-xs disabled:opacity-50"
+              >
                 キャンセル
               </button>
-              <button type="submit" className="text-xs text-red-600">
-                送信
+              <button
+                type="submit"
+                disabled={isReportSubmitting || !reportReason.trim()}
+                className="text-xs text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isReportSubmitting ? '送信中...' : '送信'}
               </button>
             </div>
           </form>
@@ -248,9 +285,14 @@ export default function CommentItem({
               onChange={e => setReplyContent(e.target.value)}
               className="flex-grow border rounded px-3 py-1 text-sm"
               placeholder="返信を入力..."
+              disabled={isReplySubmitting}
             />
-            <button type="submit" className="text-xs bg-blue-500 text-white px-3 rounded">
-              送信
+            <button
+              type="submit"
+              disabled={isReplySubmitting || !replyContent.trim()}
+              className="text-xs bg-blue-500 text-white px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isReplySubmitting ? '送信中...' : '送信'}
             </button>
           </form>
         )}

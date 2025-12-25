@@ -15,8 +15,8 @@ interface CommentSectionProps {
   isAdmin?: boolean
 }
 
-export default function CommentSection({ 
-  initialComments, 
+export default function CommentSection({
+  initialComments,
   currentUserId,
   tierListId,
   tierListOwnerId,
@@ -27,6 +27,7 @@ export default function CommentSection({
   const [newComment, setNewComment] = useState('')
   const [sortOrder, setSortOrder] = useState<'newest' | 'popular'>('newest')
   const [isBanned, setIsBanned] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -68,15 +69,22 @@ export default function CommentSection({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newComment.trim()) return
+    if (!newComment.trim() || isSubmitting) return
 
-    const formData = new FormData()
-    formData.append('content', newComment)
-    if (tierListId) formData.append('tierListId', tierListId)
-    if (itemName) formData.append('itemName', itemName)
-    
-    await addComment(null, formData)
-    setNewComment('')
+    setIsSubmitting(true)
+    try {
+      const formData = new FormData()
+      formData.append('content', newComment)
+      if (tierListId) formData.append('tierListId', tierListId)
+      if (itemName) formData.append('itemName', itemName)
+
+      await addComment(null, formData)
+      setNewComment('')
+    } catch (error) {
+      console.error('Failed to submit comment:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -101,10 +109,10 @@ export default function CommentSection({
              </div>
              <button
                 type="submit"
-                disabled={!newComment.trim() || isBanned}
+                disabled={!newComment.trim() || isBanned || isSubmitting}
                 className="bg-indigo-600 text-white px-6 py-2 rounded-md font-bold hover:bg-indigo-700 transition disabled:opacity-50 h-fit disabled:cursor-not-allowed w-full sm:w-auto"
              >
-                {isBanned ? '投稿禁止' : '投稿'}
+                {isSubmitting ? '投稿中...' : isBanned ? '投稿禁止' : '投稿'}
              </button>
           </div>
         </form>
