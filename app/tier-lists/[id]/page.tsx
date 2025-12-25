@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: tierList } = await supabase
     .from('tier_lists')
-    .select('title, description')
+    .select('title, description, tier_list_tags(tags(name))')
     .eq('id', id)
     .single()
 
@@ -23,12 +23,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
+  // Extract tag names
+  const tags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
+  const tagString = tags.length > 0 ? ` タグ: ${tags.join(', ')}` : ''
+  const keywords = tags.length > 0 ? tags.join(', ') : undefined
+
+  const baseDescription = tierList.description || `${tierList.title}のティアリストです。みんなで投票してランキングを作成しましょう。`
+  const descriptionWithTags = `${baseDescription}${tagString}`
+
   return {
     title: `${tierList.title} | ティアリスト.com`,
-    description: tierList.description || `${tierList.title}のティアリストです。みんなで投票してランキングを作成しましょう。`,
+    description: descriptionWithTags,
+    keywords,
     openGraph: {
       title: tierList.title,
-      description: tierList.description || `${tierList.title}のティアリストです。`,
+      description: descriptionWithTags,
       type: 'article',
     },
   }
@@ -55,6 +64,35 @@ export default async function TierListDetailPage(props: Props) {
     .from('tier_lists')
     .update({ view_count: (tierList.view_count || 0) + 1 })
     .eq('id', tierListId)
+
+  // Prepare structured data (JSON-LD) for SEO
+  const tags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: tierList.title,
+    description: tierList.description || `${tierList.title}のティアリストです。`,
+    author: {
+      '@type': 'Person',
+      name: tierList.users?.full_name || 'Unknown'
+    },
+    datePublished: tierList.created_at,
+    dateModified: tierList.updated_at || tierList.created_at,
+    keywords: tags.join(', '),
+    articleSection: tags.length > 0 ? tags[0] : undefined,
+    interactionStatistic: [
+      {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/VoteAction',
+        userInteractionCount: tierList.vote_count || 0
+      },
+      {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/ViewAction',
+        userInteractionCount: tierList.view_count || 0
+      }
+    ]
+  }
 
   // 2. Fetch Tiers
   const { data: tiers, error: tiersError } = await supabase
@@ -158,19 +196,25 @@ export default async function TierListDetailPage(props: Props) {
   }
 
   return (
-    <TierListClientPage
-        tierList={tierList}
-        tiers={tiers || []}
-        items={items || []}
-        userVote={userVote}
-        userVoteItems={userVoteItems}
-        allVoteItems={allVoteItems || []}
-        currentUser={user}
-        initialComments={comments || []}
-        relatedTierLists={relatedTierLists || []}
-        isAdmin={isAdmin}
-        isBanned={isBanned}
-        userVotedTierListIds={userVotedTierListIds}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <TierListClientPage
+          tierList={tierList}
+          tiers={tiers || []}
+          items={items || []}
+          userVote={userVote}
+          userVoteItems={userVoteItems}
+          allVoteItems={allVoteItems || []}
+          currentUser={user}
+          initialComments={comments || []}
+          relatedTierLists={relatedTierLists || []}
+          isAdmin={isAdmin}
+          isBanned={isBanned}
+          userVotedTierListIds={userVotedTierListIds}
+      />
+    </>
   )
 }
