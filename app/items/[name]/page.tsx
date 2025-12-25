@@ -143,6 +143,9 @@ export default async function ItemDetailPage(props: Props) {
     notFound()
   }
 
+  // Increment item view count
+  await supabase.rpc('increment_item_view', { item_name: itemName })
+
   // Sort by vote count (descending)
   const sortedOccurrences = itemOccurrences.sort((a, b) => {
     const aTierList = a.tier_lists as any;
