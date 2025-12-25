@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ティアリスト.com",
-  description: "みんなで決める、最強のランキング。ティアリスト.comは、アニメ、ゲーム、あらゆるジャンルのティアリストを作成・共有・投票できるコミュニティサイトです。",
+  description: "みんなで決める、最強のティアリスト。ティアリスト.comは、アニメ、ゲーム、あらゆるジャンルのティアリストを作成・共有・投票できるコミュニティサイトです。",
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",

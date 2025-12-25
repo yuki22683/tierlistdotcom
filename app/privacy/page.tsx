@@ -27,11 +27,14 @@ export default function PrivacyPage() {
           <h2 className="text-2xl font-bold mb-4">2. 収集する情報</h2>
 
           <h3 className="text-xl font-semibold mb-3 mt-6">2.1 ユーザー登録情報</h3>
+          <p className="text-gray-700 dark:text-gray-300 mb-3">
+            当サービスはGoogleアカウントによるOAuth認証を使用しています。パスワードは当サービスで管理せず、Googleが管理します。
+          </p>
           <ul className="list-disc pl-6 mb-4 text-gray-700 dark:text-gray-300">
-            <li>メールアドレス</li>
+            <li>メールアドレス（Googleアカウントから取得）</li>
             <li>ユーザー名（表示名）</li>
-            <li>プロフィール画像（任意）</li>
-            <li>パスワード（Supabase Authにより安全にハッシュ化して保存）</li>
+            <li>プロフィール画像（Googleアカウントから取得、任意）</li>
+            <li>Google ユーザーID（認証目的のみ）</li>
           </ul>
 
           <h3 className="text-xl font-semibold mb-3 mt-6">2.2 ユーザー生成コンテンツ</h3>
@@ -169,14 +172,15 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-disc pl-6 mb-4 text-gray-700 dark:text-gray-300">
             <li>通信の暗号化（HTTPS/SSL）</li>
-            <li>認証基盤（Supabase Auth）による安全なパスワード管理</li>
-            <li>アクセス制御とアクセスログの記録</li>
+            <li>Google OAuth認証による安全なログイン</li>
+            <li>Supabase AuthおよびRow Level Security（RLS）によるアクセス制御</li>
+            <li>アクセスログの記録と監視</li>
             <li>定期的なセキュリティ監査</li>
             <li>不正アクセス防止のための技術的対策</li>
           </ul>
           <p className="text-gray-700 dark:text-gray-300 mb-4">
             ただし、インターネット上の完全なセキュリティを保証することはできません。
-            ユーザーご自身でも、パスワードの適切な管理など、セキュリティ対策を行ってください。
+            ユーザーご自身でも、Googleアカウントの適切な管理など、セキュリティ対策を行ってください。
           </p>
         </section>
 
