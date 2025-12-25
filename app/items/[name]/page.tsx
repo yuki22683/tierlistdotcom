@@ -6,9 +6,24 @@ import { getContrastColor } from '@/utils/colors'
 import HomeWrapper from '@/components/HomeWrapper'
 import ImageSlideshow from '@/components/ImageSlideshow'
 import SaveItemToHistory from '@/components/SaveItemToHistory'
+import type { Metadata } from 'next'
 
 interface Props {
   params: Promise<{ name: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { name } = await params
+  const itemName = decodeURIComponent(name)
+  
+  return {
+    title: `${itemName}の評価・ランキング | ティアリスト.com`,
+    description: `${itemName}が含まれるティアリストや、みんなの評価を確認できます。`,
+    openGraph: {
+      title: `${itemName}の評価・ランキング`,
+      description: `${itemName}が含まれるティアリストや、みんなの評価を確認できます。`,
+    },
+  }
 }
 
 type Tier = {

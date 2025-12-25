@@ -1,9 +1,37 @@
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import TierListClientPage from './client'
+import type { Metadata } from 'next'
 
 interface Props {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+
+  const { data: tierList } = await supabase
+    .from('tier_lists')
+    .select('title, description')
+    .eq('id', id)
+    .single()
+
+  if (!tierList) {
+    return {
+      title: 'ティアリストが見つかりません',
+    }
+  }
+
+  return {
+    title: `${tierList.title} | ティアリスト.com`,
+    description: tierList.description || `${tierList.title}のティアリストです。みんなで投票してランキングを作成しましょう。`,
+    openGraph: {
+      title: tierList.title,
+      description: tierList.description || `${tierList.title}のティアリストです。`,
+      type: 'article',
+    },
+  }
 }
 
 export default async function TierListDetailPage(props: Props) {
