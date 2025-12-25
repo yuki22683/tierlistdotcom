@@ -1,0 +1,432 @@
+import { createClient } from '@/utils/supabase/server'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import CommentSection from '@/components/comments/CommentSection'
+import { getContrastColor } from '@/utils/colors'
+import HomeWrapper from '@/components/HomeWrapper'
+import ImageSlideshow from '@/components/ImageSlideshow'
+import SaveItemToHistory from '@/components/SaveItemToHistory'
+
+interface Props {
+  params: Promise<{ name: string }>
+}
+
+type Tier = {
+  id: string
+  name: string
+  color: string
+  order: number
+  tier_list_id: string
+}
+
+type VoteItem = {
+  item_id: string
+  tier_id: string
+  votes: {
+    tier_list_id: string
+  }
+}
+
+// Helper to calculate ranks
+const calculateRanks = (
+  targetItemId: string,
+  tierListId: string,
+  tiers: Tier[],
+  voteItems: VoteItem[],
+  allItemsInList: any[]
+) => {
+  // Filter data for this tier list
+  const listTiers = tiers.filter(t => t.tier_list_id === tierListId).sort((a, b) => a.order - b.order)
+  const listVotes = voteItems.filter(v => v.votes.tier_list_id === tierListId)
+  
+  // If no votes, return unranked or default
+  if (listVotes.length === 0) return { absolute: null, relative: null }
+
+  const numTiers = listTiers.length
+  const medianIndex = (numTiers - 1) / 2
+  const tierScoreMap: Record<string, number> = {}
+  
+  listTiers.forEach((t, idx) => {
+      tierScoreMap[t.id] = medianIndex - idx
+  })
+
+  // Calculate scores for ALL items in this list to determine relative rank
+  const itemScores: Record<string, { total: number, count: number }> = {}
+  
+  listVotes.forEach(vi => {
+      if (!itemScores[vi.item_id]) itemScores[vi.item_id] = { total: 0, count: 0 }
+      const score = tierScoreMap[vi.tier_id] || 0
+      itemScores[vi.item_id].total += score
+      itemScores[vi.item_id].count += 1
+  })
+
+  // Target Item Stats
+  const targetStats = itemScores[targetItemId]
+  if (!targetStats) return { absolute: null, relative: null }
+
+  const targetAvg = targetStats.total / targetStats.count
+
+  // --- Absolute Rank ---
+  // score = median - index  =>  index = median - score
+  const absRoundedScore = Math.round(targetAvg + 0.5)
+  let absTierIdx = Math.round(medianIndex - absRoundedScore)
+  if (absTierIdx < 0) absTierIdx = 0
+  if (absTierIdx >= numTiers) absTierIdx = numTiers - 1
+  const absoluteTier = listTiers[absTierIdx]
+
+  // --- Relative Rank ---
+  let maxAvg = -Infinity
+  let minAvg = Infinity
+  
+  // Check stats for all items involved in votes
+  Object.values(itemScores).forEach(stats => {
+      const avg = stats.total / stats.count
+      if (avg > maxAvg) maxAvg = avg
+      if (avg < minAvg) minAvg = avg
+  })
+
+  let relTierIdx = 0
+  const range = maxAvg - minAvg
+  
+  if (range === 0) {
+      relTierIdx = 0
+  } else {
+      const normalized = (targetAvg - minAvg) / range
+      const rawIdx = Math.floor((1 - normalized) * numTiers)
+      relTierIdx = Math.min(numTiers - 1, Math.max(0, rawIdx))
+  }
+  const relativeTier = listTiers[relTierIdx]
+
+  return { absolute: absoluteTier, relative: relativeTier }
+}
+
+
+export default async function ItemDetailPage(props: Props) {
+  const params = await props.params;
+  const itemName = decodeURIComponent(params.name)
+  const supabase = await createClient()
+
+  // 1. Fetch Item Occurrences (Items with the same name in different lists)
+  const { data: itemOccurrences, error } = await supabase
+    .from('items')
+    .select(`
+      id,
+      name,
+      image_url,
+      tier_list_id,
+      tier_lists (
+        id,
+        title,
+        description,
+        vote_count,
+        users ( full_name )
+      )
+    `)
+    .eq('name', itemName)
+
+  if (error || !itemOccurrences || itemOccurrences.length === 0) {
+    notFound()
+  }
+
+  // Sort by vote count (descending)
+  const sortedOccurrences = itemOccurrences.sort((a, b) => {
+    const aVoteCount = Array.isArray(a.tier_lists) ? a.tier_lists[0]?.vote_count : a.tier_lists?.vote_count;
+    const bVoteCount = Array.isArray(b.tier_lists) ? b.tier_lists[0]?.vote_count : b.tier_lists?.vote_count;
+    return (bVoteCount || 0) - (aVoteCount || 0);
+  });
+
+  // Collect all images from items that have images
+  const itemImages = sortedOccurrences
+    .filter(item => item.image_url)
+    .map(item => item.image_url);
+
+  const tierListIds = sortedOccurrences.map(i => i.tier_list_id)
+
+  // 2. Fetch ALL Tiers for these lists
+  const { data: allTiers } = await supabase
+    .from('tiers')
+    .select('*')
+    .in('tier_list_id', tierListIds)
+    .order('order')
+
+  // 3. Fetch ALL Votes for these lists
+  // Note: This can be heavy. Optimizations needed for production (e.g., materialized views).
+  const { data: allVoteItems } = await supabase
+    .from('vote_items')
+    .select(`
+      item_id,
+      tier_id,
+      votes!inner (
+        tier_list_id
+      )
+    `)
+    .in('votes.tier_list_id', tierListIds)
+
+  // 4. Fetch Comments
+  const { data: comments } = await supabase
+    .from('comments')
+    .select(`
+      *,
+      users (
+        full_name,
+        avatar_url
+      ),
+      likes (
+        user_id
+      ),
+      dislikes (
+        user_id
+      )
+    `)
+    .eq('item_name', itemName)
+    .order('created_at', { ascending: false })
+
+  // 5. Fetch Related Items
+  let relatedItems: any[] = []
+  
+  if (tierListIds.length > 0) {
+      // A. Items in same tier lists
+      const { data: sameListItems } = await supabase
+        .from('items')
+        .select('name, image_url')
+        .in('tier_list_id', tierListIds)
+        .neq('name', itemName)
+        .limit(50)
+
+      // B. Items from tier lists with same tags
+      // Get tags first
+      const { data: currentTags } = await supabase
+        .from('tier_list_tags')
+        .select('tag_id')
+        .in('tier_list_id', tierListIds)
+      
+      const currentTagIds = currentTags?.map(t => t.tag_id) || []
+      let tagItems: any[] = []
+
+      if (currentTagIds.length > 0) {
+          // Find other tier lists with these tags
+          const { data: tagTierLists } = await supabase
+            .from('tier_list_tags')
+            .select('tier_list_id')
+            .in('tag_id', currentTagIds)
+            .limit(50) // Limit tier lists
+          
+          const tagTierListIds = tagTierLists?.map(t => t.tier_list_id).filter(id => !tierListIds.includes(id)) || [] // Exclude original lists
+
+          if (tagTierListIds.length > 0) {
+              const { data: itemsFromTags } = await supabase
+                .from('items')
+                .select('name, image_url')
+                .in('tier_list_id', tagTierListIds)
+                .neq('name', itemName)
+                .limit(50)
+              
+              tagItems = itemsFromTags || []
+          }
+      }
+
+      // Combine and Unique by name
+      const allCandidates = [...(sameListItems || []), ...tagItems]
+      
+      // Sort: Items with images first
+      allCandidates.sort((a, b) => {
+          if (a.image_url && !b.image_url) return -1
+          if (!a.image_url && b.image_url) return 1
+          return 0
+      })
+
+      const uniqueMap = new Map()
+      allCandidates.forEach(item => {
+          if (!uniqueMap.has(item.name)) {
+              uniqueMap.set(item.name, item)
+          }
+      })
+      
+      relatedItems = Array.from(uniqueMap.values()).slice(0, 10)
+
+      if (relatedItems.length > 0) {
+          const amazonAds = [
+              { isAmazonBookAd: true },
+              { isAmazonFurusatoAd: true },
+              { isAmazonRankingAd: true },
+              { isAmazonTimesaleAd: true }
+          ];
+          const randomAd = amazonAds[Math.floor(Math.random() * amazonAds.length)];
+          const randomIndex = Math.floor(Math.random() * (relatedItems.length + 1));
+          relatedItems.splice(randomIndex, 0, randomAd);
+      }
+  }
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  return (
+    <div className="container mx-auto py-12 px-4 max-w-4xl">
+      <HomeWrapper uniqueKey="item-detail">
+      <SaveItemToHistory itemName={itemName} imageUrl={itemImages[0] || null} />
+      {/* Header */}
+      <div className="flex flex-col md:flex-row gap-8 items-center md:items-start mb-12">
+        <div className="w-48 h-48 relative rounded-xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100">
+           <ImageSlideshow images={itemImages} itemName={itemName} />
+        </div>
+        
+        <div className="flex-grow text-center md:text-left">
+           <h1 className="text-4xl font-bold mb-4">{itemName}</h1>
+           <p className="text-gray-500 text-lg">
+             登場回数：{sortedOccurrences.length}
+           </p>
+        </div>
+      </div>
+
+      {/* Cross Reference List */}
+      <div className="mb-16">
+        <h2 className="text-2xl font-bold mb-6 border-b pb-2">成績</h2>
+        <div className="grid gap-4">
+           {sortedOccurrences.map((item: any) => {
+              const tierList = Array.isArray(item.tier_lists) ? item.tier_lists[0] : item.tier_lists;
+              const listUser = Array.isArray(tierList?.users) ? tierList.users[0] : tierList?.users;
+              
+              // Calculate Ranks
+              const ranks = calculateRanks(
+                  item.id,
+                  item.tier_list_id,
+                  allTiers || [],
+                  (allVoteItems as any) || [],
+                  [] // We don't strictly need all items list for relative calc if we trust vote_items covers the range well enough, or we accept only voted items matter.
+              )
+
+              return (
+              <Link 
+                key={item.id} 
+                href={`/tier-lists/${item.tier_list_id}`}
+                className="block bg-white dark:bg-zinc-900 border rounded-lg p-4 hover:shadow-md transition group"
+              >
+                 <div className="flex justify-between items-center">
+                    <div>
+                        <h3 className="font-semibold text-lg group-hover:text-blue-600 transition">
+                            {tierList?.title || 'Untitled List'}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                            by {listUser?.full_name || 'Unknown'}
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-row items-center gap-6">
+                       {/* Absolute Rank */}
+                       <div className="flex flex-col items-center">
+                           <span className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">絶対評価</span>
+                           {ranks.absolute ? (
+                               <span 
+                                 className="px-4 py-2 rounded-md font-bold text-xl min-w-[50px] text-center shadow-sm"
+                                 style={{ 
+                                     backgroundColor: ranks.absolute.color || '#ddd',
+                                     color: getContrastColor(ranks.absolute.color || '#ddd')
+                                 }}
+                               >
+                                  {ranks.absolute.name}
+                               </span>
+                           ) : (
+                               <span className="text-xl text-gray-300 font-bold">-</span>
+                           )}
+                       </div>
+
+                       {/* Relative Rank */}
+                       <div className="flex flex-col items-center">
+                           <span className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">相対評価</span>
+                           {ranks.relative ? (
+                               <span 
+                                 className="px-4 py-2 rounded-md font-bold text-xl min-w-[50px] text-center shadow-sm"
+                                 style={{ 
+                                     backgroundColor: ranks.relative.color || '#ddd',
+                                     color: getContrastColor(ranks.relative.color || '#ddd')
+                                 }}
+                               >
+                                  {ranks.relative.name}
+                               </span>
+                           ) : (
+                               <span className="text-xl text-gray-300 font-bold">-</span>
+                           )}
+                       </div>
+                    </div>
+                 </div>
+              </Link>
+           );
+           })}
+        </div>
+      </div>
+
+      {/* Related Items */}
+      {relatedItems.length > 0 && (
+        <div className="mb-12 border-t pt-8">
+          <h2 className="text-2xl font-bold mb-6">関連アイテム</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {relatedItems.map((item: any, index: number) => {
+              if (item.isAmazonBookAd) {
+                  return (
+                    <a key={`ad-book-${index}`} href="https://amzn.to/3YHTkdu" target="_blank" rel="nofollow sponsored noopener" className="group block">
+                        <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                            <img src="/images/Amazon/Amazon_book.png" alt="Amazon Book" className="w-full h-full object-cover" />
+                        </div>
+                    </a>
+                  )
+              }
+              if (item.isAmazonFurusatoAd) {
+                  return (
+                    <a key={`ad-furusato-${index}`} href="https://amzn.to/4qnIOEo" target="_blank" rel="nofollow sponsored noopener" className="group block">
+                        <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                            <img src="/images/Amazon/Amazon_furusato.png" alt="Amazon Furusato" className="w-full h-full object-cover" />
+                        </div>
+                    </a>
+                  )
+              }
+              if (item.isAmazonRankingAd) {
+                  return (
+                    <a key={`ad-ranking-${index}`} href="https://amzn.to/45hogFa" target="_blank" rel="nofollow sponsored noopener" className="group block">
+                        <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                            <img src="/images/Amazon/Amazon_ranking.png" alt="Amazon Ranking" className="w-full h-full object-cover" />
+                        </div>
+                    </a>
+                  )
+              }
+              if (item.isAmazonTimesaleAd) {
+                  return (
+                    <a key={`ad-timesale-${index}`} href="https://amzn.to/3Y7mhiZ" target="_blank" rel="nofollow sponsored noopener" className="group block">
+                        <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                            <img src="/images/Amazon/Amazon_timesale.png" alt="Amazon Timesale" className="w-full h-full object-cover" />
+                        </div>
+                    </a>
+                  )
+              }
+
+              return (
+              <Link href={`/items/${encodeURIComponent(item.name)}`} key={item.name} className="group">
+                <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                   {item.image_url ? (
+                     <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                   ) : (
+                     <div className="w-full h-full flex items-center justify-center text-2xl font-bold bg-white dark:bg-zinc-700 text-gray-400">
+                       {item.name[0]}
+                     </div>
+                   )}
+                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                </div>
+                <div className="mt-2 text-sm font-medium text-center truncate px-1 group-hover:text-indigo-600 transition-colors">
+                  {item.name}
+                </div>
+              </Link>
+            )})}
+          </div>
+        </div>
+      )}
+
+      {/* Comments */}
+      <div className="border-t pt-8">
+         <CommentSection 
+            initialComments={comments || []}
+            itemName={itemName}
+            currentUserId={user?.id}
+         />
+      </div>
+      </HomeWrapper>
+    </div>
+  )
+}

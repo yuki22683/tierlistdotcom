@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/* =====================================
+   ベースカラートークン
+===================================== */
+:root {
+  /* App 全体 */
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* コメント用（本文フェードに使用） */
+  --comment-text-color: var(--foreground);
+  --comment-bg-color: var(--background);
+}
+
+/* =====================================
+   Tailwind Theme Inline
+===================================== */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* =====================================
+   ダークモード（OS設定連動）
+===================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+
+    /* コメント用（自動追従） */
+    --comment-text-color: var(--foreground);
+    --comment-bg-color: var(--background);
+  }
+}
+
+/* =====================================
+   グローバルベーススタイル
+===================================== */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =====================================
+   コメント本文（フェード対応）
+===================================== */
+/*
+  JS 側で --fade (0〜0.6) を渡す
+  color-mix はモダンブラウザ対応
+*/
+.comment-body {
+  color: color-mix(
+    in srgb,
+    var(--comment-text-color) calc((1 - var(--fade, 0)) * 100%),
+    var(--comment-bg-color) calc(var(--fade, 0) * 100%)
+  );
+
+  transition: color 0.2s ease;
+}
+
+/* =====================================
+   アクセシビリティ補助
+===================================== */
+
+/* コントラストを重視するユーザー */
+@media (prefers-contrast: more) {
+  .comment-body {
+    color: var(--comment-text-color);
+  }
+}
+
+/* 動きを減らしたいユーザー */
+@media (prefers-reduced-motion: reduce) {
+  .comment-body {
+    transition: none;
+  }
+}
