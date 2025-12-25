@@ -126,7 +126,7 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
         style={{ bottom: `${bottomOffset}px` }}
     >
       {renderButton()}
-      <div className="transition-all duration-300 transform translate-x-0 group-hover/container:translate-x-1">
+      <div className="[@media(max-width:768px)_and_(orientation:portrait)]:hidden transition-all duration-300 transform translate-x-0 group-hover/container:translate-x-1">
         <RandomAffiliateLink index={affiliateIndex} />
       </div>
     </div>
