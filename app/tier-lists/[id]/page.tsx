@@ -12,53 +12,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient()
 
   try {
+    // First, get the basic tier list info (most reliable)
     const { data: tierList, error } = await supabase
       .from('tier_lists')
-      .select('title, description, image_url, tier_list_tags(tags(name))')
+      .select('title, description, image_url')
       .eq('id', id)
       .single()
 
     if (error) {
-      console.error('Error in generateMetadata:', error)
-      // Try a simpler query without tags
-      const { data: simpleTierList } = await supabase
-        .from('tier_lists')
-        .select('title, description, image_url')
-        .eq('id', id)
-        .single()
-
-      if (simpleTierList) {
-        const baseDescription = simpleTierList.description || `${simpleTierList.title}のティアリスト（ランキング）です。みんなの投票結果を確認したり、自分でも投票に参加できます。`
-        const ogImage = simpleTierList.image_url || "/logo.png"
-
-        return {
-          title: `${simpleTierList.title} | ティアリスト.com`,
-          description: baseDescription,
-          openGraph: {
-            title: `${simpleTierList.title} | ティアリスト.com`,
-            description: baseDescription,
-            type: 'article',
-            images: [ogImage],
-          },
-          twitter: {
-            card: 'summary_large_image',
-            title: `${simpleTierList.title} | ティアリスト.com`,
-            description: baseDescription,
-            images: [ogImage],
-          },
-        }
-      }
+      console.error('Error fetching tier list in generateMetadata:', error)
     }
 
     if (!tierList) {
+      console.log('No tier list found for id:', id)
       return {
         title: 'ティアリスト.com - みんなで決める、最強のランキング',
         description: 'アニメ、ゲーム、エンタメなど、あらゆるジャンルのティアリストを誰でも作成・投票可能！',
       }
     }
 
-    // Extract tag names
-    const tags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
+    // Try to get tags separately (optional)
+    const { data: tagData } = await supabase
+      .from('tier_list_tags')
+      .select('tags(name)')
+      .eq('tier_list_id', id)
+
+    const tags = tagData?.map((t: any) => t.tags?.name).filter(Boolean) || []
     const tagString = tags.length > 0 ? ` [タグ: ${tags.join(', ')}]` : ''
     const keywords = tags.length > 0 ? tags.join(', ') : undefined
 
