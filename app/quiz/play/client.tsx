@@ -11,6 +11,8 @@ import { format } from 'date-fns'
 import { formatNumber } from '@/utils/formatNumber'
 import CommentSection from '@/components/comments/CommentSection'
 import TierListReportModal from '@/components/TierListReportModal'
+import RakutenLeftWidget from '@/components/RakutenLeftWidget'
+import RakutenRightWidget from '@/components/RakutenRightWidget'
 
 type Tier = {
   id: string
@@ -66,6 +68,8 @@ export default function QuizPlayClient({
   const router = useRouter()
   const supabase = createClient()
   const tierListRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerHeight, setContainerHeight] = useState(0)
 
   // Quiz state
   const [history, setHistory] = useState<QuizHistoryItem[]>([{
@@ -235,6 +239,18 @@ export default function QuizPlayClient({
     setResults(calculatedTiers)
   }, [evaluationMode, voteStats, currentItems, currentTiers])
 
+  // Monitor container height for Rakuten widgets
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setContainerHeight(containerRef.current.offsetHeight)
+      }
+    }
+    updateHeight()
+    window.addEventListener('resize', updateHeight)
+    return () => window.removeEventListener('resize', updateHeight)
+  }, [results, isAnswerRevealed, showLabels])
+
   const handlePrevious = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1)
@@ -341,8 +357,11 @@ export default function QuizPlayClient({
   }
 
   return (
-    <main className="container mx-auto pb-10 pt-4 px-4 max-w-5xl">
-      {/* Back to Genre Selection */}
+    <div ref={containerRef} className="container mx-auto py-4 px-4 max-w-5xl relative">
+      <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
+      <RakutenRightWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
+      <main className="pb-10 pt-4">
+        {/* Back to Genre Selection */}
       <Link
         href="/quiz/select-genre"
         className="inline-flex items-center text-foreground hover:underline mb-6"
@@ -587,14 +606,15 @@ export default function QuizPlayClient({
         />
       </div>
 
-      {/* Report Modal */}
-      {isReportModalOpen && currentUser && (
-        <TierListReportModal
-          isOpen={isReportModalOpen}
-          onClose={() => setIsReportModalOpen(false)}
-          tierListId={currentTierList.id}
-        />
-      )}
-    </main>
+        {/* Report Modal */}
+        {isReportModalOpen && currentUser && (
+          <TierListReportModal
+            isOpen={isReportModalOpen}
+            onClose={() => setIsReportModalOpen(false)}
+            tierListId={currentTierList.id}
+          />
+        )}
+      </main>
+    </div>
   )
 }
