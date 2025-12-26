@@ -655,6 +655,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const [itemVoteDist, setItemVoteDist] = useState<Record<string, Record<string, number>> | null>(null)
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
+  const [touchedItemId, setTouchedItemId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerHeight, setContainerHeight] = useState(0)
 
@@ -1191,6 +1192,12 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     }
   }, [quizUserPlacements, quizShuffledItems, quizCorrectAnswers, tierList.id])
 
+  const onDragStart = (start: any) => {
+    if (isTouchDevice && !showLabels) {
+      setTouchedItemId(start.draggableId)
+    }
+  }
+
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result
     if (!destination) return
@@ -1481,7 +1488,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         ) : (
           <div className="bg-background p-1">
             {activeTab === 'vote' ? (
-              <DragDropContext onDragEnd={onDragEnd}>
+              <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="space-y-1 mb-4">
                   <div className="space-y-4 p-2">
                     <div className="mb-2 text-left text-sm text-muted-foreground">
@@ -1509,6 +1516,11 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
                                             className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-grab active:cursor-grabbing"
+                                            onClick={() => {
+                                              if (isTouchDevice && !showLabels) {
+                                                setTouchedItemId(touchedItemId === item.id ? null : item.id)
+                                              }
+                                            }}
                                             onDoubleClick={() => handleItemDoubleClick(item)}
                                           >
                                             {item.is_text_item ? (
@@ -1521,7 +1533,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                             ) : (
                                               <>
                                                 <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                                {showLabels && (<div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>)}
+                                                {(showLabels || (isTouchDevice && !showLabels && touchedItemId === item.id)) && (
+                                                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>
+                                                )}
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                   <GripVertical className="text-white" size={24} />
                                                 </div>
@@ -1538,7 +1552,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                             </div>
                         ))}
                   </div>
-                  
+
                   <div>
                       <Droppable droppableId="unranked" direction="horizontal">
                         {(provided, snapshot) => (
@@ -1556,10 +1570,15 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                               {...provided.draggableProps}
                                               {...provided.dragHandleProps}
                                               className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-grab active:cursor-grabbing"
+                                              onClick={() => {
+                                                if (isTouchDevice && !showLabels) {
+                                                  setTouchedItemId(touchedItemId === item.id ? null : item.id)
+                                                }
+                                              }}
                                               onDoubleClick={() => handleItemDoubleClick(item)}
                                             >
                                               {item.is_text_item ? (
-                                                <div 
+                                                <div
                                                   className="w-full h-full rounded shadow-sm flex items-center justify-center p-2 text-xs text-center"
                                                   style={{ backgroundColor: item.background_color || '#3b82f6', color: getContrastColor(item.background_color || '#3b82f6') }}
                                                 >
@@ -1568,7 +1587,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                               ) : (
                                                 <>
                                                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                                  {showLabels && (<div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>)}
+                                                  {(showLabels || (isTouchDevice && !showLabels && touchedItemId === item.id)) && (
+                                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>
+                                                  )}
                                                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <GripVertical className="text-white" size={24} />
                                                   </div>
@@ -1617,7 +1638,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                 </div>
               </DragDropContext>
             ) : activeTab === 'quiz' ? (
-              <DragDropContext onDragEnd={onDragEnd}>
+              <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="space-y-1 mb-4">
                     <div className="space-y-4 p-2">
                     <div className="mb-2 text-left text-sm text-muted-foreground">
@@ -1654,6 +1675,11 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                                           {...provided.draggableProps}
                                                                           {...provided.dragHandleProps}
                                                                           className="w-full h-full relative"
+                                                                          onClick={() => {
+                                                                            if (isTouchDevice && !showLabels) {
+                                                                              setTouchedItemId(touchedItemId === placedItem.id ? null : placedItem.id)
+                                                                            }
+                                                                          }}
                                                                       >
                                                                           {placedItem.is_text_item || !placedItem.image_url ? (
                                                                               <div
@@ -1665,7 +1691,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                                           ) : (
                                                                               <>
                                                                                   <img src={placedItem.image_url} alt={placedItem.name} className="w-full h-full object-cover"/>
-                                                                                  {showLabels && (<div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{placedItem.name}</div>)}
+                                                                                  {(showLabels || (isTouchDevice && !showLabels && touchedItemId === placedItem.id)) && (
+                                                                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{placedItem.name}</div>
+                                                                                  )}
                                                                               </>
                                                                           )}
                                                                           {isCorrect === true && <div className="absolute inset-0 flex items-center justify-center text-red-500 select-none pointer-events-none z-10"><Circle className="w-12 h-12 sm:w-20 sm:h-20" strokeWidth={4} /></div>}
@@ -1700,6 +1728,11 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
                                                     className="w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] rounded shadow-sm relative"
+                                                    onClick={() => {
+                                                      if (isTouchDevice && !showLabels) {
+                                                        setTouchedItemId(touchedItemId === item.id ? null : item.id)
+                                                      }
+                                                    }}
                                                 >
                                                     {item.is_text_item || !item.image_url ? (
                                                         <div
@@ -1711,7 +1744,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                     ) : (
                                                       <>
                                                           <img src={item.image_url} alt={item.name} className="w-full h-full"/>
-                                                          {showLabels && (<div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>)}
+                                                          {(showLabels || (isTouchDevice && !showLabels && touchedItemId === item.id)) && (
+                                                            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>
+                                                          )}
                                                       </>
                                                     )}
                                                 </div>
@@ -1792,11 +1827,16 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                               className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-pointer"
                               onMouseEnter={!isTouchDevice ? () => setSelectedItemId(item.id) : undefined}
                               onMouseLeave={!isTouchDevice ? () => setSelectedItemId(null) : undefined}
-                              onClick={() => setSelectedItemId(selectedItemId === item.id ? null : item.id)}
+                              onClick={() => {
+                                setSelectedItemId(selectedItemId === item.id ? null : item.id)
+                                if (isTouchDevice && !showLabels) {
+                                  setTouchedItemId(touchedItemId === item.id ? null : item.id)
+                                }
+                              }}
                               onDoubleClick={() => handleItemDoubleClick(item)}
                             >
                               {item.is_text_item ? (
-                                <div 
+                                <div
                                   className="w-full h-full rounded shadow-sm flex items-center justify-center p-2 text-xs text-center"
                                   style={{ backgroundColor: item.background_color || '#3b82f6', color: getContrastColor(item.background_color || '#3b82f6') }}
                                 >
@@ -1805,7 +1845,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                               ) : (
                                 <>
                                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                  {showLabels && (<div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>)}
+                                  {(showLabels || (isTouchDevice && !showLabels && touchedItemId === item.id)) && (
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>
+                                  )}
                                 </>
                               )}
                             </div>
