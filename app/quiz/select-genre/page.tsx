@@ -79,13 +79,11 @@ export default async function SelectGenrePage(props: Props) {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            baseUrl="/quiz/select-genre"
-          />
-        )}
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          baseUrl="/quiz/select-genre"
+        />
 
         {/* All Genres Button */}
         <AllGenresButton />
