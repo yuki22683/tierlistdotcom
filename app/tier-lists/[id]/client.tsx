@@ -770,12 +770,53 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   }
 
   const handleShare = async () => {
-    const shareText = `${tierList.title}に投票しました。
+    // Determine action text based on voting status
+    const actionText = tierList.allow_voting ? ' に投票しました。' : 'を共有します。'
 
-#ティアリストcom
+    // Get tags from tier list
+    const tierListTags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
 
-`
-    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(shareText)}`
+    // Start with title and action
+    let shareText = `#${tierList.title}${actionText}\n\n`
+
+    // Build hashtags string
+    let hashtags = '#ティアリスト'
+
+    // Add tier list tags
+    for (const tag of tierListTags) {
+      const newHashtag = ` #${tag}`
+      hashtags += newHashtag
+    }
+
+    // Twitter character limit is 280, URLs count as ~23 characters
+    const urlLength = 23
+    const maxLength = 280 - urlLength - 2 // 2 for newline before URL
+
+    // Combine text and hashtags, trim if necessary
+    let fullText = shareText + hashtags + '\n\n'
+
+    if (fullText.length > maxLength) {
+      // Trim hashtags if text is too long
+      const baseTextLength = shareText.length + '#ティアリスト\n\n'.length
+      const availableLength = maxLength - baseTextLength
+
+      if (availableLength > 0) {
+        hashtags = '#ティアリスト'
+        for (const tag of tierListTags) {
+          const newHashtag = ` #${tag}`
+          if ((hashtags + newHashtag).length <= availableLength) {
+            hashtags += newHashtag
+          } else {
+            break
+          }
+        }
+        fullText = shareText + hashtags + '\n\n'
+      } else {
+        fullText = shareText + '\n\n'
+      }
+    }
+
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(fullText)}`
     window.open(twitterUrl, '_blank', 'noopener,noreferrer')
   }
 
