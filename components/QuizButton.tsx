@@ -45,7 +45,7 @@ export default function QuizButton() {
   return (
     <button
       onClick={handleClick}
-      className="px-6 sm:px-10 py-4 rounded-lg font-bold text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap"
+      className="px-4 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap"
     >
       タイトル当てクイズ
     </button>

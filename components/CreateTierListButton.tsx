@@ -84,10 +84,10 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
           <div className="group relative">
               <button
                   disabled
-                  className="px-6 sm:px-10 py-3 rounded-lg font-bold text-white cursor-not-allowed shadow-lg opacity-50 transition-all bg-indigo-600 flex flex-col items-center leading-tight whitespace-nowrap"
+                  className="px-3 sm:px-10 py-3 rounded-lg font-bold text-white cursor-not-allowed shadow-lg opacity-50 transition-all bg-indigo-600 flex flex-col items-center leading-tight whitespace-nowrap"
               >
-                  <span className="text-lg">+ ティアリストを作成</span>
-                  <span className="text-xs mt-1">ログインが必要です</span>
+                  <span className="text-sm sm:text-lg">+ ティアリストを作成</span>
+                  <span className="text-[10px] sm:text-xs mt-1">ログインが必要です</span>
               </button>
           </div>
       )
@@ -98,7 +98,7 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
           <div className="group relative">
               <button 
                   disabled 
-                  className="px-6 sm:px-10 py-4 rounded-lg font-bold text-lg bg-red-100 text-red-800 cursor-not-allowed shadow-lg border border-red-200 whitespace-nowrap"
+                  className="px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg bg-red-100 text-red-800 cursor-not-allowed shadow-lg border border-red-200 whitespace-nowrap"
               >
                   🚫 投稿禁止
               </button>
@@ -113,7 +113,7 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
         <button 
             onClick={handleClick}
             disabled={dailyLimitReached}
-            className={`px-6 sm:px-10 py-4 rounded-lg font-bold text-lg text-white transition-all shadow-lg bg-indigo-600 hover:scale-105 hover:bg-indigo-700 whitespace-nowrap ${dailyLimitReached ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-indigo-600 hover:scale-105 hover:bg-indigo-700 whitespace-nowrap ${dailyLimitReached ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
             + ティアリストを作成
         </button>
@@ -122,13 +122,13 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
 
   return (
     <div
-        className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 group/container transition-all duration-100 ease-out"
+        className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-4 group/container transition-all duration-100 ease-out"
         style={{ bottom: `${bottomOffset}px` }}
     >
       {renderButton()}
       <button
         onClick={() => router.push('/quiz/select-genre')}
-        className="px-6 sm:px-10 py-4 rounded-lg font-bold text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap"
+        className="px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap"
       >
         タイトル当てクイズ
       </button>
