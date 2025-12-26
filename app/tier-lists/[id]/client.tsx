@@ -664,6 +664,11 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
   }, [])
 
+  // Reset touched item when tab changes
+  useEffect(() => {
+    setTouchedItemId(null)
+  }, [activeTab])
+
   useEffect(() => {
     if (!containerRef.current) return
 
