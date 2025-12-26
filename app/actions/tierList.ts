@@ -3,6 +3,15 @@
 import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+/**
+ * Extract storage file path from Supabase public URL (server version)
+ */
+function extractStoragePathFromUrl(imageUrl: string): string | null {
+  if (!imageUrl) return null
+  const match = imageUrl.match(/\/storage\/v1\/object\/public\/category_images\/(.+)$/)
+  return match ? match[1] : null
+}
+
 export async function deleteTierList(tierListId: string) {
   const supabase = await createClient()
 
@@ -36,7 +45,16 @@ export async function deleteTierList(tierListId: string) {
     return { error: 'Unauthorized: You do not have permission to delete this tier list' }
   }
 
-  // 3. Delete Tier List using admin client (bypasses RLS after authorization check)
+  // 3. Get items with images before deletion
+  const { data: items } = await supabase
+    .from('items')
+    .select('image_url')
+    .eq('tier_list_id', tierListId)
+    .not('image_url', 'is', null)
+
+  const imageUrls = items?.map(item => item.image_url).filter(Boolean) || []
+
+  // 4. Delete Tier List using admin client (bypasses RLS after authorization check)
   const adminClient = createAdminClient()
   const { error } = await adminClient
     .from('tier_lists')
@@ -48,7 +66,33 @@ export async function deleteTierList(tierListId: string) {
     return { error: 'Failed to delete tier list: ' + error.message }
   }
 
-  // 4. Revalidate cache - 複数のページを再検証
+  // 5. Clean up unused images after deletion
+  for (const imageUrl of imageUrls) {
+    try {
+      // Check if this image is still used by other tier lists
+      const { data: otherItems } = await supabase
+        .from('items')
+        .select('id')
+        .eq('image_url', imageUrl)
+        .limit(1)
+
+      // If no other items use this image, delete it from storage
+      if (!otherItems || otherItems.length === 0) {
+        const filePath = extractStoragePathFromUrl(imageUrl)
+        if (filePath) {
+          await adminClient.storage
+            .from('category_images')
+            .remove([filePath])
+          console.log('Deleted unused image:', filePath)
+        }
+      }
+    } catch (imageError) {
+      console.error('Error cleaning up image:', imageUrl, imageError)
+      // Continue with other images even if one fails
+    }
+  }
+
+  // 6. Revalidate cache - 複数のページを再検証
   revalidatePath('/', 'layout')
   revalidatePath(`/users/${tierList.user_id}/tier-lists`)
   revalidatePath('/search')

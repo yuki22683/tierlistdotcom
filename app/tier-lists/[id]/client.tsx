@@ -20,6 +20,7 @@ import TierListCard from '@/components/TierListCard'
 import RakutenLeftWidget from '@/components/RakutenLeftWidget'
 import RakutenRightWidget from '@/components/RakutenRightWidget'
 import ImageCropper from '@/components/ImageCropper'
+import { deleteImageIfUnused } from '@/utils/imageCleanup'
 
 type Tier = {
   id: string
@@ -78,6 +79,25 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
     if (!destination) return
     if (source.droppableId === destination.droppableId && source.index === destination.index) return
     moveItem(source, destination)
+  }
+
+  // Handle item deletion with image cleanup
+  const handleDeleteItem = async (itemId: string) => {
+    if (!confirm('このアイテムを削除してもよろしいですか？')) {
+      return
+    }
+
+    // Find the item to get its image URL
+    const item = [...unrankedItems, ...tiers.flatMap(t => t.items)].find(i => i.id === itemId)
+
+    if (item && item.imageUrl && !item.isTextItem) {
+      // Delete image from storage if not used by other tier lists
+      // Exclude current tier list from the check since we're editing it
+      await deleteImageIfUnused(item.imageUrl, tierListId)
+    }
+
+    // Delete item from state
+    deleteItem(itemId)
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -400,7 +420,7 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
                                 <Draggable key={item.id} draggableId={item.id} index={index}>
                                     {(provided) => (
                                         <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group bg-background border rounded overflow-hidden">
-                                            <button onClick={() => { if (confirm('このアイテムを削除してもよろしいですか？')) deleteItem(item.id) }} className="absolute top-0 right-0 p-1 bg-red-100 text-red-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10"><X size={12}/></button>
+                                            <button onClick={() => handleDeleteItem(item.id)} className="absolute top-0 right-0 p-1 bg-red-100 text-red-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10"><X size={12}/></button>
                                             {item.isTextItem ? (
                                                 <div className="w-full h-full flex items-center justify-center p-1 relative" style={{ backgroundColor: item.backgroundColor }}>
                                                     <AutocompleteInput value={item.name} onValueChange={(v) => updateItemName(item.id, v)} className="w-full bg-transparent text-xs text-center outline-none" style={{ color: getContrastColor(item.backgroundColor || '#fff') }} placeholder="名無し"/>
@@ -457,7 +477,7 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
                                           <Draggable key={item.id} draggableId={item.id} index={index}>
                                               {(provided) => (
                                                   <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group">
-                                                      <button onClick={() => { if (confirm('このアイテムを削除してもよろしいですか？')) deleteItem(item.id) }} className="absolute top-0 right-0 p-1 bg-red-100 text-red-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10 rounded-bl-md"><X size={12}/></button>
+                                                      <button onClick={() => handleDeleteItem(item.id)} className="absolute top-0 right-0 p-1 bg-red-100 text-red-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10 rounded-bl-md"><X size={12}/></button>
                                                       {item.isTextItem ? (
                                                           <div className="w-full h-full flex items-center justify-center p-1 relative" style={{ backgroundColor: item.backgroundColor }}>
                                                               <AutocompleteInput value={item.name} onValueChange={(v) => updateItemName(item.id, v)} className="w-full bg-transparent text-xs text-center outline-none" style={{ color: getContrastColor(item.backgroundColor || '#fff') }} placeholder="名無し"/>

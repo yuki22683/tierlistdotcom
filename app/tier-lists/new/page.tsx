@@ -8,6 +8,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useState, useRef, Suspense, useEffect } from 'react'
 import { getContrastColor } from '@/utils/colors'
 import { resizeImageToSquare } from '@/utils/image'
+import { deleteImageIfUnused } from '@/utils/imageCleanup'
 import TagInput from '@/components/TagInput'
 import AutocompleteInput from '@/components/AutocompleteInput'
 import ImageCropper from '@/components/ImageCropper'
@@ -263,6 +264,25 @@ function CreateTierListContent() {
     if (data?.is_banned) {
       setIsBanned(true)
     }
+  }
+
+  // Handle item deletion with image cleanup
+  const handleDeleteItem = async (itemId: string) => {
+    if (!confirm('このアイテムを削除してもよろしいですか？')) {
+      return
+    }
+
+    // Find the item to get its image URL
+    const item = [...unrankedItems, ...tiers.flatMap(t => t.items)].find(i => i.id === itemId)
+
+    if (item && item.imageUrl && !item.isTextItem) {
+      // Delete image from storage if not used by other tier lists
+      // For new tier lists, we don't have a tier list ID yet, so we check all tier lists
+      await deleteImageIfUnused(item.imageUrl)
+    }
+
+    // Delete item from state
+    deleteItem(itemId)
   }
 
   // Validation Logic
@@ -713,8 +733,8 @@ function CreateTierListContent() {
                                         {...provided.dragHandleProps}
                                         className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group bg-background rounded-md shadow-sm border overflow-hidden"
                                     >
-                                        <button 
-                                            onClick={() => { if (confirm('このアイテムを削除してもよろしいですか？')) deleteItem(item.id) }}
+                                        <button
+                                            onClick={() => handleDeleteItem(item.id)}
                                             className="absolute top-0 right-0 p-1 bg-red-100 text-red-700 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-bl-md z-10"
                                         >
                                             <X size={12} />
@@ -829,8 +849,8 @@ function CreateTierListContent() {
                                                 {...provided.dragHandleProps}
                                                 className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group"
                                             >
-                                                <button 
-                                                    onClick={() => { if (confirm('このアイテムを削除してもよろしいですか？')) deleteItem(item.id) }}
+                                                <button
+                                                    onClick={() => handleDeleteItem(item.id)}
                                                     className="absolute top-0 right-0 p-1 bg-red-100 text-red-700 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-bl-md z-10"
                                                 >
                                                     <X size={12} />
