@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import QuizPlayClient from './client'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'タイトル当てクイズ | ティアリスト.com',
   description: 'ティアリストのタイトルを当てるクイズゲーム！',

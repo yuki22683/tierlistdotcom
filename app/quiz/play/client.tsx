@@ -454,13 +454,24 @@ export default function QuizPlayClient({
             className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
           >
             <ArrowLeft size={20} />
-            前の問題
+            <span className="hidden sm:inline">前の問題</span>
+            <span className="sm:hidden">前へ</span>
           </button>
           <button
             onClick={() => setIsAnswerRevealed(!isAnswerRevealed)}
             className="px-6 py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all"
           >
-            {isAnswerRevealed ? '答えを隠す' : '答えを見る'}
+            {isAnswerRevealed ? (
+              <>
+                <span className="hidden sm:inline">答えを隠す</span>
+                <span className="sm:hidden">隠す</span>
+              </>
+            ) : (
+              <>
+                <span className="hidden sm:inline">答えを見る</span>
+                <span className="sm:hidden">答え</span>
+              </>
+            )}
           </button>
           {isLastQuestion ? (
             <button
@@ -469,7 +480,8 @@ export default function QuizPlayClient({
               className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
               <Home size={20} />
-              ホームに戻る
+              <span className="hidden sm:inline">ホームに戻る</span>
+              <span className="sm:hidden">終了</span>
             </button>
           ) : (
             <button
@@ -477,7 +489,8 @@ export default function QuizPlayClient({
               disabled={isLoadingNext}
               className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
-              次の問題
+              <span className="hidden sm:inline">次の問題</span>
+              <span className="sm:hidden">次へ</span>
               <ArrowRight size={20} />
             </button>
           )}
