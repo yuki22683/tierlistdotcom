@@ -478,9 +478,8 @@ export default function QuizPlayClient({
         
         {/* Description Display */}
         {isAnswerRevealed && currentTierList.description && (
-          <div className="w-full max-w-3xl bg-gray-50 dark:bg-zinc-900 p-4 rounded-lg border border-gray-200 dark:border-zinc-800 text-left">
-            <h3 className="font-bold mb-2 text-sm text-muted-foreground">ティアリストの説明</h3>
-            <p className="whitespace-pre-wrap text-foreground">{currentTierList.description}</p>
+          <div className="w-full max-w-3xl text-left mt-4 mb-2">
+            <p className="text-muted-foreground whitespace-pre-wrap">{currentTierList.description}</p>
           </div>
         )}
       </div>

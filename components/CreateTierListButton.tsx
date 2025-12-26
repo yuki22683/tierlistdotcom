@@ -128,7 +128,7 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
       {renderButton()}
       <button
         onClick={() => router.push('/quiz/select-genre')}
-        className="px-6 sm:px-10 py-4 rounded-lg font-bold text-lg text-white transition-all shadow-lg bg-green-500 hover:scale-105 hover:bg-green-600 whitespace-nowrap"
+        className="px-6 sm:px-10 py-4 rounded-lg font-bold text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap"
       >
         タイトル当てクイズ
       </button>
