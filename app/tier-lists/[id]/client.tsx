@@ -664,11 +664,6 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
   }, [])
 
-  // Reset touched item when tab changes
-  useEffect(() => {
-    setTouchedItemId(null)
-  }, [activeTab])
-
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -699,6 +694,11 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       if (!tierList.allow_voting) return 'quiz';
       return 'vote';
   })
+
+  // Reset touched item when tab changes
+  useEffect(() => {
+    setTouchedItemId(null)
+  }, [activeTab])
 
   // 評価方式の切り替え（結果表示時のみ使用）
   const [evaluationMode, setEvaluationMode] = useState<'absolute' | 'relative'>('absolute')
