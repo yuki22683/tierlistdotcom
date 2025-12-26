@@ -33,10 +33,13 @@ export default async function QuizPlayPage(props: Props) {
 
   // Fetch initial random tier list
   let tierList
+  let totalCount = 0
+
   if (tag) {
     // Check if tag has any tier lists
     const { data: count } = await supabase.rpc('get_tier_list_count_by_tag', { tag_name: tag })
-    if (!count || count === 0) {
+    totalCount = Number(count) || 0
+    if (!totalCount) {
       redirect('/quiz/select-genre')
     }
 
@@ -46,6 +49,9 @@ export default async function QuizPlayPage(props: Props) {
     })
     tierList = data?.[0]
   } else {
+    const { data: count } = await supabase.rpc('get_total_tier_list_count')
+    totalCount = Number(count) || 0
+
     const { data } = await supabase.rpc('get_random_tier_list', {
       excluded_ids: []
     })
@@ -137,6 +143,7 @@ export default async function QuizPlayPage(props: Props) {
       isBanned={isBanned}
       tag={tag}
       isAllGenres={isAllGenres}
+      totalCount={totalCount}
     />
   )
 }

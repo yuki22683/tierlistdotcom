@@ -47,6 +47,7 @@ type Props = {
   isBanned?: boolean
   tag?: string
   isAllGenres: boolean
+  totalCount: number
 }
 
 export default function QuizPlayClient({
@@ -59,7 +60,8 @@ export default function QuizPlayClient({
   isAdmin = false,
   isBanned = false,
   tag,
-  isAllGenres
+  isAllGenres,
+  totalCount
 }: Props) {
   const router = useRouter()
   const supabase = createClient()
@@ -83,7 +85,10 @@ export default function QuizPlayClient({
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
   const [isLoadingNext, setIsLoadingNext] = useState(false)
-  const [isLastQuestion, setIsLastQuestion] = useState(false)
+  
+  // Determine if it is the last question
+  // If we are at the end of history AND we have visited all available tier lists
+  const isLastQuestion = (currentIndex === history.length - 1) && (visitedIds.length >= totalCount)
 
   // Results state
   const [voteStats, setVoteStats] = useState<Record<string, { total: number, count: number }> | null>(null)
@@ -234,7 +239,6 @@ export default function QuizPlayClient({
       setCurrentIndex(currentIndex - 1)
       setIsAnswerRevealed(false) // Always reset to masked
       setEvaluationMode('absolute') // Reset evaluation mode
-      setIsLastQuestion(false) // Reset last question flag
     }
   }
 
@@ -244,7 +248,6 @@ export default function QuizPlayClient({
       setCurrentIndex(currentIndex + 1)
       setIsAnswerRevealed(false)
       setEvaluationMode('absolute')
-      setIsLastQuestion(false)
     } else {
       // Fetch new tier list
       setIsLoadingNext(true)
@@ -264,7 +267,7 @@ export default function QuizPlayClient({
         }
 
         if (!nextTierList) {
-          setIsLastQuestion(true)
+          // Should not happen if isLastQuestion logic is correct, but safe guard
           setIsLoadingNext(false)
           return
         }
@@ -437,38 +440,48 @@ export default function QuizPlayClient({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-center gap-4 mb-6">
-        <button
-          onClick={handlePrevious}
-          disabled={currentIndex === 0}
-          className="px-6 py-3 rounded-lg font-bold bg-white text-black border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
-        >
-          <ArrowLeft size={20} />
-          前の問題
-        </button>
-        <button
-          onClick={() => setIsAnswerRevealed(!isAnswerRevealed)}
-          className="px-6 py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all"
-        >
-          {isAnswerRevealed ? '答えを隠す' : '答えを見る'}
-        </button>
-        {isLastQuestion ? (
+      <div className="flex flex-col items-center gap-4 mb-6">
+        <div className="flex justify-center gap-4">
           <button
-            onClick={() => router.push('/')}
-            className="px-6 py-3 rounded-lg font-bold bg-white text-black border-2 border-gray-300 hover:bg-gray-50 transition-all flex items-center gap-2"
+            onClick={handlePrevious}
+            disabled={currentIndex === 0}
+            className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
           >
-            <Home size={20} />
-            ホームに戻る
+            <ArrowLeft size={20} />
+            前の問題
           </button>
-        ) : (
           <button
-            onClick={handleNext}
-            disabled={isLoadingNext}
-            className="px-6 py-3 rounded-lg font-bold bg-white text-black border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+            onClick={() => setIsAnswerRevealed(!isAnswerRevealed)}
+            className="px-6 py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all"
           >
-            次の問題
-            <ArrowRight size={20} />
+            {isAnswerRevealed ? '答えを隠す' : '答えを見る'}
           </button>
+          {isLastQuestion ? (
+            <button
+              onClick={() => router.push('/')}
+              className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 transition-all flex items-center gap-2"
+            >
+              <Home size={20} />
+              ホームに戻る
+            </button>
+          ) : (
+            <button
+              onClick={handleNext}
+              disabled={isLoadingNext}
+              className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+            >
+              次の問題
+              <ArrowRight size={20} />
+            </button>
+          )}
+        </div>
+        
+        {/* Description Display */}
+        {isAnswerRevealed && currentTierList.description && (
+          <div className="w-full max-w-3xl bg-gray-50 dark:bg-zinc-900 p-4 rounded-lg border border-gray-200 dark:border-zinc-800 text-left">
+            <h3 className="font-bold mb-2 text-sm text-muted-foreground">ティアリストの説明</h3>
+            <p className="whitespace-pre-wrap text-foreground">{currentTierList.description}</p>
+          </div>
         )}
       </div>
 
