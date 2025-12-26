@@ -1533,9 +1533,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                             ) : (
                                               <>
                                                 <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                                {(showLabels || (isTouchDevice && !showLabels && touchedItemId === item.id)) && (
-                                                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>
-                                                )}
+                                                <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                                  showLabels
+                                                    ? ''
+                                                    : isTouchDevice
+                                                      ? (touchedItemId === item.id ? '' : 'opacity-0')
+                                                      : 'opacity-0 group-hover:opacity-100 transition-opacity'
+                                                }`}>{item.name}</div>
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                   <GripVertical className="text-white" size={24} />
                                                 </div>
@@ -1587,9 +1591,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                               ) : (
                                                 <>
                                                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                                  {(showLabels || (isTouchDevice && !showLabels && touchedItemId === item.id)) && (
-                                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>
-                                                  )}
+                                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                                    showLabels
+                                                      ? ''
+                                                      : isTouchDevice
+                                                        ? (touchedItemId === item.id ? '' : 'opacity-0')
+                                                        : 'opacity-0 group-hover:opacity-100 transition-opacity'
+                                                  }`}>{item.name}</div>
                                                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <GripVertical className="text-white" size={24} />
                                                   </div>
@@ -1674,7 +1682,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                                           ref={provided.innerRef}
                                                                           {...provided.draggableProps}
                                                                           {...provided.dragHandleProps}
-                                                                          className="w-full h-full relative"
+                                                                          className="w-full h-full relative group"
                                                                           onClick={() => {
                                                                             if (isTouchDevice && !showLabels) {
                                                                               setTouchedItemId(touchedItemId === placedItem.id ? null : placedItem.id)
@@ -1691,9 +1699,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                                           ) : (
                                                                               <>
                                                                                   <img src={placedItem.image_url} alt={placedItem.name} className="w-full h-full object-cover"/>
-                                                                                  {(showLabels || (isTouchDevice && !showLabels && touchedItemId === placedItem.id)) && (
-                                                                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{placedItem.name}</div>
-                                                                                  )}
+                                                                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                                                                    showLabels
+                                                                                      ? ''
+                                                                                      : isTouchDevice
+                                                                                        ? (touchedItemId === placedItem.id ? '' : 'opacity-0')
+                                                                                        : 'opacity-0 group-hover:opacity-100 transition-opacity'
+                                                                                  }`}>{placedItem.name}</div>
                                                                               </>
                                                                           )}
                                                                           {isCorrect === true && <div className="absolute inset-0 flex items-center justify-center text-red-500 select-none pointer-events-none z-10"><Circle className="w-12 h-12 sm:w-20 sm:h-20" strokeWidth={4} /></div>}
@@ -1727,7 +1739,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
-                                                    className="w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] rounded shadow-sm relative"
+                                                    className="w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] rounded shadow-sm relative group"
                                                     onClick={() => {
                                                       if (isTouchDevice && !showLabels) {
                                                         setTouchedItemId(touchedItemId === item.id ? null : item.id)
@@ -1744,9 +1756,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                     ) : (
                                                       <>
                                                           <img src={item.image_url} alt={item.name} className="w-full h-full"/>
-                                                          {(showLabels || (isTouchDevice && !showLabels && touchedItemId === item.id)) && (
-                                                            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>
-                                                          )}
+                                                          <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                                            showLabels
+                                                              ? ''
+                                                              : isTouchDevice
+                                                                ? (touchedItemId === item.id ? '' : 'opacity-0')
+                                                                : 'opacity-0 group-hover:opacity-100 transition-opacity'
+                                                          }`}>{item.name}</div>
                                                       </>
                                                     )}
                                                 </div>
@@ -1845,9 +1861,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                               ) : (
                                 <>
                                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                  {(showLabels || (isTouchDevice && !showLabels && touchedItemId === item.id)) && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">{item.name}</div>
-                                  )}
+                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                    showLabels
+                                      ? ''
+                                      : isTouchDevice
+                                        ? (touchedItemId === item.id ? '' : 'opacity-0')
+                                        : 'opacity-0 group-hover:opacity-100 transition-opacity'
+                                  }`}>{item.name}</div>
                                 </>
                               )}
                             </div>
