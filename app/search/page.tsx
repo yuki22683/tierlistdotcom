@@ -6,9 +6,41 @@ import { Tag, ArrowLeft } from 'lucide-react'
 import HomeWrapper from '@/components/HomeWrapper'
 import Pagination from '@/components/Pagination'
 import BackButton from '@/components/BackButton'
+import type { Metadata } from 'next'
 
 interface Props {
   searchParams: Promise<{ q?: string; tag?: string; section?: string; page?: string }>
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { q, tag } = await searchParams
+  
+  if (tag) {
+    return {
+      title: `${tag}のティアリスト一覧・ランキング | ティアリスト.com`,
+      description: `${tag}に関連するティアリスト（ランキング）の一覧です。みんなが作成したティアリストをチェックして、投票に参加しましょう。`,
+      openGraph: {
+        title: `${tag}のティアリスト一覧・ランキング`,
+        description: `${tag}に関連するティアリストの一覧です。`,
+      }
+    }
+  }
+
+  if (q) {
+    return {
+      title: `「${q}」の検索結果 | ティアリスト.com`,
+      description: `「${q}」に関連するティアリスト、アイテム、タグの検索結果を表示しています。`,
+      robots: {
+        index: false, // 検索結果の検索ページは基本インデックスさせない（タグページのみインデックスさせる戦略）
+        follow: true,
+      }
+    }
+  }
+
+  return {
+    title: '検索 | ティアリスト.com',
+    description: 'キーワードやタグから、アニメ、ゲーム、あらゆるジャンルのティアリストを検索できます。',
+  }
 }
 
 export default async function SearchPage(props: Props) {

@@ -15,13 +15,32 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { name } = await params
   const itemName = decodeURIComponent(name)
+  const supabase = await createClient()
+
+  // Fetch some info to make description better
+  const { data: occurrences } = await supabase
+    .from('items')
+    .select('tier_list_id')
+    .eq('name', itemName)
+
+  const count = occurrences?.length || 0
+  const description = count > 0 
+    ? `${itemName}の評価・ランキング。計${count}件のティアリストに登場し、ユーザーによる絶対評価・相対評価の平均スコアを確認できます。`
+    : `${itemName}の評価・ランキング。みんなのティアリストでの順位やコメントを確認できます。`
   
   return {
     title: `${itemName}の評価・ランキング | ティアリスト.com`,
-    description: `${itemName}が含まれるティアリストや、みんなの評価を確認できます。`,
+    description: description,
     openGraph: {
-      title: `${itemName}の評価・ランキング`,
-      description: `${itemName}が含まれるティアリストや、みんなの評価を確認できます。`,
+      title: `${itemName}の評価・ランキング | ティアリスト.com`,
+      description: description,
+      images: ["/logo.png"],
+    },
+    twitter: {
+      card: "summary",
+      title: `${itemName}の評価・ランキング | ティアリスト.com`,
+      description: description,
+      images: ["/logo.png"],
     },
   }
 }

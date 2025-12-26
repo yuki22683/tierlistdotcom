@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: tierList } = await supabase
     .from('tier_lists')
-    .select('title, description, tier_list_tags(tags(name))')
+    .select('title, description, image_url, tier_list_tags(tags(name))')
     .eq('id', id)
     .single()
 
@@ -25,20 +25,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Extract tag names
   const tags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
-  const tagString = tags.length > 0 ? ` タグ: ${tags.join(', ')}` : ''
+  const tagString = tags.length > 0 ? ` [タグ: ${tags.join(', ')}]` : ''
   const keywords = tags.length > 0 ? tags.join(', ') : undefined
 
-  const baseDescription = tierList.description || `${tierList.title}のティアリストです。みんなで投票してランキングを作成しましょう。`
+  const baseDescription = tierList.description || `${tierList.title}のティアリスト（ランキング）です。みんなの投票結果を確認したり、自分でも投票に参加できます。`
   const descriptionWithTags = `${baseDescription}${tagString}`
+  
+  // Use logo.png as fallback for OG image
+  const ogImage = tierList.image_url || "/logo.png"
 
   return {
-    title: `${tierList.title} | ティアリスト.com`,
+    title: `${tierList.title}${tags.length > 0 ? ` (${tags[0]})` : ''} | ティアリスト.com`,
     description: descriptionWithTags,
     keywords,
     openGraph: {
-      title: tierList.title,
+      title: `${tierList.title} | ティアリスト.com`,
       description: descriptionWithTags,
       type: 'article',
+      images: [ogImage],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${tierList.title} | ティアリスト.com`,
+      description: descriptionWithTags,
+      images: [ogImage],
     },
   }
 }
