@@ -11,48 +11,86 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: tierList, error } = await supabase
-    .from('tier_lists')
-    .select('title, description, image_url, tier_list_tags(tags(name))')
-    .eq('id', id)
-    .single()
+  try {
+    const { data: tierList, error } = await supabase
+      .from('tier_lists')
+      .select('title, description, image_url, tier_list_tags(tags(name))')
+      .eq('id', id)
+      .single()
 
-  if (error || !tierList) {
-    // Return default metadata instead of "not found" message
-    // The page itself will handle the actual not found state
+    if (error) {
+      console.error('Error in generateMetadata:', error)
+      // Try a simpler query without tags
+      const { data: simpleTierList } = await supabase
+        .from('tier_lists')
+        .select('title, description, image_url')
+        .eq('id', id)
+        .single()
+
+      if (simpleTierList) {
+        const baseDescription = simpleTierList.description || `${simpleTierList.title}のティアリスト（ランキング）です。みんなの投票結果を確認したり、自分でも投票に参加できます。`
+        const ogImage = simpleTierList.image_url || "/logo.png"
+
+        return {
+          title: `${simpleTierList.title} | ティアリスト.com`,
+          description: baseDescription,
+          openGraph: {
+            title: `${simpleTierList.title} | ティアリスト.com`,
+            description: baseDescription,
+            type: 'article',
+            images: [ogImage],
+          },
+          twitter: {
+            card: 'summary_large_image',
+            title: `${simpleTierList.title} | ティアリスト.com`,
+            description: baseDescription,
+            images: [ogImage],
+          },
+        }
+      }
+    }
+
+    if (!tierList) {
+      return {
+        title: 'ティアリスト.com - みんなで決める、最強のランキング',
+        description: 'アニメ、ゲーム、エンタメなど、あらゆるジャンルのティアリストを誰でも作成・投票可能！',
+      }
+    }
+
+    // Extract tag names
+    const tags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
+    const tagString = tags.length > 0 ? ` [タグ: ${tags.join(', ')}]` : ''
+    const keywords = tags.length > 0 ? tags.join(', ') : undefined
+
+    const baseDescription = tierList.description || `${tierList.title}のティアリスト（ランキング）です。みんなの投票結果を確認したり、自分でも投票に参加できます。`
+    const descriptionWithTags = `${baseDescription}${tagString}`
+
+    // Use logo.png as fallback for OG image
+    const ogImage = tierList.image_url || "/logo.png"
+
+    return {
+      title: `${tierList.title}${tags.length > 0 ? ` (${tags[0]})` : ''} | ティアリスト.com`,
+      description: descriptionWithTags,
+      keywords,
+      openGraph: {
+        title: `${tierList.title} | ティアリスト.com`,
+        description: descriptionWithTags,
+        type: 'article',
+        images: [ogImage],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${tierList.title} | ティアリスト.com`,
+        description: descriptionWithTags,
+        images: [ogImage],
+      },
+    }
+  } catch (err) {
+    console.error('Unexpected error in generateMetadata:', err)
     return {
       title: 'ティアリスト.com - みんなで決める、最強のランキング',
       description: 'アニメ、ゲーム、エンタメなど、あらゆるジャンルのティアリストを誰でも作成・投票可能！',
     }
-  }
-
-  // Extract tag names
-  const tags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
-  const tagString = tags.length > 0 ? ` [タグ: ${tags.join(', ')}]` : ''
-  const keywords = tags.length > 0 ? tags.join(', ') : undefined
-
-  const baseDescription = tierList.description || `${tierList.title}のティアリスト（ランキング）です。みんなの投票結果を確認したり、自分でも投票に参加できます。`
-  const descriptionWithTags = `${baseDescription}${tagString}`
-  
-  // Use logo.png as fallback for OG image
-  const ogImage = tierList.image_url || "/logo.png"
-
-  return {
-    title: `${tierList.title}${tags.length > 0 ? ` (${tags[0]})` : ''} | ティアリスト.com`,
-    description: descriptionWithTags,
-    keywords,
-    openGraph: {
-      title: `${tierList.title} | ティアリスト.com`,
-      description: descriptionWithTags,
-      type: 'article',
-      images: [ogImage],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${tierList.title} | ティアリスト.com`,
-      description: descriptionWithTags,
-      images: [ogImage],
-    },
   }
 }
 
