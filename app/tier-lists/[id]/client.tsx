@@ -1540,9 +1540,6 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                       ? (touchedItemId === item.id ? '' : 'opacity-0')
                                                       : 'opacity-0 group-hover:opacity-100 transition-opacity'
                                                 }`}>{item.name}</div>
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                  <GripVertical className="text-white" size={24} />
-                                                </div>
                                               </>
                                             )}
                                           </div>
@@ -1598,9 +1595,6 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                         ? (touchedItemId === item.id ? '' : 'opacity-0')
                                                         : 'opacity-0 group-hover:opacity-100 transition-opacity'
                                                   }`}>{item.name}</div>
-                                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <GripVertical className="text-white" size={24} />
-                                                  </div>
                                                 </>
                                               )}
                                             </div>
