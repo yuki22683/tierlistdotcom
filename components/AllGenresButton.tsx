@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 export default function AllGenresButton() {
   const router = useRouter()
   const [bottomOffset, setBottomOffset] = useState(8)
+  const [isNavigating, setIsNavigating] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +40,7 @@ export default function AllGenresButton() {
   }, [])
 
   const handleClick = () => {
+    setIsNavigating(true)
     router.push('/quiz/play?all=true')
   }
 
@@ -49,7 +51,8 @@ export default function AllGenresButton() {
     >
       <button
         onClick={handleClick}
-        className="px-6 sm:px-10 py-4 rounded-lg font-bold text-lg text-white transition-all shadow-lg bg-indigo-600 hover:scale-105 hover:bg-indigo-700 whitespace-nowrap"
+        disabled={isNavigating}
+        className="px-6 sm:px-10 py-4 rounded-lg font-bold text-lg text-white transition-all shadow-lg bg-indigo-600 hover:scale-105 hover:bg-indigo-700 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
       >
         全てのジャンルから出題
       </button>

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 export default function QuizButton() {
   const router = useRouter()
   const [bottomOffset, setBottomOffset] = useState(8)
+  const [isNavigating, setIsNavigating] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,13 +40,15 @@ export default function QuizButton() {
   }, [])
 
   const handleClick = () => {
+    setIsNavigating(true)
     router.push('/quiz/select-genre')
   }
 
   return (
     <button
       onClick={handleClick}
-      className="px-4 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap"
+      disabled={isNavigating}
+      className="px-4 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
     >
       タイトル当てクイズ
     </button>

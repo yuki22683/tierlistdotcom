@@ -17,6 +17,7 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
   const router = useRouter()
   const [bottomOffset, setBottomOffset] = useState(8) // Reduced further to 8
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(isLoggedIn)
+  const [isNavigating, setIsNavigating] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -127,8 +128,12 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
     >
       {renderButton()}
       <button
-        onClick={() => router.push('/quiz/select-genre')}
-        className="px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap"
+        onClick={() => {
+          setIsNavigating(true)
+          router.push('/quiz/select-genre')
+        }}
+        disabled={isNavigating}
+        className="px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
       >
         タイトル当てクイズ
       </button>
