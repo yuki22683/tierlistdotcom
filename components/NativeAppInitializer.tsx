@@ -39,9 +39,42 @@ export default function NativeAppInitializer() {
         console.log('[NativeAppInit] initializePushNotifications completed')
 
         // アプリのURLスキームハンドリング（ディープリンク用）
-        CapApp.addListener('appUrlOpen', (event) => {
-          // ディープリンクの処理（必要に応じて実装）
-          console.log('App opened with URL:', event.url)
+        CapApp.addListener('appUrlOpen', async (event) => {
+          console.log('[DeepLink] App opened with URL:', event.url)
+
+          // OAuth認証のコールバック処理
+          if (event.url.includes('auth/callback')) {
+            try {
+              const url = new URL(event.url)
+              const params = new URLSearchParams(url.hash.substring(1)) // #の後のパラメータを取得
+
+              // Supabaseの認証セッションを設定
+              const { createClient } = await import('@/utils/supabase/client')
+              const supabase = createClient()
+
+              // URLからアクセストークンとリフレッシュトークンを取得
+              const access_token = params.get('access_token')
+              const refresh_token = params.get('refresh_token')
+
+              if (access_token && refresh_token) {
+                await supabase.auth.setSession({
+                  access_token,
+                  refresh_token,
+                })
+                console.log('[DeepLink] Authentication successful')
+
+                // nextパラメータがあればそのページに遷移
+                const nextPath = new URLSearchParams(url.search).get('next')
+                if (nextPath) {
+                  window.location.href = nextPath
+                } else {
+                  window.location.href = '/'
+                }
+              }
+            } catch (error) {
+              console.error('[DeepLink] Failed to handle OAuth callback:', error)
+            }
+          }
         })
 
         // アプリがバックグラウンドから復帰した時の処理

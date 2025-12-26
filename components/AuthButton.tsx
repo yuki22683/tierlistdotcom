@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { User as UserIcon, LogIn, LogOut } from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { isNativeApp } from '@/utils/platform'
 
 interface AuthButtonProps {
   disableLogout?: boolean
@@ -32,10 +33,15 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
     const currentPath = window.location.pathname + window.location.search
     const encodedPath = encodeURIComponent(currentPath)
 
+    // ネイティブアプリの場合はDeep Linkを使用
+    const redirectTo = isNativeApp()
+      ? `com.tierlist.app://auth/callback?next=${encodedPath}`
+      : `${window.location.origin}/auth/callback?next=${encodedPath}`
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodedPath}`,
+        redirectTo,
       },
     })
   }
