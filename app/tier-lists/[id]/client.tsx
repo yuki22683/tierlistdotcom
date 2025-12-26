@@ -925,7 +925,12 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
 
       // セッション情報を確認
       const lastVisit = sessionStorage.getItem(sessionKey)
-      const isReturningFromAuth = window.location.search.includes('code=') // OAuth認証後の戻り
+      const isReturningFromAuth = sessionStorage.getItem('just-authenticated') === 'true'
+
+      // 認証フラグを確認したらクリア（1回のみ使用）
+      if (isReturningFromAuth) {
+        sessionStorage.removeItem('just-authenticated')
+      }
 
       // 新規訪問（セッションがない、または30秒以上経過）かつ認証後でない場合、localStorageをクリア
       if (!isReturningFromAuth && (!lastVisit || (currentTime - parseInt(lastVisit)) > 30000)) {

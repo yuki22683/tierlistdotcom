@@ -70,6 +70,9 @@ export default function NativeAppInitializer() {
 
                 console.log('[DeepLink] Authentication successful')
 
+                // 認証成功フラグをsessionStorageに保存（ページ遷移後も保持）
+                sessionStorage.setItem('just-authenticated', 'true')
+
                 // nextパラメータがあればそのページに遷移
                 const nextPath = new URLSearchParams(url.search).get('next')
                 if (nextPath) {
