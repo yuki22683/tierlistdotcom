@@ -135,7 +135,8 @@ export default async function Home({
 
   if (fetchItems) {
     const { data } = await supabase.rpc('get_popular_items', { limit_count: limit, offset_val: offset });
-    popularItems = data || [];
+    // Filter out items with empty names
+    popularItems = (data || []).filter((item: any) => item.name && item.name.trim() !== '');
 
     if (view) {
         insertAds(popularItems);
@@ -147,7 +148,8 @@ export default async function Home({
 
   if (fetchTrendingItems) {
     const { data } = await supabase.rpc('get_trending_items', { limit_count: limit, offset_val: offset });
-    trendingItems = data || [];
+    // Filter out items with empty names
+    trendingItems = (data || []).filter((item: any) => item.name && item.name.trim() !== '');
 
     if (view) {
         insertAds(trendingItems);
