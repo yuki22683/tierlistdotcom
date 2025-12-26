@@ -918,9 +918,25 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       })
       setVotingState({ tiers: initialTiers, unranked: [] })
     } else {
+      // 外部から遷移してきた場合（ログイン直後以外）はlocalStorageをクリア
+      const storageKey = `tierlist-${tierList.id}-guest-vote`
+      const sessionKey = `tierlist-${tierList.id}-last-visit`
+      const currentTime = Date.now()
+
+      // セッション情報を確認
+      const lastVisit = sessionStorage.getItem(sessionKey)
+      const isReturningFromAuth = window.location.search.includes('code=') // OAuth認証後の戻り
+
+      // 新規訪問（セッションがない、または30秒以上経過）かつ認証後でない場合、localStorageをクリア
+      if (!isReturningFromAuth && (!lastVisit || (currentTime - parseInt(lastVisit)) > 30000)) {
+        localStorage.removeItem(storageKey)
+      }
+
+      // 現在の訪問時刻を記録
+      sessionStorage.setItem(sessionKey, currentTime.toString())
+
       // 未投票の場合、localStorageから配置を復元
       try {
-        const storageKey = `tierlist-${tierList.id}-guest-vote`
         const savedState = localStorage.getItem(storageKey)
         if (savedState) {
           const parsed = JSON.parse(savedState)
