@@ -22,6 +22,38 @@ export async function initializePushNotifications(): Promise<void> {
   console.log('[Push] Native app detected, requesting permissions...')
 
   try {
+    // リスナーを先に登録（register()を呼ぶ前に）
+    console.log('[Push] Setting up listeners...')
+
+    // 登録成功時のリスナー
+    PushNotifications.addListener('registration', async (token) => {
+      console.log('[Push] Push registration success, token:', token.value)
+      // トークンをサーバーに送信して保存
+      await saveDeviceToken(token.value)
+    })
+
+    // 登録失敗時のリスナー
+    PushNotifications.addListener('registrationError', (error) => {
+      console.error('[Push] Push registration error:', error)
+    })
+
+    // 通知受信時のリスナー（アプリがフォアグラウンドの場合）
+    PushNotifications.addListener('pushNotificationReceived', (notification) => {
+      console.log('[Push] Push notification received:', notification)
+      // TODO: アプリ内で通知を表示
+    })
+
+    // 通知タップ時のリスナー
+    PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+      console.log('[Push] Push notification action performed:', notification)
+
+      // 通知データからティアリストIDを取得してページ遷移
+      const tierListId = notification.notification.data?.tierListId
+      if (tierListId) {
+        window.location.href = `/tier-lists/${tierListId}`
+      }
+    })
+
     // 通知の許可をリクエスト
     console.log('[Push] Calling requestPermissions...')
     const permission = await PushNotifications.requestPermissions()
@@ -29,36 +61,8 @@ export async function initializePushNotifications(): Promise<void> {
 
     if (permission.receive === 'granted') {
       // プッシュ通知を登録
+      console.log('[Push] Registering for push notifications...')
       await PushNotifications.register()
-
-      // 登録成功時のリスナー
-      PushNotifications.addListener('registration', async (token) => {
-        console.log('Push registration success, token:', token.value)
-        // トークンをサーバーに送信して保存
-        await saveDeviceToken(token.value)
-      })
-
-      // 登録失敗時のリスナー
-      PushNotifications.addListener('registrationError', (error) => {
-        console.error('Push registration error:', error)
-      })
-
-      // 通知受信時のリスナー（アプリがフォアグラウンドの場合）
-      PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        console.log('Push notification received:', notification)
-        // TODO: アプリ内で通知を表示
-      })
-
-      // 通知タップ時のリスナー
-      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-        console.log('Push notification action performed:', notification)
-
-        // 通知データからティアリストIDを取得してページ遷移
-        const tierListId = notification.notification.data?.tierListId
-        if (tierListId) {
-          window.location.href = `/tier-lists/${tierListId}`
-        }
-      })
 
       console.log('[Push] Push notifications initialized successfully')
     } else {
