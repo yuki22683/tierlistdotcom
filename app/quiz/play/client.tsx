@@ -521,9 +521,10 @@ export default function QuizPlayClient({
       <div className="mt-8">
         <CommentSection
           tierListId={currentTierList.id}
-          currentUser={currentUser}
+          currentUserId={currentUser?.id}
           initialComments={initialComments}
-          isBanned={isBanned}
+          tierListOwnerId={currentTierList.user_id}
+          isAdmin={isAdmin}
         />
       </div>
 
