@@ -6,8 +6,10 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { getContrastColor } from '@/utils/colors'
-import { Plus, Trash2, GripVertical, X, Image, Type, Pipette, Flag, Download, Circle, Repeat2 } from 'lucide-react'
+import { Plus, Trash2, GripVertical, X, Image, Type, Pipette, Flag, Download, Circle, Repeat2, Share2 } from 'lucide-react'
 import { useTierListStore, TierItem, Tier as StoreTier } from '@/store/tierListStore'
+import { shareContent } from '@/utils/share'
+import { isNativeApp } from '@/utils/platform'
 import { domToPng } from 'modern-screenshot'
 import { format } from 'date-fns'
 import { formatNumber } from '@/utils/formatNumber'
@@ -21,6 +23,7 @@ import RakutenLeftWidget from '@/components/RakutenLeftWidget'
 import RakutenRightWidget from '@/components/RakutenRightWidget'
 import ImageCropper from '@/components/ImageCropper'
 import { deleteImageIfUnused } from '@/utils/imageCleanup'
+import { submitVote } from '@/app/actions/vote'
 
 type Tier = {
   id: string
@@ -601,15 +604,19 @@ function ActionButtons({ activeTab, currentUser, tierList, isScreenshotLoading, 
       )}
 
       {activeTab === 'result' && (
-        <button 
+        <button
           onClick={handleShare}
           disabled={isScreenshotLoading}
           className="flex items-center gap-2 px-4 py-2 text-sm font-medium border rounded-md bg-black text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-current">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-          </svg>
-          <span>{isScreenshotLoading ? '処理中...' : 'ポスト'}</span>
+          {isNativeApp() ? (
+            <Share2 size={20} />
+          ) : (
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-current">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+            </svg>
+          )}
+          <span>{isScreenshotLoading ? '処理中...' : isNativeApp() ? 'シェア' : 'ポスト'}</span>
         </button>
       )}
 
@@ -849,6 +856,19 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       }
     }
 
+    // ネイティブアプリの場合はOSのシェアメニューを使用
+    if (isNativeApp()) {
+      const success = await shareContent({
+        title: tierList.title,
+        text: fullText,
+        url: window.location.href
+      })
+
+      if (success) return // シェア成功
+      // 失敗した場合は下のTwitter実装にフォールバック
+    }
+
+    // Webの場合（または失敗時）はTwitterのツイート画面を開く
     const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(fullText)}`
     window.open(twitterUrl, '_blank', 'noopener,noreferrer')
   }
@@ -1319,36 +1339,27 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     }
     setIsSubmitting(true)
     try {
-      let voteId = userVote?.id
-      if (!voteId) {
-        const { data: newVote, error: voteError } = await supabase
-          .from('votes')
-          .insert({ tier_list_id: tierList.id, user_id: currentUser.id })
-          .select()
-          .single()
-        if (voteError) throw voteError
-        voteId = newVote.id
-      }
-
+      // vote_items のペイロードを準備
       const voteItemsPayload: any[] = []
       Object.entries(votingState.tiers).forEach(([tierId, tierItems]) => {
         tierItems.forEach(item => {
           voteItemsPayload.push({
-            vote_id: voteId,
             item_id: item.id,
             tier_id: tierId
           })
         })
       })
 
-      await supabase.from('vote_items').delete().eq('vote_id', voteId)
-      if (voteItemsPayload.length > 0) {
-        const { error: insertError } = await supabase.from('vote_items').insert(voteItemsPayload)
-        if (insertError) throw insertError
+      // サーバーアクションを呼び出し（プッシュ通知も自動送信される）
+      const result = await submitVote(tierList.id, voteItemsPayload)
+
+      if (result.error) {
+        alert('投票に失敗しました: ' + result.error)
+        return
       }
 
+      // 新規投票の場合のみカウントを増やす
       if (!userVote) {
-        await supabase.rpc('increment_vote_count', { row_id: tierList.id })
         setVoteCount((prev: number) => prev + 1)
       }
 
@@ -1365,7 +1376,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
 
       // 投票（再投票）成功後だけ結果タブに自動遷移
       setIsResultMode(true)
-      setActiveTab('result')  // ← これで結果タブが選択状態になる
+      setActiveTab('result')
       setEvaluationMode('absolute')
 
     } catch (err: any) {

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sendPushNotificationToUser } from '@/utils/pushNotifications'
 
 export async function addComment(prevState: any, formData: FormData) {
   const supabase = await createClient()
@@ -49,6 +50,49 @@ export async function addComment(prevState: any, formData: FormData) {
   if (error) {
     console.error('Error adding comment:', error)
     return { error: 'Failed to add comment' }
+  }
+
+  // プッシュ通知を送信（ティアリストへのコメントのみ）
+  if (tierListId) {
+    try {
+      // ティアリストの作成者とタイトルを取得
+      const { data: tierList } = await supabase
+        .from('tier_lists')
+        .select('user_id, title')
+        .eq('id', tierListId)
+        .single()
+
+      // 自分へのコメントは通知しない
+      if (tierList && tierList.user_id !== user.id) {
+        // コメント投稿者の名前を取得
+        const { data: commenter } = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', user.id)
+          .single()
+
+        const commenterName = commenter?.username || 'ゲスト'
+        const truncatedContent = content.length > 50
+          ? content.substring(0, 50) + '...'
+          : content
+
+        // 通知を送信（非同期で実行、エラーがあってもコメント投稿は成功）
+        await sendPushNotificationToUser(tierList.user_id, {
+          title: `「${tierList.title}」に新しいコメント`,
+          body: `${commenterName}: ${truncatedContent}`,
+          data: {
+            tierListId: tierListId,
+            type: 'comment'
+          }
+        }).catch(err => {
+          // 通知送信失敗はログのみ（ユーザーには影響させない）
+          console.error('Failed to send comment notification:', err)
+        })
+      }
+    } catch (notificationError) {
+      // 通知処理のエラーはログのみ（コメント投稿は成功とする）
+      console.error('Error in notification process:', notificationError)
+    }
   }
 
   revalidatePath(tierListId ? `/tier-lists/${tierListId}` : `/items/${itemName}`)

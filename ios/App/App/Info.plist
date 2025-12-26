@@ -47,6 +47,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>新しいティアリストやコメントの通知を受け取るために使用します</string>
 	<key>NSCameraUsageDescription</key>
