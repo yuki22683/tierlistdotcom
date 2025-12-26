@@ -7,6 +7,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { ShieldAlert, Crown, HelpCircle, Search, X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 interface NavbarProps {
   disableLogout?: boolean
@@ -17,7 +18,12 @@ export default function Navbar({ disableLogout = false }: NavbarProps) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
   const supabase = createClient()
+
+  // Auto-disable logout on quiz play screen
+  const isQuizPlayPage = pathname?.startsWith('/quiz/play')
+  const shouldDisableLogout = disableLogout || isQuizPlayPage
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -134,7 +140,7 @@ export default function Navbar({ disableLogout = false }: NavbarProps) {
 
           {!isMobileSearchOpen && (
             <Suspense fallback={<div className="w-20 h-9 bg-gray-800 rounded animate-pulse" />}>
-              <AuthButton disableLogout={disableLogout} />
+              <AuthButton disableLogout={shouldDisableLogout} />
             </Suspense>
           )}
         </div>
