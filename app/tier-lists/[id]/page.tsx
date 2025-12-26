@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // First, get the basic tier list info (most reliable)
     const { data: tierList, error } = await supabase
       .from('tier_lists')
-      .select('title, description, image_url')
+      .select('title, description')
       .eq('id', id)
       .single()
 
@@ -37,6 +37,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .select('tags(name)')
       .eq('tier_list_id', id)
 
+    // Try to get an image from items (optional)
+    const { data: itemsData } = await supabase
+      .from('items')
+      .select('image_url')
+      .eq('tier_list_id', id)
+      .limit(1)
+      .maybeSingle()
+
     const tags = tagData?.map((t: any) => t.tags?.name).filter(Boolean) || []
     const tagString = tags.length > 0 ? ` [タグ: ${tags.join(', ')}]` : ''
     const keywords = tags.length > 0 ? tags.join(', ') : undefined
@@ -45,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const descriptionWithTags = `${baseDescription}${tagString}`
 
     // Use logo.png as fallback for OG image
-    const ogImage = tierList.image_url || "/logo.png"
+    const ogImage = itemsData?.image_url || "/logo.png"
 
     return {
       title: `${tierList.title}${tags.length > 0 ? ` (${tags[0]})` : ''} | ティアリスト.com`,
