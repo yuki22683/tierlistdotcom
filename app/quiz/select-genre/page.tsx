@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Pagination from '@/components/Pagination'
 import AllGenresButton from '@/components/AllGenresButton'
 import HomeWrapper from '@/components/HomeWrapper'
+import QuizSessionCleaner from './QuizSessionCleaner'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -41,6 +42,7 @@ export default async function SelectGenrePage(props: Props) {
 
   return (
     <main className="container mx-auto pb-10 pt-4 px-4 max-w-5xl">
+      <QuizSessionCleaner />
       <HomeWrapper uniqueKey="quiz-select-genre">
         {/* Back to Home */}
         <Link
