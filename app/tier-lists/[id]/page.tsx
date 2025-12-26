@@ -11,15 +11,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: tierList } = await supabase
+  const { data: tierList, error } = await supabase
     .from('tier_lists')
     .select('title, description, image_url, tier_list_tags(tags(name))')
     .eq('id', id)
     .single()
 
-  if (!tierList) {
+  if (error || !tierList) {
+    // Return default metadata instead of "not found" message
+    // The page itself will handle the actual not found state
     return {
-      title: 'ティアリストが見つかりません',
+      title: 'ティアリスト.com - みんなで決める、最強のランキング',
+      description: 'アニメ、ゲーム、エンタメなど、あらゆるジャンルのティアリストを誰でも作成・投票可能！',
     }
   }
 
