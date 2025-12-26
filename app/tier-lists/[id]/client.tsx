@@ -772,6 +772,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const handleShare = async () => {
     // Determine action text based on voting status
     const actionText = tierList.allow_voting ? ' に投票しました。' : 'を共有します。'
+    const statusText = tierList.allow_voting ? '投票受付中👇' : '公開中👇'
 
     // Get tags from tier list
     const tierListTags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
@@ -780,7 +781,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     let shareText = `#${tierList.title}${actionText}\n\n`
 
     // Build hashtags string
-    let hashtags = '#ティアリスト'
+    let hashtags = '#ティアリストcom'
 
     // Add tier list tags
     for (const tag of tierListTags) {
@@ -793,15 +794,15 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     const maxLength = 250
 
     // Combine text and hashtags, trim if necessary
-    let fullText = shareText + hashtags + '\n\n'
+    let fullText = shareText + hashtags + '\n\n' + statusText
 
     if (fullText.length > maxLength) {
       // Trim hashtags if text is too long
-      const baseTextLength = shareText.length + '#ティアリスト\n\n'.length
+      const baseTextLength = shareText.length + '#ティアリストcom\n\n'.length + statusText.length
       const availableLength = maxLength - baseTextLength
 
       if (availableLength > 0) {
-        hashtags = '#ティアリスト'
+        hashtags = '#ティアリストcom'
         for (const tag of tierListTags) {
           const newHashtag = ` #${tag}`
           if ((hashtags + newHashtag).length <= availableLength) {
@@ -810,9 +811,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
             break
           }
         }
-        fullText = shareText + hashtags + '\n\n'
+        fullText = shareText + hashtags + '\n\n' + statusText
       } else {
-        fullText = shareText + '\n\n'
+        fullText = shareText + '\n\n' + statusText
       }
     }
 
