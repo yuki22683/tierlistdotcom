@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import GlobalBanGuard from "@/components/GlobalBanGuard";
 import { AffiliateLinkProvider } from "@/context/AffiliateLinkContext";
+import NativeAppInitializer from "@/components/NativeAppInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,6 +74,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <NativeAppInitializer />
         <AffiliateLinkProvider>
           <GlobalBanGuard />
           <Navbar />

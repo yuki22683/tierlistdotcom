@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>tierlistcom</string>
+        <string>ティアリスト.com</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,5 +47,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>新しいティアリストやコメントの通知を受け取るために使用します</string>
+	<key>NSCameraUsageDescription</key>
+	<string>プロフィール画像やティアリストアイテムの画像を撮影するために使用します</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>プロフィール画像やティアリストアイテムの画像を選択するために使用します</string>
 </dict>
 </plist>
