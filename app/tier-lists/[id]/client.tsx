@@ -654,8 +654,14 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
   const [itemVoteDist, setItemVoteDist] = useState<Record<string, Record<string, number>> | null>(null)
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerHeight, setContainerHeight] = useState(0)
+
+  // Detect touch device
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  }, [])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -1781,11 +1787,11 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                         </div>
                         <div className="flex-1 flex flex-wrap gap-0 p-0 bg-[#1a1a1a]">
                           {results?.[tier.id]?.map((item) => (
-                            <div 
-                              key={item.id} 
+                            <div
+                              key={item.id}
                               className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-pointer"
-                              onMouseEnter={() => setSelectedItemId(item.id)}
-                              onMouseLeave={() => setSelectedItemId(null)}
+                              onMouseEnter={!isTouchDevice ? () => setSelectedItemId(item.id) : undefined}
+                              onMouseLeave={!isTouchDevice ? () => setSelectedItemId(null) : undefined}
                               onClick={() => setSelectedItemId(selectedItemId === item.id ? null : item.id)}
                               onDoubleClick={() => handleItemDoubleClick(item)}
                             >
