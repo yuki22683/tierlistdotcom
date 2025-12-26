@@ -46,30 +46,36 @@ export default function NativeAppInitializer() {
           if (event.url.includes('auth/callback')) {
             try {
               const url = new URL(event.url)
-              const params = new URLSearchParams(url.hash.substring(1)) // #の後のパラメータを取得
 
               // Supabaseの認証セッションを設定
               const { createClient } = await import('@/utils/supabase/client')
               const supabase = createClient()
 
-              // URLからアクセストークンとリフレッシュトークンを取得
-              const access_token = params.get('access_token')
-              const refresh_token = params.get('refresh_token')
+              // URLからcodeパラメータを取得（PKCE flow）
+              const code = new URLSearchParams(url.search).get('code')
 
-              if (access_token && refresh_token) {
-                await supabase.auth.setSession({
-                  access_token,
-                  refresh_token,
-                })
+              if (code) {
+                console.log('[DeepLink] Exchanging code for session...')
+
+                // codeをセッショントークンに交換
+                const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+                if (error) {
+                  console.error('[DeepLink] Failed to exchange code:', error)
+                  return
+                }
+
                 console.log('[DeepLink] Authentication successful')
 
                 // nextパラメータがあればそのページに遷移
                 const nextPath = new URLSearchParams(url.search).get('next')
                 if (nextPath) {
-                  window.location.href = nextPath
+                  window.location.href = decodeURIComponent(nextPath)
                 } else {
                   window.location.href = '/'
                 }
+              } else {
+                console.error('[DeepLink] No code parameter found in URL')
               }
             } catch (error) {
               console.error('[DeepLink] Failed to handle OAuth callback:', error)
