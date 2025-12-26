@@ -534,7 +534,6 @@ export default function QuizPlayClient({
           isOpen={isReportModalOpen}
           onClose={() => setIsReportModalOpen(false)}
           tierListId={currentTierList.id}
-          currentUser={currentUser}
         />
       )}
     </main>
