@@ -8,7 +8,10 @@ interface PaginationProps {
 }
 
 export default function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps) {
-  const getUrl = (page: number) => `${baseUrl}&page=${page}`
+  const getUrl = (page: number) => {
+    const separator = baseUrl.includes('?') ? '&' : '?'
+    return `${baseUrl}${separator}page=${page}`
+  }
 
   if (totalPages <= 0) return null
 

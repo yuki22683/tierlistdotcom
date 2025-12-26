@@ -24,7 +24,7 @@ interface Props {
 export default async function SelectGenrePage(props: Props) {
   const searchParams = await props.searchParams
   const page = parseInt(searchParams.page || '1', 10)
-  const limit = 100
+  const limit = 30
   const offset = (page - 1) * limit
 
   const supabase = await createClient()
@@ -83,7 +83,7 @@ export default async function SelectGenrePage(props: Props) {
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            baseUrl="/quiz/select-genre?"
+            baseUrl="/quiz/select-genre"
           />
         )}
 
