@@ -8,7 +8,11 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { ShieldAlert, Crown, HelpCircle, Search, X } from 'lucide-react'
 
-export default function Navbar() {
+interface NavbarProps {
+  disableLogout?: boolean
+}
+
+export default function Navbar({ disableLogout = false }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
@@ -130,7 +134,7 @@ export default function Navbar() {
 
           {!isMobileSearchOpen && (
             <Suspense fallback={<div className="w-20 h-9 bg-gray-800 rounded animate-pulse" />}>
-              <AuthButton />
+              <AuthButton disableLogout={disableLogout} />
             </Suspense>
           )}
         </div>
