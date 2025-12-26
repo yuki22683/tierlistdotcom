@@ -31,7 +31,10 @@ export default function NativeAppInitializer() {
 
         // ステータスバーの設定
         await StatusBar.setStyle({ style: Style.Light })
-        await StatusBar.setBackgroundColor({ color: '#ffffff' })
+        await StatusBar.setBackgroundColor({ color: '#000000' }) // Navbarの背景色に合わせて黒に変更
+
+        // WebViewがステータスバーの下に重ならないようにする
+        await StatusBar.setOverlaysWebView({ overlay: false })
 
         // プッシュ通知の初期化
         console.log('[NativeAppInit] Calling initializePushNotifications...')
