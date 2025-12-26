@@ -789,8 +789,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     }
 
     // Twitter character limit is 280, URLs count as ~23 characters
-    const urlLength = 23
-    const maxLength = 280 - urlLength - 2 // 2 for newline before URL
+    // Use conservative estimates to be safe with multi-byte characters
+    const urlLength = 25 // Add safety margin
+    const maxLength = 250 // Conservative limit to ensure it fits
 
     // Combine text and hashtags, trim if necessary
     let fullText = shareText + hashtags + '\n\n'
