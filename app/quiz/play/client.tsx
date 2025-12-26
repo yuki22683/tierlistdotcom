@@ -85,6 +85,7 @@ export default function QuizPlayClient({
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
   const [isLoadingNext, setIsLoadingNext] = useState(false)
+  const [isNavigatingHome, setIsNavigatingHome] = useState(false)
   
   // Determine if it is the last question
   // If we are at the end of history AND we have visited all available tier lists
@@ -307,6 +308,11 @@ export default function QuizPlayClient({
     }
   }
 
+  const handleHomeClick = () => {
+    setIsNavigatingHome(true)
+    router.push('/')
+  }
+
   const handleSaveAsImage = async () => {
     const element = document.getElementById('tier-list-content')
     if (!element) return
@@ -458,8 +464,9 @@ export default function QuizPlayClient({
           </button>
           {isLastQuestion ? (
             <button
-              onClick={() => router.push('/')}
-              className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 transition-all flex items-center gap-2"
+              onClick={handleHomeClick}
+              disabled={isNavigatingHome}
+              className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
               <Home size={20} />
               ホームに戻る
