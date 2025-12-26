@@ -105,12 +105,18 @@ export default function QuizPlayClient({
       const stored = sessionStorage.getItem(storageKey)
       if (stored) {
         const data = JSON.parse(stored)
-        setVisitedIds(data.visitedIds || [])
+        const storedIds = data.visitedIds || []
+        // Always include the initial tier list ID
+        if (!storedIds.includes(initialTierList.id)) {
+          setVisitedIds([...storedIds, initialTierList.id])
+        } else {
+          setVisitedIds(storedIds)
+        }
       }
     } catch (e) {
       console.error('Failed to load quiz state from sessionStorage', e)
     }
-  }, [storageKey])
+  }, [storageKey, initialTierList.id])
 
   useEffect(() => {
     // Save visited IDs to sessionStorage
@@ -330,7 +336,7 @@ export default function QuizPlayClient({
       {/* Back to Genre Selection */}
       <Link
         href="/quiz/select-genre"
-        className="inline-flex items-center text-indigo-600 hover:underline mb-6"
+        className="inline-flex items-center text-foreground hover:underline mb-6"
       >
         ← ジャンル選択に戻る
       </Link>
@@ -339,6 +345,11 @@ export default function QuizPlayClient({
       <h1 className="text-3xl font-bold mb-6 text-center">
         {isAnswerRevealed ? currentTierList.title : '？？？？'}
       </h1>
+
+      {/* Question Counter */}
+      <div className="text-center mb-4 text-lg font-semibold text-muted-foreground">
+        問題 {currentIndex + 1} / {history.length}
+      </div>
 
       {/* Evaluation Mode Toggle */}
       <div className="flex justify-center mb-4">
@@ -430,7 +441,7 @@ export default function QuizPlayClient({
         <button
           onClick={handlePrevious}
           disabled={currentIndex === 0}
-          className="px-6 py-3 rounded-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+          className="px-6 py-3 rounded-lg font-bold bg-white text-black border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
         >
           <ArrowLeft size={20} />
           前の問題
@@ -444,16 +455,16 @@ export default function QuizPlayClient({
         {isLastQuestion ? (
           <button
             onClick={() => router.push('/')}
-            className="px-6 py-3 rounded-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center gap-2"
+            className="px-6 py-3 rounded-lg font-bold bg-white text-black border-2 border-gray-300 hover:bg-gray-50 transition-all flex items-center gap-2"
           >
             <Home size={20} />
-            ホーム画面に戻る
+            ホームに戻る
           </button>
         ) : (
           <button
             onClick={handleNext}
             disabled={isLoadingNext}
-            className="px-6 py-3 rounded-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+            className="px-6 py-3 rounded-lg font-bold bg-white text-black border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
           >
             次の問題
             <ArrowRight size={20} />
@@ -481,7 +492,7 @@ export default function QuizPlayClient({
           <span>{formatNumber(currentTierList.vote_count)} 票</span>
           <span>{formatNumber(currentTierList.view_count ?? 0)} 閲覧</span>
         </div>
-        {currentTierList.tier_list_tags && currentTierList.tier_list_tags.length > 0 && (
+        {isAnswerRevealed && currentTierList.tier_list_tags && currentTierList.tier_list_tags.length > 0 && (
           <div className="flex flex-wrap justify-start gap-2 mt-3">
             {currentTierList.tier_list_tags.map((t: any) => (
               t.tags && (

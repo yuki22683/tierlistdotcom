@@ -45,7 +45,7 @@ export default async function SelectGenrePage(props: Props) {
         {/* Back to Home */}
         <Link
           href="/"
-          className="inline-flex items-center text-indigo-600 hover:underline mb-6"
+          className="inline-flex items-center text-foreground hover:underline mb-6"
         >
           ← ホームに戻る
         </Link>
