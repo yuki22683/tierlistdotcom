@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getContrastColor } from '@/utils/colors'
-import { Flag, Download } from 'lucide-react'
+import { Flag, Download, ArrowLeft, ArrowRight, Home } from 'lucide-react'
 import { domToPng } from 'modern-screenshot'
 import { format } from 'date-fns'
 import { formatNumber } from '@/utils/formatNumber'
@@ -83,6 +83,7 @@ export default function QuizPlayClient({
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
   const [isLoadingNext, setIsLoadingNext] = useState(false)
+  const [isLastQuestion, setIsLastQuestion] = useState(false)
 
   // Results state
   const [voteStats, setVoteStats] = useState<Record<string, { total: number, count: number }> | null>(null)
@@ -227,6 +228,7 @@ export default function QuizPlayClient({
       setCurrentIndex(currentIndex - 1)
       setIsAnswerRevealed(false) // Always reset to masked
       setEvaluationMode('absolute') // Reset evaluation mode
+      setIsLastQuestion(false) // Reset last question flag
     }
   }
 
@@ -236,6 +238,7 @@ export default function QuizPlayClient({
       setCurrentIndex(currentIndex + 1)
       setIsAnswerRevealed(false)
       setEvaluationMode('absolute')
+      setIsLastQuestion(false)
     } else {
       // Fetch new tier list
       setIsLoadingNext(true)
@@ -255,8 +258,8 @@ export default function QuizPlayClient({
         }
 
         if (!nextTierList) {
-          alert('このジャンルのすべての問題を解きました！')
-          router.push('/quiz/select-genre')
+          setIsLastQuestion(true)
+          setIsLoadingNext(false)
           return
         }
 
@@ -427,8 +430,9 @@ export default function QuizPlayClient({
         <button
           onClick={handlePrevious}
           disabled={currentIndex === 0}
-          className="px-6 py-3 rounded-lg font-bold text-white bg-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 rounded-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
         >
+          <ArrowLeft size={20} />
           前の問題
         </button>
         <button
@@ -437,22 +441,28 @@ export default function QuizPlayClient({
         >
           {isAnswerRevealed ? '答えを隠す' : '答えを見る'}
         </button>
-        <button
-          onClick={handleNext}
-          disabled={isLoadingNext}
-          className="px-6 py-3 rounded-lg font-bold text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-        >
-          {isLoadingNext ? '読込中...' : '次の問題'}
-        </button>
+        {isLastQuestion ? (
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-3 rounded-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center gap-2"
+          >
+            <Home size={20} />
+            ホーム画面に戻る
+          </button>
+        ) : (
+          <button
+            onClick={handleNext}
+            disabled={isLoadingNext}
+            className="px-6 py-3 rounded-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+          >
+            次の問題
+            <ArrowRight size={20} />
+          </button>
+        )}
       </div>
 
       {/* Metadata */}
       <div className="flex flex-col items-start gap-2 mt-6 mb-4 text-sm text-gray-500">
-        {currentTierList.description && (
-          <p className="text-muted-foreground text-left whitespace-pre-wrap mb-2">
-            {currentTierList.description}
-          </p>
-        )}
         <div className="flex flex-wrap items-center justify-start gap-4">
           <Link
             href={`/users/${currentTierList.user_id}/tier-lists`}
