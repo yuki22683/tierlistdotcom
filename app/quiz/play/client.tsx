@@ -351,7 +351,7 @@ export default function QuizPlayClient({
 
       {/* Question Counter */}
       <div className="text-center mb-4 text-lg font-semibold text-muted-foreground">
-        問題 {currentIndex + 1} / {history.length}
+        問題 {currentIndex + 1} / {totalCount}
       </div>
 
       {/* Evaluation Mode Toggle */}
