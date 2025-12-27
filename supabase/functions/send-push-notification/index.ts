@@ -17,8 +17,12 @@ interface PushNotificationRequest {
 }
 
 serve(async (req) => {
+  console.log('[EdgeFunction] ===== Push Notification Request Started =====')
+  console.log('[EdgeFunction] Request method:', req.method)
+
   // CORS preflight request
   if (req.method === 'OPTIONS') {
+    console.log('[EdgeFunction] CORS preflight request')
     return new Response('ok', { headers: corsHeaders })
   }
 
@@ -31,14 +35,27 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
+    console.log('[EdgeFunction] Environment variables check:')
+    console.log('[EdgeFunction]   FCM_SERVER_KEY:', FCM_SERVER_KEY ? '✅ Set' : '❌ Not set')
+    console.log('[EdgeFunction]   SUPABASE_URL:', SUPABASE_URL ? '✅ Set' : '❌ Not set')
+    console.log('[EdgeFunction]   SUPABASE_SERVICE_ROLE_KEY:', SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Not set')
+
     if (!FCM_SERVER_KEY) {
+      console.error('[EdgeFunction] ❌ FCM_SERVER_KEY is not set')
       throw new Error('FCM_SERVER_KEY is not set')
     }
 
     // リクエストボディの解析
     const { userId, title, body, data }: PushNotificationRequest = await req.json()
 
+    console.log('[EdgeFunction] Request payload:')
+    console.log('[EdgeFunction]   userId:', userId)
+    console.log('[EdgeFunction]   title:', title)
+    console.log('[EdgeFunction]   body:', body)
+    console.log('[EdgeFunction]   data:', data)
+
     if (!userId || !title || !body) {
+      console.error('[EdgeFunction] ❌ Missing required fields')
       return new Response(
         JSON.stringify({ error: 'Missing required fields: userId, title, body' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -48,6 +65,8 @@ serve(async (req) => {
     // Supabase クライアントの作成（Service Role Key使用）
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
+    console.log('[EdgeFunction] Fetching device tokens for user:', userId)
+
     // ユーザーのデバイストークンを取得
     const { data: tokens, error: tokenError } = await supabase
       .from('device_tokens')
@@ -55,18 +74,26 @@ serve(async (req) => {
       .eq('user_id', userId)
 
     if (tokenError) {
+      console.error('[EdgeFunction] ❌ Failed to fetch device tokens:', tokenError)
       throw new Error(`Failed to fetch device tokens: ${tokenError.message}`)
     }
 
+    console.log('[EdgeFunction] Device tokens found:', tokens?.length || 0)
+    if (tokens && tokens.length > 0) {
+      tokens.forEach((t, i) => {
+        console.log(`[EdgeFunction]   Token ${i + 1}: platform=${t.platform}, token=${t.token.substring(0, 20)}...`)
+      })
+    }
+
     if (!tokens || tokens.length === 0) {
-      console.log(`No device tokens found for user ${userId}`)
+      console.log('[EdgeFunction] ⚠️ No device tokens found for user', userId)
       return new Response(
         JSON.stringify({ success: true, message: 'No devices to notify' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log(`Sending push notification to ${tokens.length} device(s) for user ${userId}`)
+    console.log(`[EdgeFunction] Sending push notification to ${tokens.length} device(s) for user ${userId}`)
 
     // 各デバイスに通知送信
     const results = await Promise.allSettled(
@@ -127,32 +154,46 @@ async function sendFCMNotification(
   data: Record<string, string>,
   serverKey: string
 ): Promise<{ success: boolean; platform: string; error?: string }> {
+  console.log('[FCM] Starting FCM notification send...')
+  console.log('[FCM] Token (first 20 chars):', token.substring(0, 20) + '...')
+  console.log('[FCM] Title:', title)
+  console.log('[FCM] Body:', body)
+  console.log('[FCM] Data:', data)
+
   try {
+    const payload = {
+      to: token,
+      notification: {
+        title,
+        body,
+        sound: 'default',
+      },
+      data,
+      priority: 'high',
+    }
+
+    console.log('[FCM] Sending request to FCM...')
+    console.log('[FCM] Payload:', JSON.stringify(payload, null, 2))
+
     const response = await fetch('https://fcm.googleapis.com/fcm/send', {
       method: 'POST',
       headers: {
         'Authorization': `key=${serverKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        to: token,
-        notification: {
-          title,
-          body,
-          sound: 'default',
-        },
-        data,
-        priority: 'high',
-      }),
+      body: JSON.stringify(payload),
     })
 
+    console.log('[FCM] FCM response status:', response.status)
+
     const result = await response.json()
+    console.log('[FCM] FCM response body:', JSON.stringify(result, null, 2))
 
     if (response.ok && result.success === 1) {
-      console.log(`✅ FCM notification sent successfully to ${token.substring(0, 20)}...`)
+      console.log(`[FCM] ✅ FCM notification sent successfully to ${token.substring(0, 20)}...`)
       return { success: true, platform: 'android' }
     } else {
-      console.error(`❌ FCM notification failed:`, result)
+      console.error(`[FCM] ❌ FCM notification failed:`, result)
       return {
         success: false,
         platform: 'android',
@@ -160,7 +201,7 @@ async function sendFCMNotification(
       }
     }
   } catch (error) {
-    console.error(`❌ FCM request failed:`, error)
+    console.error(`[FCM] ❌ FCM request failed:`, error)
     return {
       success: false,
       platform: 'android',

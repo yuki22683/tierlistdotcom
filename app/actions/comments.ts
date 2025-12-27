@@ -55,6 +55,8 @@ export async function addComment(prevState: any, formData: FormData) {
   // プッシュ通知を送信（ティアリストへのコメントのみ）
   if (tierListId) {
     try {
+      console.log('[Notification] Starting push notification process for tier list:', tierListId)
+
       // ティアリストの作成者とタイトルを取得
       const { data: tierList } = await supabase
         .from('tier_lists')
@@ -62,8 +64,12 @@ export async function addComment(prevState: any, formData: FormData) {
         .eq('id', tierListId)
         .single()
 
+      console.log('[Notification] Tier list data:', tierList)
+
       // 自分へのコメントは通知しない
       if (tierList && tierList.user_id !== user.id) {
+        console.log('[Notification] Sending notification to user:', tierList.user_id)
+
         // コメント投稿者の名前を取得
         const { data: commenter } = await supabase
           .from('users')
@@ -76,6 +82,12 @@ export async function addComment(prevState: any, formData: FormData) {
           ? content.substring(0, 50) + '...'
           : content
 
+        console.log('[Notification] Notification payload:', {
+          title: `「${tierList.title}」に新しいコメント`,
+          body: `${commenterName}: ${truncatedContent}`,
+          recipientUserId: tierList.user_id
+        })
+
         // 通知を送信（非同期で実行、エラーがあってもコメント投稿は成功）
         await sendPushNotificationToUser(tierList.user_id, {
           title: `「${tierList.title}」に新しいコメント`,
@@ -86,12 +98,16 @@ export async function addComment(prevState: any, formData: FormData) {
           }
         }).catch(err => {
           // 通知送信失敗はログのみ（ユーザーには影響させない）
-          console.error('Failed to send comment notification:', err)
+          console.error('[Notification] ❌ Failed to send comment notification:', err)
         })
+
+        console.log('[Notification] ✅ Push notification request completed')
+      } else {
+        console.log('[Notification] Skipping notification (commenting on own tier list)')
       }
     } catch (notificationError) {
       // 通知処理のエラーはログのみ（コメント投稿は成功とする）
-      console.error('Error in notification process:', notificationError)
+      console.error('[Notification] ❌ Error in notification process:', notificationError)
     }
   }
 

@@ -116,12 +116,18 @@ async function saveDeviceToken(token: string): Promise<void> {
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    console.log('User not logged in, skipping device token save')
+    console.log('[Push] User not logged in, skipping device token save')
+    console.log('[Push] Pending token will be saved after login:', token.substring(0, 20) + '...')
     return
   }
 
   // プラットフォーム判定（ios, android, web）
   const platform = Capacitor.getPlatform()
+
+  console.log('[Push] Attempting to save device token...')
+  console.log('[Push] User ID:', user.id)
+  console.log('[Push] Platform:', platform)
+  console.log('[Push] Token (first 20 chars):', token.substring(0, 20) + '...')
 
   const { error } = await supabase
     .from('device_tokens')
@@ -135,8 +141,21 @@ async function saveDeviceToken(token: string): Promise<void> {
     })
 
   if (error) {
-    console.error('Failed to save device token:', error)
+    console.error('[Push] ❌ Failed to save device token:', error)
   } else {
-    console.log('✅ Device token saved successfully')
+    console.log('[Push] ✅ Device token saved successfully to database')
+
+    // 保存確認のためにデータベースから読み取り
+    const { data: savedToken, error: fetchError } = await supabase
+      .from('device_tokens')
+      .select('*')
+      .eq('token', token)
+      .single()
+
+    if (fetchError) {
+      console.error('[Push] ❌ Failed to verify saved token:', fetchError)
+    } else {
+      console.log('[Push] ✅ Token verified in database:', savedToken)
+    }
   }
 }
