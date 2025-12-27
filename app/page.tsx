@@ -147,9 +147,16 @@ export default async function Home({
   }
 
   if (fetchTrendingItems) {
-    const { data } = await supabase.rpc('get_trending_items', { limit_count: limit, offset_val: offset });
+    const { data, error } = await supabase.rpc('get_trending_items', { limit_count: limit, offset_val: offset });
+
+    if (error) {
+      console.error('Error fetching trending items:', error);
+    }
+
     // Filter out items with empty names
     trendingItems = (data || []).filter((item: any) => item.name && item.name.trim() !== '');
+
+    console.log('Trending items fetched:', trendingItems.length, 'items');
 
     if (view) {
         insertAds(trendingItems);
@@ -465,7 +472,7 @@ export default async function Home({
       )}
 
       {/* Trending Items Section */}
-      {fetchTrendingItems && trendingItems.length > 0 && (
+      {fetchTrendingItems && (
           <section className="mb-12">
             <div className="flex items-center gap-4 mb-6">
                 <a href="/?view=trending-items" className="cursor-pointer hover:underline">
@@ -494,18 +501,23 @@ export default async function Home({
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-3">
                                 <h3 className="text-white font-bold text-sm truncate">{item.name}</h3>
-                                <p className="text-white/80 text-xs">{item.total_views} 閲覧</p>
+                                <p className="text-white/80 text-xs">{item.total_detail_views} 閲覧</p>
                             </div>
                         </div>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center p-4 bg-muted text-center">
                             <h3 className="font-bold text-sm line-clamp-2">{item.name}</h3>
-                            <p className="text-muted-foreground text-xs mt-1">{item.total_views} 閲覧</p>
+                            <p className="text-muted-foreground text-xs mt-1">{item.total_detail_views} 閲覧</p>
                         </div>
                     )}
                 </Link>
                 )
               })}
+              {trendingItems.length === 0 && (
+                <div className="col-span-full text-center py-10 text-muted-foreground bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                    まだ注目アイテムがありません。
+                </div>
+              )}
             </div>
           </section>
       )}

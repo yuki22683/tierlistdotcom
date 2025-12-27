@@ -53,13 +53,14 @@ export default function Navbar({ disableLogout = false }: NavbarProps) {
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-black text-white backdrop-blur supports-[backdrop-filter]:bg-black/90">
       <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-2 sm:px-4 md:px-8">
         <div className={`flex items-center ${isMobileSearchOpen ? 'hidden sm:flex' : 'flex'}`}>
-          <Link className="mr-1 sm:mr-6 flex items-center space-x-1" href="/">
-            <Image 
-              src="/logo.png" 
-              alt="Logo" 
-              width={128} 
-              height={128} 
+          <Link className="mr-1 sm:mr-6 flex items-center space-x-1 cursor-pointer hover:opacity-80 transition-opacity" href="/">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={128}
+              height={128}
               className="w-8 h-8 rounded-sm object-contain"
+              priority
             />
             <span className="font-bold text-lg sm:text-2xl text-white">ティアリスト.com</span>
           </Link>
