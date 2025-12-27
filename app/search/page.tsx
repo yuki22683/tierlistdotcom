@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
 import TierListCard from '@/components/TierListCard'
-import { Tag, ArrowLeft } from 'lucide-react'
+import { Tag } from 'lucide-react'
 import HomeWrapper from '@/components/HomeWrapper'
 import Pagination from '@/components/Pagination'
 import BackButton from '@/components/BackButton'
@@ -300,28 +300,14 @@ export default async function SearchPage(props: Props) {
     <div className="container mx-auto py-12 px-4 max-w-5xl">
       <HomeWrapper uniqueKey={query || tagQuery || section || 'search'}>
 
-      {/* Header - Show back button if section is specified or tag query exists */}
-      {section && (
-        <div className="mb-4">
-          <Link
-            href={`/search?${query ? `q=${encodeURIComponent(query)}` : tagQuery ? `tag=${encodeURIComponent(tagQuery)}` : ''}`}
-            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft size={16} className="mr-1" />
-            検索結果に戻る
-          </Link>
-        </div>
-      )}
-
-      {tagQuery && !section && (
-        <div className="mb-4">
-          <BackButton />
-        </div>
-      )}
-
-      <h1 className="text-3xl font-bold mb-8">
-        {title}
-      </h1>
+      <div className="flex items-center gap-4 mb-8">
+        {(section || tagQuery) && (
+          <BackButton href={section ? `/search?${query ? `q=${encodeURIComponent(query)}` : tagQuery ? `tag=${encodeURIComponent(tagQuery)}` : ''}` : undefined} />
+        )}
+        <h1 className="text-3xl font-bold">
+          {title}
+        </h1>
+      </div>
 
       {hasAnyResults ? (
         <div className="space-y-12">

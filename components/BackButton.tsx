@@ -3,16 +3,28 @@
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 
-export default function BackButton() {
+interface BackButtonProps {
+  href?: string
+}
+
+export default function BackButton({ href }: BackButtonProps) {
   const router = useRouter()
+
+  const handleClick = () => {
+    if (href) {
+      router.push(href)
+    } else {
+      router.back()
+    }
+  }
 
   return (
     <button
-      onClick={() => router.back()}
-      className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 mb-4 transition-colors"
+      onClick={handleClick}
+      className="p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
+      aria-label="戻る"
     >
-      <ArrowLeft size={16} className="mr-1" />
-      戻る
+      <ArrowLeft size={20} />
     </button>
   )
 }

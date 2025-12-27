@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import Pagination from '@/components/Pagination'
 import AllGenresButton from '@/components/AllGenresButton'
+import BackButton from '@/components/BackButton'
 import HomeWrapper from '@/components/HomeWrapper'
 import QuizSessionCleaner from './QuizSessionCleaner'
 import type { Metadata } from 'next'
@@ -44,15 +45,10 @@ export default async function SelectGenrePage(props: Props) {
     <main className="container mx-auto pb-10 pt-4 px-4 max-w-5xl">
       <QuizSessionCleaner />
       <HomeWrapper uniqueKey="quiz-select-genre">
-        {/* Back to Home */}
-        <Link
-          href="/"
-          className="inline-flex items-center text-foreground hover:underline mb-6"
-        >
-          ← ホームに戻る
-        </Link>
-
-        <h1 className="text-3xl font-bold mb-6 text-center">ジャンル選択</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <BackButton href="/" />
+          <h1 className="text-3xl font-bold">ジャンル選択</h1>
+        </div>
         <p className="text-center text-muted-foreground mb-8">
           クイズで出題するジャンルを選んでください
         </p>

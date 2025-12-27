@@ -5,10 +5,11 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getContrastColor } from '@/utils/colors'
-import { Flag, Download, ArrowLeft, ArrowRight, Home } from 'lucide-react'
+import { Flag, Download, ArrowRight, Home } from 'lucide-react'
 import { domToPng } from 'modern-screenshot'
 import { format } from 'date-fns'
 import { formatNumber } from '@/utils/formatNumber'
+import BackButton from '@/components/BackButton'
 import CommentSection from '@/components/comments/CommentSection'
 import TierListReportModal from '@/components/TierListReportModal'
 import RakutenLeftWidget from '@/components/RakutenLeftWidget'
@@ -361,18 +362,12 @@ export default function QuizPlayClient({
       <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
       <RakutenRightWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
       <main className="pb-10 pt-4">
-        {/* Back to Genre Selection */}
-      <Link
-        href="/quiz/select-genre"
-        className="inline-flex items-center text-foreground hover:underline mb-6"
-      >
-        ← ジャンル選択に戻る
-      </Link>
-
-      {/* Title (masked or revealed) */}
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        {isAnswerRevealed ? currentTierList.title : '？？？？'}
-      </h1>
+      <div className="flex items-center gap-4 mb-6 justify-center">
+        <BackButton href="/quiz/select-genre" />
+        <h1 className="text-3xl font-bold">
+          {isAnswerRevealed ? currentTierList.title : '？？？？'}
+        </h1>
+      </div>
 
       {/* Question Counter */}
       <div className="text-center mb-4 text-lg font-semibold text-muted-foreground">

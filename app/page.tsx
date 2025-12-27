@@ -6,7 +6,8 @@ import RecentlyViewed from '@/components/RecentlyViewed'
 import RecentlyViewedItems from '@/components/RecentlyViewedItems'
 import RandomAffiliateLink from '@/components/RandomAffiliateLink'
 import HomeWrapper from '@/components/HomeWrapper'
-import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
+import BackButton from '@/components/BackButton'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Pagination from '@/components/Pagination'
 
 export const dynamic = 'force-dynamic'
@@ -261,16 +262,6 @@ export default async function Home({
           affiliateIndex={0}
       />
 
-      {/* Header - Only show if filter exists */}
-      {view && (
-        <div className="mb-4">
-          <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 transition-colors">
-            <ArrowLeft size={16} className="mr-1" />
-            ホームに戻る
-          </Link>
-        </div>
-      )}
-
       {/* Recently Viewed */}
       {(!view || view === 'recent') && (
         <RecentlyViewed
@@ -297,6 +288,7 @@ export default async function Home({
       {fetchPopular && (
         <section className="mb-12">
           <div className="flex items-center gap-4 mb-6">
+            {view === 'popular' && <BackButton href="/" />}
             <a href="/?view=popular" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-yellow-500">🏆</span> 人気のティアリスト
@@ -324,6 +316,7 @@ export default async function Home({
       {fetchTrending && (
         <section className="mb-12">
           <div className="flex items-center gap-4 mb-6">
+            {view === 'trending' && <BackButton href="/" />}
             <a href="/?view=trending" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-orange-500">👀</span> 注目のティアリスト
@@ -351,6 +344,7 @@ export default async function Home({
       {fetchNew && (
         <section className="mb-12">
           <div className="flex items-center gap-4 mb-6">
+            {view === 'new' && <BackButton href="/" />}
             <a href="/?view=new" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-blue-500">🆕</span> 新しいティアリスト
@@ -378,6 +372,7 @@ export default async function Home({
       {fetchTags && popularTags.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center gap-4 mb-6">
+                {view === 'tags' && <BackButton href="/" />}
                 <a href="/?view=tags" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-green-500">🏷️</span> 人気のタグ
@@ -404,6 +399,7 @@ export default async function Home({
       {fetchTrendingTags && trendingTags.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center gap-4 mb-6">
+                {view === 'trending-tags' && <BackButton href="/" />}
                 <a href="/?view=trending-tags" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-cyan-500">🔖</span> 注目のタグ
@@ -430,6 +426,7 @@ export default async function Home({
       {fetchItems && popularItems.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center gap-4 mb-6">
+                {view === 'items' && <BackButton href="/" />}
                 <a href="/?view=items" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-purple-500">🔥</span> 人気のアイテム
@@ -476,6 +473,7 @@ export default async function Home({
       {fetchTrendingItems && (
           <section className="mb-12">
             <div className="flex items-center gap-4 mb-6">
+                {view === 'trending-items' && <BackButton href="/" />}
                 <a href="/?view=trending-items" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-pink-500">👁️</span> 注目のアイテム
