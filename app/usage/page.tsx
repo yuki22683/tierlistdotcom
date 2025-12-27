@@ -60,7 +60,7 @@ export default async function UsagePage() {
                   一般的に、上にある階層ほど評価が高いことを示します。
                 </p>
                 <ul className="space-y-2 text-sm">
-                  <li className="flex gap-2"><span className="font-bold w-8 text-center rounded" style={{ backgroundColor: '#ff7f7f', color: '#000000' }}>S</span> <span className="text-muted-foreground">最上位。神レベル。必須級。</span></li>
+                  <li className="flex gap-2"><span className="font-bold w-8 text-center rounded" style={{ backgroundColor: '#ff7f7f', color: '#000000' }}>S</span> <span className="text-muted-foreground">最上位。神レベル。</span></li>
                   <li className="flex gap-2"><span className="font-bold w-8 text-center rounded" style={{ backgroundColor: '#ffbf7f', color: '#000000' }}>A</span> <span className="text-muted-foreground">非常に優秀。大好き。</span></li>
                   <li className="flex gap-2"><span className="font-bold w-8 text-center rounded" style={{ backgroundColor: '#ffdf7f', color: '#000000' }}>B</span> <span className="text-muted-foreground">普通。平均的。</span></li>
                   <li className="flex gap-2"><span className="font-bold w-8 text-center rounded" style={{ backgroundColor: '#ffff7f', color: '#000000' }}>C</span> <span className="text-muted-foreground">平均以下。微妙。</span></li>

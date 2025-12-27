@@ -73,13 +73,15 @@ export default function NativeAppInitializer() {
                 // 認証成功フラグをsessionStorageに保存（ページ遷移後も保持）
                 sessionStorage.setItem('just-authenticated', 'true')
 
-                // nextパラメータがあればそのページに遷移
+                // nextパラメータがあればそのページに遷移（強制リロード）
                 const nextPath = new URLSearchParams(url.search).get('next')
                 if (nextPath) {
-                  window.location.href = decodeURIComponent(nextPath)
+                  window.location.replace(decodeURIComponent(nextPath))
                 } else {
-                  window.location.href = '/'
+                  window.location.replace('/')
                 }
+                // 念のためリロードを強制
+                window.location.reload()
               } else {
                 console.error('[DeepLink] No code parameter found in URL')
               }

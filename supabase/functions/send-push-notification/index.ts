@@ -126,6 +126,26 @@ serve(async (req) => {
 
     console.log(`Push notification results: ${successful} successful, ${failed} failed`)
 
+    // UNREGISTEREDエラーのトークンをデータベースから削除
+    const unregisteredTokens = results
+      .filter(r => r.status === 'fulfilled' && r.value.errorCode === 'UNREGISTERED')
+      .map(r => (r as any).value.token)
+
+    if (unregisteredTokens.length > 0) {
+      console.log(`[EdgeFunction] Deleting ${unregisteredTokens.length} unregistered token(s)...`)
+
+      const { error: deleteError } = await supabase
+        .from('device_tokens')
+        .delete()
+        .in('token', unregisteredTokens)
+
+      if (deleteError) {
+        console.error('[EdgeFunction] ❌ Failed to delete unregistered tokens:', deleteError)
+      } else {
+        console.log('[EdgeFunction] ✅ Unregistered tokens deleted successfully')
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -155,7 +175,7 @@ async function sendFCMV1Notification(
   body: string,
   data: Record<string, string>,
   serviceAccount: any
-): Promise<{ success: boolean; platform: string; error?: string }> {
+): Promise<{ success: boolean; platform: string; error?: string; errorCode?: string; token: string }> {
   console.log('[FCM V1] Starting FCM notification send...')
   console.log('[FCM V1] Token (first 20 chars):', token.substring(0, 20) + '...')
   console.log('[FCM V1] Title:', title)
@@ -230,13 +250,20 @@ async function sendFCMV1Notification(
 
     if (response.ok) {
       console.log(`[FCM V1] ✅ FCM notification sent successfully to ${token.substring(0, 20)}...`)
-      return { success: true, platform: 'android' }
+      return { success: true, platform: 'android', token }
     } else {
       console.error(`[FCM V1] ❌ FCM notification failed:`, result)
+
+      // FCMエラーコードを取得（UNREGISTERED, INVALID_ARGUMENT, etc.）
+      const errorCode = result.error?.details?.[0]?.errorCode || null
+      console.log(`[FCM V1] Error code:`, errorCode)
+
       return {
         success: false,
         platform: 'android',
-        error: result.error?.message || 'Unknown FCM error'
+        error: result.error?.message || 'Unknown FCM error',
+        errorCode,
+        token
       }
     }
   } catch (error) {
@@ -244,7 +271,8 @@ async function sendFCMV1Notification(
     return {
       success: false,
       platform: 'android',
-      error: error.message
+      error: error.message,
+      token
     }
   }
 }
