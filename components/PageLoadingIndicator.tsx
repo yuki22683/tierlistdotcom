@@ -12,9 +12,18 @@ function PageLoadingIndicatorInner() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // クライアントサイドでのみ動作させる（ハイドレーションエラー回避）
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
-    console.log('[PageLoadingIndicator] URL changed:', pathname, searchParams?.toString())
+    if (!isMounted) return
+
+    const searchParamsString = searchParams?.toString() || ''
+    console.log('[PageLoadingIndicator] URL changed:', pathname, searchParamsString)
 
     // URLが変更されたらローディング表示
     setIsLoading(true)
@@ -29,7 +38,7 @@ function PageLoadingIndicatorInner() {
     return () => {
       clearTimeout(timer)
     }
-  }, [pathname, searchParams])
+  }, [pathname, searchParams, isMounted])
 
   // リンククリック時にローディングを開始
   useEffect(() => {
