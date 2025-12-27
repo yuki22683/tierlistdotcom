@@ -537,7 +537,7 @@ function TierListMetadata({ tierList }: { tierList: any }) {
   return (
     <div className="flex flex-col items-start gap-2 mt-0 mb-1 text-sm text-gray-500">
       {tierList.description && ( // Conditionally render description
-        <p className="text-muted-foreground text-left whitespace-pre-wrap mb-2">{tierList.description}</p>
+        <p className="text-muted-foreground text-left whitespace-pre-wrap mt-4 mb-2">{tierList.description}</p>
       )}
       <div className="flex flex-wrap items-center justify-start gap-4">
         <Link href={`/users/${tierList.user_id}/tier-lists`} className="flex items-center gap-2 hover:underline hover:text-indigo-600 transition-colors">
