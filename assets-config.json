@@ -2,13 +2,13 @@
   "ios": {
     "splash": {
       "image": "resources/splash.png",
-      "width": 0.25
+      "width": 0.15
     }
   },
   "android": {
     "splash": {
       "image": "resources/splash.png",
-      "width": 0.3
+      "width": 0.2
     }
   }
 }
