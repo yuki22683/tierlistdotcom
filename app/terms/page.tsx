@@ -72,7 +72,18 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第5条（本サービスの提供の停止等）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第5条（投稿コンテンツ）</h2>
+          <ol className="list-decimal pl-6 space-y-2">
+            <li>ユーザーは、自己が本サービスに投稿または送信するティアリスト、画像、テキスト、コメントその他一切のコンテンツ（以下、「投稿コンテンツ」といいます。）について、自らが投稿その他送信することについての適法な権利を有していること、および投稿コンテンツが第三者の知的財産権（著作権、商標権、特許権、実用新案権、意匠権等を含みますがこれらに限りません。）、プライバシー権、名誉、その他の権利を侵害していないことを表明し、保証するものとします。</li>
+            <li>ユーザーは、投稿コンテンツに関して第三者との間で著作権侵害その他の紛争が生じた場合、自己の費用と責任において当該紛争を解決するものとし、運営に一切の迷惑または損害を与えないものとします。</li>
+            <li>投稿コンテンツに起因または関連して運営が第三者から権利侵害その他の理由により何らかの請求を受けた場合、ユーザーは、当該請求に基づき運営が当該第三者に支払いを余儀なくされた金額、および運営が支出した弁護士費用等の一切の費用を賠償するものとします。</li>
+            <li>運営は、投稿コンテンツについて、その正確性、真実性、適法性、第三者の権利を侵害していないこと等につき、一切保証せず、投稿コンテンツに起因してユーザーまたは第三者に生じた損害について一切の責任を負わないものとします。</li>
+            <li>ユーザーは、投稿コンテンツについて、運営に対し、世界的、非独占的、無償、サブライセンス可能かつ譲渡可能な使用、複製、配布、派生著作物の作成、表示および実行に関するライセンスを付与します。また、他のユーザーに対しても、本サービスを利用してユーザーが投稿その他送信した投稿コンテンツの使用、複製、配布、派生著作物を作成、表示および実行することについての非独占的なライセンスを付与します。</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第6条（本サービスの提供の停止等）</h2>
           <p className="mb-4">運営は、以下のいずれかの事由があると判断した場合、ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします。</p>
           <ol className="list-decimal pl-6 space-y-2">
             <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
@@ -84,7 +95,7 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第6条（利用制限および登録抹消）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第7条（利用制限および登録抹消）</h2>
           <p className="mb-4">運営は、ユーザーが以下のいずれかに該当する場合には、事前の通知なく、ユーザーに対して、本サービスの全部もしくは一部の利用を制限し、またはアカウントを抹消することができるものとします。</p>
           <ol className="list-decimal pl-6 space-y-2">
             <li>本規約のいずれかの条項に違反した場合</li>
@@ -96,7 +107,7 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第7条（保証の否認および免責事項）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第8条（保証の否認および免責事項）</h2>
           <ol className="list-decimal pl-6 space-y-2">
             <li>運営は、本サービスに事実上または法律上の瑕疵（安全性、信頼性、正確性、完全性、有効性、特定の目的への適合性、セキュリティなどに関する欠陥、エラーやバグ、権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。</li>
             <li>運営は、本サービスに起因してユーザーに生じたあらゆる損害について、運営の故意又は重過失による場合を除き、一切の責任を負いません。</li>
@@ -105,12 +116,12 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第8条（サービス内容の変更等）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第9条（サービス内容の変更等）</h2>
           <p>運営は、ユーザーへの事前の告知をもって、本サービスの内容を変更、追加または廃止することがあり、ユーザーはこれを承諾するものとします。</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第9条（利用規約の変更）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第10条（利用規約の変更）</h2>
           <ol className="list-decimal pl-6 space-y-2">
             <li>運営は以下の場合には、ユーザーの個別の同意を要せず、本規約を変更することができるものとします。
               <ul className="list-disc pl-6 mt-2 space-y-1">
@@ -123,22 +134,22 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第10条（個人情報の取扱い）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第11条（個人情報の取扱い）</h2>
           <p>運営は、本サービスの利用によって取得する個人情報については、運営「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第11条（通知または連絡）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第12条（通知または連絡）</h2>
           <p>ユーザーと運営との間の通知または連絡は、本サイト上への掲示またはユーザーが登録したメールアドレスへの送信等、運営が適当と判断する方法によって行うものとします。ユーザーからの連絡は、原則として本サイト上のお問い合わせフォームより行うものとします。</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第12条（権利義務の譲渡の禁止）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第13条（権利義務の譲渡の禁止）</h2>
           <p>ユーザーは、運営の書面による事前の承諾なく、利用契約上の地位または本規約に基づく権利もしくは義務を第三者に譲渡し、または担保に供することはできません。</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">第13条（準拠法・裁判管轄）</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-2">第14条（準拠法・裁判管轄）</h2>
           <ol className="list-decimal pl-6 space-y-2">
             <li>本規約の解釈にあたっては、日本法を準拠法とします。</li>
             <li>本サービスに関して紛争が生じた場合には、東京地方裁判所を専属的合意管轄とします。</li>

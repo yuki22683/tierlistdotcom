@@ -123,21 +123,23 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
 
   return (
     <div
-        className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-4 group/container transition-all duration-100 ease-out"
+        className="fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse [@media(min-width:900px)]:flex-row items-center gap-2 sm:gap-4 group/container transition-all duration-100 ease-out"
         style={{ bottom: `${bottomOffset}px` }}
     >
-      {renderButton()}
-      <button
-        onClick={() => {
-          setIsNavigating(true)
-          router.push('/quiz/select-genre')
-        }}
-        disabled={isNavigating}
-        className="px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        タイトル当てクイズ
-      </button>
-      <div className="[@media(max-width:768px)_and_(orientation:portrait)]:hidden transition-all duration-300 transform translate-x-0 group-hover/container:translate-x-1">
+      <div className="flex items-center gap-2 sm:gap-4">
+        {renderButton()}
+        <button
+          onClick={() => {
+            setIsNavigating(true)
+            router.push('/quiz/select-genre')
+          }}
+          disabled={isNavigating}
+          className="px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          タイトル当てクイズ
+        </button>
+      </div>
+      <div className="transition-all duration-300 transform translate-x-0 group-hover/container:translate-x-1">
         <RandomAffiliateLink index={affiliateIndex} />
       </div>
     </div>

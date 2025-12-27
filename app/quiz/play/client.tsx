@@ -14,6 +14,7 @@ import CommentSection from '@/components/comments/CommentSection'
 import TierListReportModal from '@/components/TierListReportModal'
 import RakutenLeftWidget from '@/components/RakutenLeftWidget'
 import RakutenRightWidget from '@/components/RakutenRightWidget'
+import RandomAffiliateLink from '@/components/RandomAffiliateLink'
 
 type Tier = {
   id: string
@@ -590,6 +591,10 @@ export default function QuizPlayClient({
 
       {/* Comments Section */}
       <div className="mt-8">
+        <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
+          <h2 className="text-2xl font-bold">コメント</h2>
+          <RandomAffiliateLink index={300} />
+        </div>
         <CommentSection
           tierListId={currentTierList.id}
           currentUserId={currentUser?.id}

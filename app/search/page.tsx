@@ -6,6 +6,7 @@ import { Tag } from 'lucide-react'
 import HomeWrapper from '@/components/HomeWrapper'
 import Pagination from '@/components/Pagination'
 import BackButton from '@/components/BackButton'
+import RandomAffiliateLink from '@/components/RandomAffiliateLink'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -311,15 +312,16 @@ export default async function SearchPage(props: Props) {
             {/* 1. Tier Lists Results */}
             {tierListResults.length > 0 && (
                 <section>
-                    <div className="flex items-center justify-between mb-4 border-b pb-2">
+                    <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-4 border-b pb-2">
                       <h2 className="text-2xl font-bold">ティアリスト</h2>
+                      <RandomAffiliateLink index={0} />
                       {(() => {
                         const showMoreLink = !section && tierListsTotalCount > 20
                         console.log(`[TierLists - More Link] section: ${section}, totalCount: ${tierListsTotalCount}, limit: 20, showMoreLink: ${showMoreLink}`)
                         return showMoreLink && (
                           <Link
                             href={buildSectionUrl('tierlists')}
-                            className="text-sm text-primary hover:underline"
+                            className="text-sm text-primary hover:underline ml-auto"
                           >
                             もっと見る &rarr;
                           </Link>
@@ -340,15 +342,16 @@ export default async function SearchPage(props: Props) {
             {/* 2. Items Results */}
             {itemResults.length > 0 && (
                 <section>
-                    <div className="flex items-center justify-between mb-4 border-b pb-2">
+                    <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-4 border-b pb-2">
                       <h2 className="text-2xl font-bold">アイテム</h2>
+                      <RandomAffiliateLink index={1} />
                       {(() => {
                         const showMoreLink = !section && itemsTotalCount > 10
                         console.log(`[Items - More Link] section: ${section}, totalCount: ${itemsTotalCount}, limit: 10, showMoreLink: ${showMoreLink}`)
                         return showMoreLink && (
                           <Link
                             href={buildSectionUrl('items')}
-                            className="text-sm text-primary hover:underline"
+                            className="text-sm text-primary hover:underline ml-auto"
                           >
                             もっと見る &rarr;
                           </Link>
@@ -391,15 +394,16 @@ export default async function SearchPage(props: Props) {
             {/* 3. Tags Results */}
             {tagResults.length > 0 && (
                 <section>
-                    <div className="flex items-center justify-between mb-4 border-b pb-2">
+                    <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-4 border-b pb-2">
                       <h2 className="text-2xl font-bold">タグ</h2>
+                      <RandomAffiliateLink index={2} />
                       {(() => {
                         const showMoreLink = !section && tagsTotalCount > 10
                         console.log(`[Tags - More Link] section: ${section}, totalCount: ${tagsTotalCount}, limit: 10, showMoreLink: ${showMoreLink}`)
                         return showMoreLink && (
                           <Link
                             href={buildSectionUrl('tags')}
-                            className="text-sm text-primary hover:underline"
+                            className="text-sm text-primary hover:underline ml-auto"
                           >
                             もっと見る &rarr;
                           </Link>

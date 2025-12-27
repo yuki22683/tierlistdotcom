@@ -7,6 +7,7 @@ import { getContrastColor } from '@/utils/colors'
 import HomeWrapper from '@/components/HomeWrapper'
 import ImageSlideshow from '@/components/ImageSlideshow'
 import SaveItemToHistory from '@/components/SaveItemToHistory'
+import RandomAffiliateLink from '@/components/RandomAffiliateLink'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -398,7 +399,10 @@ export default async function ItemDetailPage(props: Props) {
       {/* Related Items */}
       {relatedItems.length > 0 && (
         <div className="mb-12 border-t pt-8">
-          <h2 className="text-2xl font-bold mb-6">関連アイテム</h2>
+          <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
+            <h2 className="text-2xl font-bold">関連アイテム</h2>
+            <RandomAffiliateLink index={200} />
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {relatedItems.map((item: any, index: number) => {
               if (item.isAmazonBookAd) {

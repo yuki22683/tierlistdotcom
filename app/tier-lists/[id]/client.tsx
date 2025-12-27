@@ -23,6 +23,7 @@ import AutocompleteInput from '@/components/AutocompleteInput'
 import TierListCard from '@/components/TierListCard'
 import RakutenLeftWidget from '@/components/RakutenLeftWidget'
 import RakutenRightWidget from '@/components/RakutenRightWidget'
+import RandomAffiliateLink from '@/components/RandomAffiliateLink'
 import ImageCropper from '@/components/ImageCropper'
 import { deleteImageIfUnused } from '@/utils/imageCleanup'
 import { submitVote } from '@/app/actions/vote'
@@ -812,8 +813,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   }
 
   const handleShare = async () => {
-    // Determine action text based on voting status
-    const actionText = tierList.allow_voting ? ' に投票しました。' : 'を共有します。'
+    // Determine action text based on ownership and voting status
+    const isOwner = currentUser?.id === tierList.user_id
+    const actionText = isOwner
+      ? 'を作成しました。'
+      : tierList.allow_voting
+        ? ' に投票しました。'
+        : 'を共有します。'
     const statusText = tierList.allow_voting ? '投票受付中👇' : '公開中👇'
 
     // Get tags from tier list
@@ -1927,7 +1933,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         <div className="mt-4 border-t pt-2">
           {displayedRelatedLists.length > 0 && (
             <div className="mb-3">
-              <h2 className="text-2xl font-bold mb-1">関連するティアリスト</h2>
+              <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-4">
+                <h2 className="text-2xl font-bold">関連するティアリスト</h2>
+                <RandomAffiliateLink index={100} />
+              </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {displayedRelatedLists.map((item: any, index: number) => {
                   const cardClass = "group flex flex-col bg-card border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all relative h-full w-full aspect-video";
