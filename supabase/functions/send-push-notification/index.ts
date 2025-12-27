@@ -1,4 +1,4 @@
-// Supabase Edge Function: プッシュ通知送信
+// Supabase Edge Function: プッシュ通知送信 (FCM V1 API対応)
 // Deploy: supabase functions deploy send-push-notification
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
@@ -28,22 +28,23 @@ serve(async (req) => {
 
   try {
     // 環境変数の確認
-    const FCM_SERVER_KEY = Deno.env.get('FCM_SERVER_KEY')
-    const APNS_KEY_ID = Deno.env.get('APNS_KEY_ID')
-    const APNS_TEAM_ID = Deno.env.get('APNS_TEAM_ID')
-    const APNS_PRIVATE_KEY = Deno.env.get('APNS_PRIVATE_KEY')
+    const FIREBASE_SERVICE_ACCOUNT = Deno.env.get('FIREBASE_SERVICE_ACCOUNT')
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
     console.log('[EdgeFunction] Environment variables check:')
-    console.log('[EdgeFunction]   FCM_SERVER_KEY:', FCM_SERVER_KEY ? '✅ Set' : '❌ Not set')
+    console.log('[EdgeFunction]   FIREBASE_SERVICE_ACCOUNT:', FIREBASE_SERVICE_ACCOUNT ? '✅ Set' : '❌ Not set')
     console.log('[EdgeFunction]   SUPABASE_URL:', SUPABASE_URL ? '✅ Set' : '❌ Not set')
     console.log('[EdgeFunction]   SUPABASE_SERVICE_ROLE_KEY:', SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Not set')
 
-    if (!FCM_SERVER_KEY) {
-      console.error('[EdgeFunction] ❌ FCM_SERVER_KEY is not set')
-      throw new Error('FCM_SERVER_KEY is not set')
+    if (!FIREBASE_SERVICE_ACCOUNT) {
+      console.error('[EdgeFunction] ❌ FIREBASE_SERVICE_ACCOUNT is not set')
+      throw new Error('FIREBASE_SERVICE_ACCOUNT is not set')
     }
+
+    // Firebase Service Accountをパース
+    const serviceAccount = JSON.parse(FIREBASE_SERVICE_ACCOUNT)
+    console.log('[EdgeFunction] Firebase project_id:', serviceAccount.project_id)
 
     // リクエストボディの解析
     const { userId, title, body, data }: PushNotificationRequest = await req.json()
@@ -99,21 +100,22 @@ serve(async (req) => {
     const results = await Promise.allSettled(
       tokens.map(async (deviceToken) => {
         if (deviceToken.platform === 'ios') {
-          // iOS: APNs経由（実装は後述）
-          if (!APNS_KEY_ID || !APNS_TEAM_ID || !APNS_PRIVATE_KEY) {
-            console.log('APNs credentials not set, skipping iOS notification')
-            return { success: false, platform: 'ios', reason: 'APNs not configured' }
-          }
-          // TODO: APNs実装（オプション）
-          return { success: false, platform: 'ios', reason: 'APNs not implemented yet' }
-        } else {
-          // Android: FCM経由
-          return await sendFCMNotification(
+          // iOS: FCM経由でも送信可能
+          return await sendFCMV1Notification(
             deviceToken.token,
             title,
             body,
             data || {},
-            FCM_SERVER_KEY
+            serviceAccount
+          )
+        } else {
+          // Android: FCM V1 API経由
+          return await sendFCMV1Notification(
+            deviceToken.token,
+            title,
+            body,
+            data || {},
+            serviceAccount
           )
         }
       })
@@ -145,59 +147,79 @@ serve(async (req) => {
 })
 
 /**
- * FCM (Firebase Cloud Messaging) 経由でプッシュ通知を送信
+ * FCM V1 API経由でプッシュ通知を送信
  */
-async function sendFCMNotification(
+async function sendFCMV1Notification(
   token: string,
   title: string,
   body: string,
   data: Record<string, string>,
-  serverKey: string
+  serviceAccount: any
 ): Promise<{ success: boolean; platform: string; error?: string }> {
-  console.log('[FCM] Starting FCM notification send...')
-  console.log('[FCM] Token (first 20 chars):', token.substring(0, 20) + '...')
-  console.log('[FCM] Title:', title)
-  console.log('[FCM] Body:', body)
-  console.log('[FCM] Data:', data)
+  console.log('[FCM V1] Starting FCM notification send...')
+  console.log('[FCM V1] Token (first 20 chars):', token.substring(0, 20) + '...')
+  console.log('[FCM V1] Title:', title)
+  console.log('[FCM V1] Body:', body)
+  console.log('[FCM V1] Data:', data)
 
   try {
+    // OAuth 2.0 アクセストークンを取得
+    const accessToken = await getAccessToken(serviceAccount)
+    console.log('[FCM V1] Access token obtained:', accessToken.substring(0, 20) + '...')
+
+    // FCM V1 APIのペイロード
     const payload = {
-      to: token,
-      notification: {
-        title,
-        body,
-        sound: 'default',
-      },
-      data,
-      priority: 'high',
+      message: {
+        token: token,
+        notification: {
+          title: title,
+          body: body,
+        },
+        data: data,
+        android: {
+          priority: 'high',
+          notification: {
+            sound: 'default',
+          }
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default',
+            }
+          }
+        }
+      }
     }
 
-    console.log('[FCM] Sending request to FCM...')
-    console.log('[FCM] Payload:', JSON.stringify(payload, null, 2))
+    console.log('[FCM V1] Sending request to FCM V1 API...')
+    console.log('[FCM V1] Payload:', JSON.stringify(payload, null, 2))
 
-    const response = await fetch('https://fcm.googleapis.com/fcm/send', {
+    const projectId = serviceAccount.project_id
+    const fcmUrl = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`
+    console.log('[FCM V1] FCM URL:', fcmUrl)
+
+    const response = await fetch(fcmUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `key=${serverKey}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
     })
 
-    console.log('[FCM] FCM response status:', response.status)
-    console.log('[FCM] FCM response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2))
+    console.log('[FCM V1] FCM response status:', response.status)
 
-    // まずテキストとして取得してログ出力
     const responseText = await response.text()
-    console.log('[FCM] FCM response body (raw):', responseText.substring(0, 500))
+    console.log('[FCM V1] FCM response body (raw):', responseText.substring(0, 500))
 
     // JSONとしてパース
     let result
     try {
       result = JSON.parse(responseText)
-      console.log('[FCM] FCM response body (parsed):', JSON.stringify(result, null, 2))
+      console.log('[FCM V1] FCM response body (parsed):', JSON.stringify(result, null, 2))
     } catch (e) {
-      console.error('[FCM] ❌ Failed to parse FCM response as JSON:', e.message)
+      console.error('[FCM V1] ❌ Failed to parse FCM response as JSON:', e.message)
       return {
         success: false,
         platform: 'android',
@@ -205,19 +227,19 @@ async function sendFCMNotification(
       }
     }
 
-    if (response.ok && result.success === 1) {
-      console.log(`[FCM] ✅ FCM notification sent successfully to ${token.substring(0, 20)}...`)
+    if (response.ok) {
+      console.log(`[FCM V1] ✅ FCM notification sent successfully to ${token.substring(0, 20)}...`)
       return { success: true, platform: 'android' }
     } else {
-      console.error(`[FCM] ❌ FCM notification failed:`, result)
+      console.error(`[FCM V1] ❌ FCM notification failed:`, result)
       return {
         success: false,
         platform: 'android',
-        error: result.results?.[0]?.error || 'Unknown FCM error'
+        error: result.error?.message || 'Unknown FCM error'
       }
     }
   } catch (error) {
-    console.error(`[FCM] ❌ FCM request failed:`, error)
+    console.error(`[FCM V1] ❌ FCM request failed:`, error)
     return {
       success: false,
       platform: 'android',
@@ -227,23 +249,104 @@ async function sendFCMNotification(
 }
 
 /**
- * APNs (Apple Push Notification service) 経由でプッシュ通知を送信
- * 注: APNsはJWT認証が必要で実装が複雑なため、オプションとして提供
+ * Firebase Service AccountからOAuth 2.0アクセストークンを取得
  */
-async function sendAPNsNotification(
-  token: string,
-  title: string,
-  body: string,
-  data: Record<string, string>,
-  keyId: string,
-  teamId: string,
-  privateKey: string
-): Promise<{ success: boolean; platform: string; error?: string }> {
-  // TODO: JWT生成とAPNs HTTP/2 APIの実装
-  // 現時点ではスキップ（FCMはiOSもサポート可能）
-  return {
-    success: false,
-    platform: 'ios',
-    error: 'APNs implementation pending'
+async function getAccessToken(serviceAccount: any): Promise<string> {
+  const now = Math.floor(Date.now() / 1000)
+
+  // JWT Header
+  const header = {
+    alg: 'RS256',
+    typ: 'JWT',
   }
+
+  // JWT Claim Set
+  const claimSet = {
+    iss: serviceAccount.client_email,
+    sub: serviceAccount.client_email,
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now,
+    exp: now + 3600,
+    scope: 'https://www.googleapis.com/auth/firebase.messaging',
+  }
+
+  // Base64url encode
+  const base64UrlEncode = (obj: any) => {
+    const json = JSON.stringify(obj)
+    const base64 = btoa(json)
+    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+  }
+
+  const encodedHeader = base64UrlEncode(header)
+  const encodedClaimSet = base64UrlEncode(claimSet)
+  const message = `${encodedHeader}.${encodedClaimSet}`
+
+  // Private Keyから署名を生成
+  const privateKeyPem = serviceAccount.private_key
+  const signature = await signJWT(message, privateKeyPem)
+
+  const jwt = `${message}.${signature}`
+
+  // アクセストークンを取得
+  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    }),
+  })
+
+  const tokenData = await tokenResponse.json()
+
+  if (!tokenResponse.ok) {
+    console.error('[OAuth] ❌ Failed to get access token:', tokenData)
+    throw new Error(`Failed to get access token: ${tokenData.error_description || tokenData.error}`)
+  }
+
+  return tokenData.access_token
+}
+
+/**
+ * RS256でJWTに署名
+ */
+async function signJWT(message: string, privateKeyPem: string): Promise<string> {
+  // PEM形式の秘密鍵をパース
+  const pemHeader = '-----BEGIN PRIVATE KEY-----'
+  const pemFooter = '-----END PRIVATE KEY-----'
+  const pemContents = privateKeyPem
+    .replace(pemHeader, '')
+    .replace(pemFooter, '')
+    .replace(/\s/g, '')
+
+  // Base64デコード
+  const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0))
+
+  // CryptoKeyをインポート
+  const cryptoKey = await crypto.subtle.importKey(
+    'pkcs8',
+    binaryDer,
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256',
+    },
+    false,
+    ['sign']
+  )
+
+  // 署名を生成
+  const encoder = new TextEncoder()
+  const data = encoder.encode(message)
+  const signatureBuffer = await crypto.subtle.sign(
+    'RSASSA-PKCS1-v1_5',
+    cryptoKey,
+    data
+  )
+
+  // Base64url encode
+  const signatureArray = new Uint8Array(signatureBuffer)
+  const base64 = btoa(String.fromCharCode(...signatureArray))
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 }

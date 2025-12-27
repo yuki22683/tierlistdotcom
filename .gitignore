@@ -54,3 +54,4 @@ android/local.properties
 # supabase
 supabase/.temp
 resources/
+tier-lst-com-firebase-adminsdk-*.json
