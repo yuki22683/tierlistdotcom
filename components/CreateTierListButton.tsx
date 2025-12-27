@@ -126,7 +126,7 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
         className="fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse [@media(min-width:900px)]:flex-row items-center gap-2 sm:gap-4 group/container transition-all duration-100 ease-out"
         style={{ bottom: `${bottomOffset}px` }}
     >
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {renderButton()}
         <button
           onClick={() => {
@@ -139,7 +139,7 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
           タイトル当てクイズ
         </button>
       </div>
-      <div className="transition-all duration-300 transform translate-x-0 group-hover/container:translate-x-1">
+      <div className="transition-all duration-300 transform translate-x-0 group-hover/container:translate-x-1 flex-shrink-0">
         <RandomAffiliateLink index={affiliateIndex} />
       </div>
     </div>
