@@ -49,38 +49,18 @@ export async function initializePushNotifications(): Promise<void> {
       // INITIAL_SESSIONでもセッションとユーザーが存在する場合はトークンを保存
       if (event === 'INITIAL_SESSION' && session?.user && pendingDeviceToken) {
         console.log('[Push] Initial session detected with user, saving pending device token...')
-        await saveDeviceToken(pendingDeviceToken)
+        await saveDeviceTokenDirectly(pendingDeviceToken, session.user.id)
       }
 
-      // ログイン時に保留中のトークンを保存（リトライロジック付き）
+      // ログイン時に保留中のトークンを保存（sessionから直接ユーザー情報を取得）
       if (event === 'SIGNED_IN' && pendingDeviceToken) {
-        console.log('[Push] User signed in, saving pending device token with retry logic...')
+        console.log('[Push] User signed in, saving pending device token...')
 
-        // ユーザーデータが完全にロードされるまでリトライ
-        let retries = 3
-        let saveSuccess = false
-
-        while (retries > 0 && !saveSuccess) {
-          // 少し待機してからユーザーデータを確認
-          if (retries < 3) {
-            console.log(`[Push] Retry attempt ${4 - retries}/3 after 500ms delay...`)
-            await new Promise(resolve => setTimeout(resolve, 500))
-          }
-
-          const { data: { user } } = await supabase.auth.getUser()
-          if (user) {
-            console.log('[Push] User data loaded, attempting to save device token...')
-            await saveDeviceToken(pendingDeviceToken)
-            saveSuccess = true
-            break
-          } else {
-            console.log('[Push] User data not yet available, retrying...')
-            retries--
-          }
-        }
-
-        if (!saveSuccess) {
-          console.error('[Push] ❌ Failed to save device token after all retries')
+        if (session?.user) {
+          console.log('[Push] User data available from session, saving device token...')
+          await saveDeviceTokenDirectly(pendingDeviceToken, session.user.id)
+        } else {
+          console.error('[Push] ❌ User data not available in session after SIGNED_IN event')
         }
       }
 
@@ -138,33 +118,26 @@ export function cleanupPushNotifications(): void {
 }
 
 /**
- * デバイストークンをサーバーに保存
- * アカウント切り替え時も正しく動作するように、tokenをUNIQUEキーとしてUPSERT
+ * ユーザーIDを直接指定してデバイストークンを保存
  *
  * @param token - プッシュ通知用のデバイストークン
+ * @param userId - ユーザーID
  */
-async function saveDeviceToken(token: string): Promise<void> {
+async function saveDeviceTokenDirectly(token: string, userId: string): Promise<void> {
   const supabase = createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    console.log('[Push] User not logged in, skipping device token save')
-    console.log('[Push] Pending token will be saved after login:', token.substring(0, 20) + '...')
-    return
-  }
 
   // プラットフォーム判定（ios, android, web）
   const platform = Capacitor.getPlatform()
 
   console.log('[Push] Attempting to save device token...')
-  console.log('[Push] User ID:', user.id)
+  console.log('[Push] User ID:', userId)
   console.log('[Push] Platform:', platform)
   console.log('[Push] Token (first 20 chars):', token.substring(0, 20) + '...')
 
   const { error } = await supabase
     .from('device_tokens')
     .upsert({
-      user_id: user.id,
+      user_id: userId,
       token: token,
       platform: platform,
       updated_at: new Date().toISOString()
@@ -190,4 +163,23 @@ async function saveDeviceToken(token: string): Promise<void> {
       console.log('[Push] ✅ Token verified in database:', savedToken)
     }
   }
+}
+
+/**
+ * デバイストークンをサーバーに保存
+ * アカウント切り替え時も正しく動作するように、tokenをUNIQUEキーとしてUPSERT
+ *
+ * @param token - プッシュ通知用のデバイストークン
+ */
+async function saveDeviceToken(token: string): Promise<void> {
+  const supabase = createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    console.log('[Push] User not logged in, skipping device token save')
+    console.log('[Push] Pending token will be saved after login:', token.substring(0, 20) + '...')
+    return
+  }
+
+  await saveDeviceTokenDirectly(token, user.id)
 }
