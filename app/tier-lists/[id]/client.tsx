@@ -1477,8 +1477,11 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         <div className="flex gap-1 whitespace-nowrap">
           {/* 常に「投票」タブを表示（投票済みでも再投票可能にするため）。ただし allow_voting が false の場合は非表示 */}
           {tierList.allow_voting && (
-              <button 
-                onClick={() => setActiveTab('vote')}
+              <button
+                onClick={() => {
+                  setActiveTab('vote')
+                  setSelectedItemId(null)
+                }}
                 className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'vote' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
               >
                 投票
@@ -1486,7 +1489,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
           )}
 
           <button
-            onClick={() => setActiveTab('quiz')}
+            onClick={() => {
+              setActiveTab('quiz')
+              setSelectedItemId(null)
+            }}
             className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'quiz' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
           >
             クイズ
@@ -1497,7 +1503,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
             <button
               onClick={() => {
                 setActiveTab('result')
-                setSelectedItemId(null) // 結果タブに遷移時は選択状態をクリア
+                setSelectedItemId(null)
               }}
               className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'result' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
             >
@@ -1506,8 +1512,11 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
           )}
 
           {currentUser?.id === tierList.user_id && (
-            <button 
-              onClick={handleEditClick}
+            <button
+              onClick={() => {
+                handleEditClick()
+                setSelectedItemId(null)
+              }}
               className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'edit' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
             >
               編集
