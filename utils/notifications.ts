@@ -138,7 +138,9 @@ async function saveDeviceTokenDirectly(token: string, userId: string): Promise<v
     console.log('[Push] Token (first 20 chars):', token.substring(0, 20) + '...')
 
     console.log('[Push] Calling supabase.from(device_tokens).upsert()...')
-    const { error } = await supabase
+
+    // タイムアウト付きでupsertを実行
+    const upsertPromise = supabase
       .from('device_tokens')
       .upsert({
         user_id: userId,
@@ -148,6 +150,12 @@ async function saveDeviceTokenDirectly(token: string, userId: string): Promise<v
       }, {
         onConflict: 'token'  // 同じトークンが別のユーザーに紐づいていた場合、現在のユーザーに上書き
       })
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Upsert timeout after 10 seconds')), 10000)
+    )
+
+    const { error } = await Promise.race([upsertPromise, timeoutPromise]) as any
 
     console.log('[Push] Upsert completed, checking error...')
     if (error) {
