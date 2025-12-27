@@ -150,13 +150,14 @@ export default async function Home({
     const { data, error } = await supabase.rpc('get_trending_items', { limit_count: limit, offset_val: offset });
 
     if (error) {
-      console.error('Error fetching trending items:', error);
+      console.error('[Server] Error fetching trending items:', error.message, error.details, error.hint);
+      // エラーの場合は空の配列を使用
+      trendingItems = [];
+    } else {
+      // Filter out items with empty names
+      trendingItems = (data || []).filter((item: any) => item.name && item.name.trim() !== '');
+      console.log('[Server] Trending items fetched:', trendingItems.length, 'items', data?.slice(0, 3));
     }
-
-    // Filter out items with empty names
-    trendingItems = (data || []).filter((item: any) => item.name && item.name.trim() !== '');
-
-    console.log('Trending items fetched:', trendingItems.length, 'items');
 
     if (view) {
         insertAds(trendingItems);

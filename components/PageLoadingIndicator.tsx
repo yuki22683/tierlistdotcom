@@ -40,6 +40,9 @@ function PageLoadingIndicatorInner() {
     }
   }, [pathname, searchParams, isMounted])
 
+  // クライアントサイドでマウントされるまで何も表示しない
+  if (!isMounted) return null
+
   // リンククリック時にローディングを開始
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
