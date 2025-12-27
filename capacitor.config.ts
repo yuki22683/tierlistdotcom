@@ -12,7 +12,8 @@ const config: CapacitorConfig = {
     // url: 'http://localhost:3000',
   },
   ios: {
-    contentInset: 'automatic',
+    contentInset: 'never',
+    backgroundColor: '#000000',
   },
   android: {
     allowMixedContent: true,
@@ -29,6 +30,10 @@ const config: CapacitorConfig = {
     },
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
+    },
+    StatusBar: {
+      backgroundColor: '#000000',
+      style: 'DARK',
     },
   }
 };
