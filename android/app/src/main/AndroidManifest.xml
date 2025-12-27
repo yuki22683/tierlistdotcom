@@ -27,6 +27,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="com.tierlist.app" />
             </intent-filter>
+
+            <!-- App Links for tier-lst.com -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="tier-lst.com" />
+            </intent-filter>
         </activity>
 
         <provider
