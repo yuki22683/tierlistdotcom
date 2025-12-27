@@ -92,6 +92,9 @@ export default function QuizPlayClient({
   const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
   const [isLoadingNext, setIsLoadingNext] = useState(false)
   const [isNavigatingHome, setIsNavigatingHome] = useState(false)
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
+  const [touchedItemId, setTouchedItemId] = useState<string | null>(null)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
   
   // Determine if it is the last question
   // If we are at the end of history AND we have visited all available tier lists
@@ -107,6 +110,11 @@ export default function QuizPlayClient({
   const currentTiers = currentItem.tiers
   const currentItems = currentItem.items
   const currentVoteItems = currentItem.allVoteItems
+
+  // Detect touch device
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  }, [])
 
   // SessionStorage management
   const storageKey = tag ? `quiz-visited-${tag}` : 'quiz-visited-all'
@@ -421,6 +429,14 @@ export default function QuizPlayClient({
                       <div
                         key={item.id}
                         className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-pointer"
+                        onMouseEnter={!isTouchDevice ? () => setSelectedItemId(item.id) : undefined}
+                        onMouseLeave={!isTouchDevice ? () => setSelectedItemId(null) : undefined}
+                        onClick={() => {
+                          setSelectedItemId(selectedItemId === item.id ? null : item.id)
+                          if (isTouchDevice && !showLabels) {
+                            setTouchedItemId(touchedItemId === item.id ? null : item.id)
+                          }
+                        }}
                         onDoubleClick={() => handleItemDoubleClick(item)}
                       >
                         {item.is_text_item ? (
@@ -436,11 +452,13 @@ export default function QuizPlayClient({
                         ) : (
                           <>
                             <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                            {showLabels && (
-                              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3">
-                                {item.name}
-                              </div>
-                            )}
+                            <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                              showLabels
+                                ? ''
+                                : isTouchDevice
+                                  ? (touchedItemId === item.id ? '' : 'opacity-0')
+                                  : 'opacity-0 group-hover:opacity-100 transition-opacity'
+                            }`}>{item.name}</div>
                           </>
                         )}
                       </div>
