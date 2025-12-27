@@ -21,6 +21,11 @@ export async function sendPushNotificationToUser(
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+    console.log('[PushUtil] Environment check:')
+    console.log('[PushUtil]   SUPABASE_URL:', supabaseUrl)
+    console.log('[PushUtil]   SUPABASE_ANON_KEY exists:', !!supabaseAnonKey)
+    console.log('[PushUtil]   SUPABASE_ANON_KEY (first 20 chars):', supabaseAnonKey?.substring(0, 20))
+
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('[PushUtil] ❌ Supabase URL or Anon Key is not set')
       return
@@ -44,10 +49,20 @@ export async function sendPushNotificationToUser(
     })
 
     console.log('[PushUtil] Edge Function response status:', response.status)
+    console.log('[PushUtil] Edge Function response status text:', response.statusText)
 
     if (!response.ok) {
-      const error = await response.json()
-      console.error('[PushUtil] ❌ Edge Function error response:', error)
+      const errorText = await response.text()
+      console.error('[PushUtil] ❌ Edge Function error response (raw):', errorText)
+
+      let error
+      try {
+        error = JSON.parse(errorText)
+      } catch (e) {
+        error = { error: errorText }
+      }
+
+      console.error('[PushUtil] ❌ Edge Function error response (parsed):', error)
       throw new Error(`Edge Function error: ${error.error || response.statusText}`)
     }
 
