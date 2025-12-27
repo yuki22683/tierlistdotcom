@@ -19,6 +19,7 @@ function PageLoadingIndicatorInner() {
     setIsMounted(true)
   }, [])
 
+  // URL変更時のローディング表示
   useEffect(() => {
     if (!isMounted) return
 
@@ -40,11 +41,10 @@ function PageLoadingIndicatorInner() {
     }
   }, [pathname, searchParams, isMounted])
 
-  // クライアントサイドでマウントされるまで何も表示しない
-  if (!isMounted) return null
-
   // リンククリック時にローディングを開始
   useEffect(() => {
+    if (!isMounted) return
+
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       const link = target.closest('a')
@@ -65,7 +65,10 @@ function PageLoadingIndicatorInner() {
     return () => {
       document.removeEventListener('click', handleClick, true)
     }
-  }, [])
+  }, [isMounted])
+
+  // クライアントサイドでマウントされるまで何も表示しない
+  if (!isMounted) return null
 
   if (!isLoading) return null
 
