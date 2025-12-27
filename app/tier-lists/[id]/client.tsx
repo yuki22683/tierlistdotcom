@@ -13,6 +13,7 @@ import { isNativeApp } from '@/utils/platform'
 import { domToPng } from 'modern-screenshot'
 import { format } from 'date-fns'
 import { formatNumber } from '@/utils/formatNumber'
+import { useLoading } from '@/context/LoadingContext'
 
 import CommentSection from '@/components/comments/CommentSection'
 import TierListReportModal from '@/components/TierListReportModal'
@@ -653,6 +654,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
+  const { startLoading } = useLoading()
   const [showLabels, setShowLabels] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [voteCount, setVoteCount] = useState<number>(tierList.vote_count)
@@ -1014,6 +1016,8 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const handleItemDoubleClick = (item: Item) => {
     if (activeTab === 'vote') return
     if (!item.name || item.name === '名無し') return
+    console.log('[TierList] Item double-clicked, starting loading indicator')
+    startLoading()
     router.push(`/items/${encodeURIComponent(item.name)}`)
   }
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { useLoading } from '@/context/LoadingContext'
 
 /**
  * ページ遷移時のローディングインジケーター
@@ -11,8 +12,8 @@ import { Suspense } from 'react'
 function PageLoadingIndicatorInner() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [isLoading, setIsLoading] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const { isLoading, startLoading, stopLoading } = useLoading()
 
   // クライアントサイドでのみ動作させる（ハイドレーションエラー回避）
   useEffect(() => {
@@ -27,13 +28,13 @@ function PageLoadingIndicatorInner() {
     console.log('[PageLoadingIndicator] URL changed:', pathname, searchParamsString)
 
     // URLが変更されたらローディング表示
-    setIsLoading(true)
+    startLoading()
 
     // ページレンダリング完了を待つ
     // 実際のデータ取得とレンダリングに時間がかかるため、少し長めに表示
     const timer = setTimeout(() => {
       console.log('[PageLoadingIndicator] Hiding loading indicator')
-      setIsLoading(false)
+      stopLoading()
     }, 1000) // 1秒後に非表示
 
     return () => {
@@ -56,7 +57,7 @@ function PageLoadingIndicatorInner() {
         // 別ページへの遷移の場合のみローディングを表示
         if (url.pathname !== currentUrl.pathname || url.search !== currentUrl.search) {
           console.log('[PageLoadingIndicator] Link clicked, showing loading')
-          setIsLoading(true)
+          startLoading()
         }
       }
     }
@@ -65,7 +66,7 @@ function PageLoadingIndicatorInner() {
     return () => {
       document.removeEventListener('click', handleClick, true)
     }
-  }, [isMounted])
+  }, [isMounted, startLoading])
 
   // クライアントサイドでマウントされるまで何も表示しない
   if (!isMounted) return null
