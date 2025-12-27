@@ -21,11 +21,30 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
   const isTierListScreen = pathname?.startsWith('/tier-lists/')
   const isLogoutDisabled = disableLogout || isTierListScreen
 
+  // 初回マウント時にセッションを取得
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user ?? null)
-      // 認証状態が変更されたらローディングを解除
-      setIsLoading(false)
+    }
+    initAuth()
+  }, [supabase])
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[AuthButton] Auth state changed:', event)
+
+      // ネイティブアプリでのSIGNED_INイベントは無視（ページリロードが発生するため）
+      if (isNativeApp() && event === 'SIGNED_IN') {
+        console.log('[AuthButton] Ignoring SIGNED_IN event in native app (page will reload)')
+        return
+      }
+
+      // 認証状態の変更を反映
+      if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        setUser(session?.user ?? null)
+        setIsLoading(false)
+      }
     })
 
     return () => subscription.unsubscribe()
