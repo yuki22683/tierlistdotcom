@@ -180,6 +180,7 @@ async function sendFCMV1Notification(
           priority: 'high',
           notification: {
             sound: 'default',
+            channel_id: 'default',
           }
         },
         apns: {
