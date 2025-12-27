@@ -14,6 +14,7 @@ interface AuthButtonProps {
 export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
   const supabase = createClient()
   const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -23,32 +24,51 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      // 認証状態が変更されたらローディングを解除
+      setIsLoading(false)
     })
 
     return () => subscription.unsubscribe()
   }, [supabase])
 
   const handleLogin = async () => {
-    // 現在のパスとクエリパラメータを保持
-    const currentPath = window.location.pathname + window.location.search
-    const encodedPath = encodeURIComponent(currentPath)
+    if (isLoading) return
 
-    // ネイティブアプリの場合はDeep Linkを使用
-    const redirectTo = isNativeApp()
-      ? `com.tierlist.app://auth/callback?next=${encodedPath}`
-      : `${window.location.origin}/auth/callback?next=${encodedPath}`
+    setIsLoading(true)
+    try {
+      // 現在のパスとクエリパラメータを保持
+      const currentPath = window.location.pathname + window.location.search
+      const encodedPath = encodeURIComponent(currentPath)
 
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo,
-      },
-    })
+      // ネイティブアプリの場合はDeep Linkを使用
+      const redirectTo = isNativeApp()
+        ? `com.tierlist.app://auth/callback?next=${encodedPath}`
+        : `${window.location.origin}/auth/callback?next=${encodedPath}`
+
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo,
+        },
+      })
+      // OAuth処理が開始されたらローディングは継続（ページ遷移するまで）
+    } catch (error) {
+      console.error('[AuthButton] Login error:', error)
+      setIsLoading(false)
+    }
   }
 
   const handleLogout = async () => {
-    if (isLogoutDisabled) return
-    await supabase.auth.signOut()
+    if (isLogoutDisabled || isLoading) return
+
+    setIsLoading(true)
+    try {
+      await supabase.auth.signOut()
+      // onAuthStateChangeで自動的にローディングが解除される
+    } catch (error) {
+      console.error('[AuthButton] Logout error:', error)
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -56,9 +76,9 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
       {user ? (
         <div className="flex items-center gap-2 sm:gap-4">
           {user.user_metadata?.avatar_url ? (
-             <img 
-               src={user.user_metadata.avatar_url} 
-               alt="User Avatar" 
+             <img
+               src={user.user_metadata.avatar_url}
+               alt="User Avatar"
                className="w-8 h-8 rounded-full border border-gray-200"
              />
           ) : (
@@ -68,26 +88,49 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
           )}
           <button
             onClick={handleLogout}
-            disabled={isLogoutDisabled}
-            className={`p-2 sm:px-4 sm:py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center ${
-                isLogoutDisabled
+            disabled={isLogoutDisabled || isLoading}
+            className={`p-2 sm:px-4 sm:py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2 ${
+                isLogoutDisabled || isLoading
                 ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                 : 'bg-rose-600 text-white hover:bg-rose-700'
             }`}
-            title={isLogoutDisabled ? "この画面ではログアウトできません" : "ログアウト"}
+            title={isLogoutDisabled ? "この画面ではログアウトできません" : isLoading ? "処理中..." : "ログアウト"}
           >
-            <LogOut size={20} className="sm:hidden" />
-            <span className="hidden sm:inline">ログアウト</span>
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span className="hidden sm:inline">処理中...</span>
+              </>
+            ) : (
+              <>
+                <LogOut size={20} className="sm:hidden" />
+                <span className="hidden sm:inline">ログアウト</span>
+              </>
+            )}
           </button>
         </div>
       ) : (
         <button
           onClick={handleLogin}
-          className="p-2 sm:px-4 sm:py-2 text-sm font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center justify-center"
-          title="Googleでログイン"
+          disabled={isLoading}
+          className={`p-2 sm:px-4 sm:py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2 ${
+            isLoading
+            ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+            : 'bg-indigo-600 text-white hover:bg-indigo-700'
+          }`}
+          title={isLoading ? "処理中..." : "Googleでログイン"}
         >
-          <LogIn size={20} className="sm:hidden" />
-          <span className="hidden sm:inline">Googleでログイン</span>
+          {isLoading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span className="hidden sm:inline">処理中...</span>
+            </>
+          ) : (
+            <>
+              <LogIn size={20} className="sm:hidden" />
+              <span className="hidden sm:inline">Googleでログイン</span>
+            </>
+          )}
         </button>
       )}
     </div>
