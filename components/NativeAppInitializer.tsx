@@ -6,12 +6,15 @@ import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { App as CapApp } from '@capacitor/app'
 import { initializePushNotifications, cleanupPushNotifications } from '@/utils/notifications'
+import { useLoading } from '@/context/LoadingContext'
 
 /**
  * ネイティブアプリの初期化処理
  * Webアプリには影響しません
  */
 export default function NativeAppInitializer() {
+  const { startLoading } = useLoading()
+
   useEffect(() => {
     console.log('[NativeAppInit] useEffect triggered')
     console.log('[NativeAppInit] isNativeApp:', isNativeApp())
@@ -47,6 +50,9 @@ export default function NativeAppInitializer() {
 
           // OAuth認証のコールバック処理
           if (event.url.includes('auth/callback')) {
+            // アプリに戻ってきたらすぐにローディングを開始
+            startLoading()
+            
             try {
               const url = new URL(event.url)
 
@@ -112,7 +118,7 @@ export default function NativeAppInitializer() {
         cleanupPushNotifications()
       }
     }
-  }, [])
+  }, [startLoading])
 
   // このコンポーネントは何も表示しない
   return null
