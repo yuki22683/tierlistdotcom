@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
 import CommentSection from '@/components/comments/CommentSection'
 import { getContrastColor } from '@/utils/colors'
 import HomeWrapper from '@/components/HomeWrapper'
@@ -307,9 +308,12 @@ export default async function ItemDetailPage(props: Props) {
         <div className="w-48 h-48 relative rounded-xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100">
            <ImageSlideshow images={itemImages} itemName={itemName} />
         </div>
-        
+
         <div className="flex-grow text-center md:text-left">
-           <h1 className="text-4xl font-bold mb-4">{itemName}</h1>
+           <div className="flex items-center gap-4 mb-4 justify-center md:justify-start">
+             <BackButton />
+             <h1 className="text-4xl font-bold">{itemName}</h1>
+           </div>
            <p className="text-gray-500 text-lg">
              登場回数：{sortedOccurrences.length}
            </p>

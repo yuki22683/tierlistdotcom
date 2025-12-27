@@ -301,9 +301,7 @@ export default async function SearchPage(props: Props) {
       <HomeWrapper uniqueKey={query || tagQuery || section || 'search'}>
 
       <div className="flex items-center gap-4 mb-8">
-        {(section || tagQuery) && (
-          <BackButton href={section ? `/search?${query ? `q=${encodeURIComponent(query)}` : tagQuery ? `tag=${encodeURIComponent(tagQuery)}` : ''}` : undefined} />
-        )}
+        <BackButton href={section ? `/search?${query ? `q=${encodeURIComponent(query)}` : tagQuery ? `tag=${encodeURIComponent(tagQuery)}` : ''}` : undefined} />
         <h1 className="text-3xl font-bold">
           {title}
         </h1>

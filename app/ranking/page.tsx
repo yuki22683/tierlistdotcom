@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import Image from 'next/image'
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
 import HomeWrapper from '@/components/HomeWrapper'
 
 export const dynamic = 'force-dynamic'
@@ -20,9 +21,10 @@ export default async function RankingPage() {
   return (
     <main className="container mx-auto py-10 px-4 max-w-4xl">
       <HomeWrapper uniqueKey="ranking">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold flex items-center justify-center gap-3 mb-2">
-          <span className="text-yellow-500">👑</span> 
+      <div className="mb-8 flex items-center gap-4 justify-center">
+        <BackButton />
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <span className="text-yellow-500">👑</span>
           ランキング
         </h1>
       </div>

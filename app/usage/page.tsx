@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { BookOpen, Layers, Edit3, BarChart2, CheckCircle, MousePointer2, Image as ImageIcon, Type, Flag } from 'lucide-react'
+import BackButton from '@/components/BackButton'
 import HomeWrapper from '@/components/HomeWrapper'
 
 export const metadata = {
@@ -14,9 +15,12 @@ export default async function UsagePage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <HomeWrapper uniqueKey="usage">
-      <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4">使い方ガイド</h1>
-        <p className="text-muted-foreground">ティアリスト.comをもっと楽しむためのヒント</p>
+      <div className="flex items-center gap-4 mb-8 justify-center">
+        <BackButton />
+        <div className="text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">使い方ガイド</h1>
+          <p className="text-muted-foreground">ティアリスト.comをもっと楽しむためのヒント</p>
+        </div>
       </div>
 
       <div className="space-y-16">

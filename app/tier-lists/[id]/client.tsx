@@ -15,6 +15,7 @@ import { format } from 'date-fns'
 import { formatNumber } from '@/utils/formatNumber'
 import { useLoading } from '@/context/LoadingContext'
 
+import BackButton from '@/components/BackButton'
 import CommentSection from '@/components/comments/CommentSection'
 import TierListReportModal from '@/components/TierListReportModal'
 import TagInput from '@/components/TagInput'
@@ -1462,11 +1463,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={tierList.id} />
       <RakutenRightWidget containerHeight={containerHeight} uniqueKey={tierList.id} />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
-        <div className="w-full">
+        <div className="w-full flex items-center gap-4">
+          <BackButton />
           <h1 className="text-3xl font-bold my-0 m-0 p-0">{tierList.title}</h1>
-
-
-
         </div>
       </div>
 
