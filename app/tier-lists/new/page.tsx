@@ -13,6 +13,8 @@ import TagInput from '@/components/TagInput'
 import AutocompleteInput from '@/components/AutocompleteInput'
 import ImageCropper from '@/components/ImageCropper'
 import { useLoading } from '@/context/LoadingContext'
+import RakutenLeftWidget from '@/components/RakutenLeftWidget'
+import RakutenRightWidget from '@/components/RakutenRightWidget'
 
 function CreateTierListContent() {
   const router = useRouter()
@@ -20,8 +22,8 @@ function CreateTierListContent() {
   // Removed categoryId dependency
   const supabase = createClient()
   const { startLoading } = useLoading()
-  
-  const { 
+
+  const {
     title, description, tiers, unrankedItems, tags, allowVoting,
     setTitle, setDescription, addTier, updateTier, deleteTier,
     addUnrankedItem, addUnrankedTextItem, removeUnrankedItem, updateItemName, updateItemColor, moveItem,
@@ -37,9 +39,23 @@ function CreateTierListContent() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [croppingFiles, setCroppingFiles] = useState<File[]>([])
   const [currentCroppingIndex, setCurrentCroppingIndex] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerHeight, setContainerHeight] = useState(0)
 
   const searchParams = useSearchParams()
   const forkFrom = searchParams.get('forkFrom')
+
+  // Monitor container height for Rakuten widgets
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setContainerHeight(containerRef.current.offsetHeight)
+      }
+    }
+    updateHeight()
+    window.addEventListener('resize', updateHeight)
+    return () => window.removeEventListener('resize', updateHeight)
+  }, [tiers, unrankedItems])
 
   useEffect(() => {
     if (!forkFrom) return
@@ -618,8 +634,11 @@ function CreateTierListContent() {
   // Removed categoryId check
 
   return (
-          <div className="container mx-auto py-8 px-4 max-w-5xl">
-          <button
+    <div ref={containerRef} className="container mx-auto py-8 px-4 max-w-5xl relative">
+      <RakutenLeftWidget containerHeight={containerHeight} uniqueKey="tier-list-new" />
+      <RakutenRightWidget containerHeight={containerHeight} uniqueKey="tier-list-new" />
+      <div className="relative">
+        <button
             onClick={() => { startLoading(); router.back(); }}
             className="fixed top-1/2 -translate-y-1/2 left-4 z-40 p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
             aria-label="戻る"
@@ -951,14 +970,15 @@ function CreateTierListContent() {
           </button>
       </div>
 
-      {/* 画像トリミングモーダル */}
-      {croppingFiles.length > 0 && (
-        <ImageCropper
-          imageFile={croppingFiles[currentCroppingIndex]}
-          onCropComplete={handleCropComplete}
-          onCancel={handleCropCancel}
-        />
-      )}
+        {/* 画像トリミングモーダル */}
+        {croppingFiles.length > 0 && (
+          <ImageCropper
+            imageFile={croppingFiles[currentCroppingIndex]}
+            onCropComplete={handleCropComplete}
+            onCancel={handleCropCancel}
+          />
+        )}
+      </div>
     </div>
   )
 }
