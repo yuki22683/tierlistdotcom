@@ -1,0 +1,14 @@
+{
+  "ios": {
+    "splash": {
+      "image": "resources/splash.png",
+      "width": 0.35
+    }
+  },
+  "android": {
+    "splash": {
+      "image": "resources/splash.png",
+      "width": 0.35
+    }
+  }
+}

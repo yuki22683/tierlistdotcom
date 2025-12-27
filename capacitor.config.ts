@@ -18,6 +18,13 @@ const config: CapacitorConfig = {
     allowMixedContent: true,
   },
   plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      androidScaleType: 'CENTER_CROP',
+      splashFullScreen: false,
+      splashImmersive: false,
+    },
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
     },
