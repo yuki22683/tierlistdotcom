@@ -5,6 +5,9 @@ import { isNativeApp } from './platform'
 import { createClient } from '@/utils/supabase/client'
 import { Capacitor } from '@capacitor/core'
 
+// FCMトークンをグローバルに保持（ログイン前に取得された場合に備える）
+let pendingDeviceToken: string | null = null
+
 /**
  * プッシュ通知の初期化
  * ネイティブアプリでのみ動作します
@@ -28,6 +31,7 @@ export async function initializePushNotifications(): Promise<void> {
     // 登録成功時のリスナー
     PushNotifications.addListener('registration', async (token) => {
       console.log('[Push] Push registration success, token:', token.value)
+      pendingDeviceToken = token.value // トークンを保持
       // トークンをサーバーに送信して保存
       await saveDeviceToken(token.value)
     })
@@ -35,6 +39,24 @@ export async function initializePushNotifications(): Promise<void> {
     // 登録失敗時のリスナー
     PushNotifications.addListener('registrationError', (error) => {
       console.error('[Push] Push registration error:', error)
+    })
+
+    // ログイン状態の変更を監視
+    const supabase = createClient()
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[Push] Auth state changed:', event)
+
+      // ログイン時に保留中のトークンを保存
+      if (event === 'SIGNED_IN' && pendingDeviceToken) {
+        console.log('[Push] User signed in, saving pending device token...')
+        await saveDeviceToken(pendingDeviceToken)
+      }
+
+      // ログアウト時はトークンをクリア（オプション）
+      if (event === 'SIGNED_OUT') {
+        console.log('[Push] User signed out')
+        pendingDeviceToken = null
+      }
     })
 
     // 通知受信時のリスナー（アプリがフォアグラウンドの場合）
