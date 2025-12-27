@@ -451,6 +451,9 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
               </div>
 
               {/* Tiers */}
+              <div className="mb-4 text-sm text-muted-foreground font-medium">
+                  ここで作成したティアリストが再投票されます。
+              </div>
               <div className="space-y-0 border rounded-md overflow-hidden">
                   {tiers.map((tier) => (
                       <div key={tier.id} className="flex min-h-[68px] sm:min-h-[102px] border-b last:border-0 bg-black">
