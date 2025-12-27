@@ -1,11 +1,12 @@
 -- 注目アイテムの修正
 -- アイテム詳細ページの閲覧数（item_view_counts テーブル）のみを使用するように修正
 
--- まず、現在の get_trending_items 関数を確認するために、関数の定義を表示
--- Supabase Dashboard > Database > Functions で確認してください
+-- まず、既存の関数を削除
+DROP FUNCTION IF EXISTS get_trending_items(integer, integer);
+DROP FUNCTION IF EXISTS get_trending_items_count();
 
 -- 修正版: アイテム詳細ページの閲覧数のみを使用
-CREATE OR REPLACE FUNCTION get_trending_items(limit_count INT, offset_val INT)
+CREATE FUNCTION get_trending_items(limit_count INT, offset_val INT)
 RETURNS TABLE (
   name TEXT,
   image_url TEXT,
@@ -33,7 +34,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 注目アイテムのカウント用関数も修正
-CREATE OR REPLACE FUNCTION get_trending_items_count()
+CREATE FUNCTION get_trending_items_count()
 RETURNS BIGINT AS $$
 BEGIN
   RETURN (
