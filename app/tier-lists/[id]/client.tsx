@@ -1868,7 +1868,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                       <div key={tier.id} className="flex min-h-[68px] sm:min-h-[102px] border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900">
                         <div className="w-16 sm:w-32 flex flex-col justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3" style={{ backgroundColor: tier.color, color: getContrastColor(tier.color) }}>
                           {tier.name}
-                          {selectedItemId && itemVoteDist && (
+                          {selectedItemId && itemVoteDist && activeTab !== 'result' && (
                             <div className="text-xs mt-1">
                               {itemVoteDist[selectedItemId]?.[tier.id] || 0}票 ({voteStats?.[selectedItemId]?.count ?? 0 > 0 ? Math.round(((itemVoteDist[selectedItemId]?.[tier.id] || 0) / voteStats![selectedItemId]!.count) * 100) : 0}%)
                             </div>
