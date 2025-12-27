@@ -288,7 +288,7 @@ export default async function Home({
       {fetchPopular && (
         <section className="mb-12">
           {view === 'popular' && <BackButton href="/" />}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
             <a href="/?view=popular" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-yellow-500">🏆</span> 人気のティアリスト
@@ -316,7 +316,7 @@ export default async function Home({
       {fetchTrending && (
         <section className="mb-12">
           {view === 'trending' && <BackButton href="/" />}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
             <a href="/?view=trending" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-orange-500">👀</span> 注目のティアリスト
@@ -344,7 +344,7 @@ export default async function Home({
       {fetchNew && (
         <section className="mb-12">
           {view === 'new' && <BackButton href="/" />}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
             <a href="/?view=new" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-blue-500">🆕</span> 新しいティアリスト
@@ -372,7 +372,7 @@ export default async function Home({
       {fetchTags && popularTags.length > 0 && (
           <section className="mb-12">
             {view === 'tags' && <BackButton href="/" />}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
                 <a href="/?view=tags" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-green-500">🏷️</span> 人気のタグ
@@ -399,7 +399,7 @@ export default async function Home({
       {fetchTrendingTags && trendingTags.length > 0 && (
           <section className="mb-12">
             {view === 'trending-tags' && <BackButton href="/" />}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
                 <a href="/?view=trending-tags" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-cyan-500">🔖</span> 注目のタグ
@@ -426,7 +426,7 @@ export default async function Home({
       {fetchItems && popularItems.length > 0 && (
           <section className="mb-12">
             {view === 'items' && <BackButton href="/" />}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
                 <a href="/?view=items" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-purple-500">🔥</span> 人気のアイテム
@@ -473,7 +473,7 @@ export default async function Home({
       {fetchTrendingItems && (
           <section className="mb-12">
             {view === 'trending-items' && <BackButton href="/" />}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
                 <a href="/?view=trending-items" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-pink-500">👁️</span> 注目のアイテム

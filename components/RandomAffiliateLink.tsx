@@ -21,7 +21,7 @@ export default function RandomAffiliateLink({ className = "", index = 0 }: Props
   if (!link) return null
 
   return (
-    <div className={`hidden sm:flex items-center ${className}`}>
+    <div className={`flex items-center ${className}`}>
       <a href={link.href} target="_blank" rel="nofollow sponsored noopener" style={{ wordWrap: 'break-word' }}>
         <img src={link.img} style={{ border: 0 }} alt="" title="" />
       </a>

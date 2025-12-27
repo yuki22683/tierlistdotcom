@@ -123,7 +123,7 @@ export default function RecentlyViewedItems({
 
   return (
     <div className="mb-12">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
         <Link href="/?view=recent-items" className="cursor-pointer hover:underline inline-block">
             <h2 className="text-2xl font-bold flex items-center gap-2">
             <span>📋</span> 最近見たアイテム
