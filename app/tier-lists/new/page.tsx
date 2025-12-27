@@ -3,7 +3,7 @@
 import { useTierListStore, TierItem, Tier } from '@/store/tierListStore'
 import { createClient } from '@/utils/supabase/client'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
-import { Plus, Trash2, GripVertical, X, Image, Type, Pipette } from 'lucide-react'
+import { Plus, Trash2, GripVertical, X, Image, Type, Pipette, ArrowLeft } from 'lucide-react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useState, useRef, Suspense, useEffect } from 'react'
 import { getContrastColor } from '@/utils/colors'
@@ -618,19 +618,22 @@ function CreateTierListContent() {
   return (
           <div className="container mx-auto py-8 px-4 max-w-5xl">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h1 className="text-2xl font-bold">新規ティアリスト作成</h1>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.back()}
+                className="p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
+                aria-label="戻る"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <h1 className="text-2xl font-bold">新規ティアリスト作成</h1>
+            </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <button 
+                <button
                     onClick={handleStartOver}
                     className="px-10 py-4 rounded-lg font-bold text-lg text-red-600 border border-red-200 hover:bg-red-50 transition-all hover:scale-105 shadow-lg w-full sm:w-auto"
                 >
                     最初から作り直す
-                </button>
-                <button 
-                    onClick={() => router.back()}
-                    className="px-10 py-4 rounded-lg font-bold text-lg border hover:bg-accent transition-all hover:scale-105 shadow-lg w-full sm:w-auto"
-                >
-                    キャンセル
                 </button>
             </div>
           </div>

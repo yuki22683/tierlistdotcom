@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
 
 export const metadata = {
   title: 'プライバシーポリシー - ティアリスト.com',
@@ -8,7 +9,10 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">プライバシーポリシー</h1>
+      <div className="flex items-center gap-4 mb-8">
+        <BackButton />
+        <h1 className="text-4xl font-bold">プライバシーポリシー</h1>
+      </div>
 
       <div className="prose prose-slate dark:prose-invert max-w-none">
         <p className="text-gray-600 dark:text-gray-400 mb-8">
@@ -233,15 +237,6 @@ export default function PrivacyPage() {
             本プライバシーポリシーに関する紛争については、東京地方裁判所を第一審の専属的合意管轄裁判所とします。
           </p>
         </section>
-
-        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-          <Link
-            href="/"
-            className="inline-flex items-center text-indigo-600 hover:underline"
-          >
-            ← ホームに戻る
-          </Link>
-        </div>
       </div>
     </div>
   )

@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
 
 export const metadata = {
   title: '利用規約 | ティアリスト.com',
@@ -9,7 +10,10 @@ export const metadata = {
 export default function TermsOfServicePage() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-10 text-center">利用規約</h1>
+      <div className="flex items-center gap-4 mb-10 justify-center">
+        <BackButton />
+        <h1 className="text-3xl font-bold">利用規約</h1>
+      </div>
 
       <div className="space-y-10 text-gray-800 dark:text-gray-200 text-sm leading-7">
         <p>

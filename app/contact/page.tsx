@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { submitInquiry } from '@/app/actions/inquiries'
 import { useEffect, useRef } from 'react'
+import BackButton from '@/components/BackButton'
 
 const initialState = {
   message: '',
@@ -22,7 +23,10 @@ export default function ContactPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-8 text-center">お問い合わせ</h1>
+      <div className="flex items-center gap-4 mb-8 justify-center">
+        <BackButton />
+        <h1 className="text-3xl font-bold">お問い合わせ</h1>
+      </div>
 
       <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-800">
         <div className="mb-8 text-sm text-gray-600 dark:text-gray-300 space-y-4">
