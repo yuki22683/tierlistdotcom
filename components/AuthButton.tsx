@@ -6,6 +6,7 @@ import { User } from '@supabase/supabase-js'
 import { User as UserIcon, LogIn, LogOut } from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { isNativeApp } from '@/utils/platform'
+import { useLoading } from '@/context/LoadingContext'
 
 interface AuthButtonProps {
   disableLogout?: boolean
@@ -15,6 +16,7 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
   const supabase = createClient()
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const { startLoading, stopLoading } = useLoading()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -44,16 +46,18 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
         setUser(session?.user ?? null)
         setIsLoading(false)
+        stopLoading()
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [supabase])
+  }, [supabase, stopLoading])
 
   const handleLogin = async () => {
     if (isLoading) return
 
     setIsLoading(true)
+    startLoading()
     try {
       // 現在のパスとクエリパラメータを保持
       const currentPath = window.location.pathname + window.location.search
@@ -74,6 +78,7 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
     } catch (error) {
       console.error('[AuthButton] Login error:', error)
       setIsLoading(false)
+      stopLoading()
     }
   }
 
@@ -81,12 +86,14 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
     if (isLogoutDisabled || isLoading) return
 
     setIsLoading(true)
+    startLoading()
     try {
       await supabase.auth.signOut()
       // onAuthStateChangeで自動的にローディングが解除される
     } catch (error) {
       console.error('[AuthButton] Logout error:', error)
       setIsLoading(false)
+      stopLoading()
     }
   }
 
