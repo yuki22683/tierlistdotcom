@@ -67,7 +67,7 @@ export async function sendPushNotificationToUser(
     }
 
     const result = await response.json()
-    console.log('[PushUtil] ✅ Push notification sent via Edge Function:', result)
+    console.log('[PushUtil] ✅ Push notification sent via Edge Function:', JSON.stringify(result, null, 2))
 
   } catch (error) {
     console.error('[PushUtil] ❌ Failed to send push notification:', error)
