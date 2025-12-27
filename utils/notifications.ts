@@ -124,43 +124,58 @@ export function cleanupPushNotifications(): void {
  * @param userId - ユーザーID
  */
 async function saveDeviceTokenDirectly(token: string, userId: string): Promise<void> {
-  const supabase = createClient()
+  try {
+    console.log('[Push] saveDeviceTokenDirectly called')
+    const supabase = createClient()
+    console.log('[Push] Supabase client created')
 
-  // プラットフォーム判定（ios, android, web）
-  const platform = Capacitor.getPlatform()
+    // プラットフォーム判定（ios, android, web）
+    const platform = Capacitor.getPlatform()
 
-  console.log('[Push] Attempting to save device token...')
-  console.log('[Push] User ID:', userId)
-  console.log('[Push] Platform:', platform)
-  console.log('[Push] Token (first 20 chars):', token.substring(0, 20) + '...')
+    console.log('[Push] Attempting to save device token...')
+    console.log('[Push] User ID:', userId)
+    console.log('[Push] Platform:', platform)
+    console.log('[Push] Token (first 20 chars):', token.substring(0, 20) + '...')
 
-  const { error } = await supabase
-    .from('device_tokens')
-    .upsert({
-      user_id: userId,
-      token: token,
-      platform: platform,
-      updated_at: new Date().toISOString()
-    }, {
-      onConflict: 'token'  // 同じトークンが別のユーザーに紐づいていた場合、現在のユーザーに上書き
-    })
-
-  if (error) {
-    console.error('[Push] ❌ Failed to save device token:', error)
-  } else {
-    console.log('[Push] ✅ Device token saved successfully to database')
-
-    // 保存確認のためにデータベースから読み取り
-    const { data: savedToken, error: fetchError } = await supabase
+    console.log('[Push] Calling supabase.from(device_tokens).upsert()...')
+    const { error } = await supabase
       .from('device_tokens')
-      .select('*')
-      .eq('token', token)
-      .single()
+      .upsert({
+        user_id: userId,
+        token: token,
+        platform: platform,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'token'  // 同じトークンが別のユーザーに紐づいていた場合、現在のユーザーに上書き
+      })
 
-    if (fetchError) {
-      console.error('[Push] ❌ Failed to verify saved token:', fetchError)
+    console.log('[Push] Upsert completed, checking error...')
+    if (error) {
+      console.error('[Push] ❌ Failed to save device token:', error)
+      console.error('[Push] Error details:', JSON.stringify(error))
     } else {
-      console.log('[Push] ✅ Token verified in database:', savedToken)
+      console.log('[Push] ✅ Device token saved successfully to database')
+
+      // 保存確認のためにデータベースから読み取り
+      console.log('[Push] Verifying saved token...')
+      const { data: savedToken, error: fetchError } = await supabase
+        .from('device_tokens')
+        .select('*')
+        .eq('token', token)
+        .single()
+
+      if (fetchError) {
+        console.error('[Push] ❌ Failed to verify saved token:', fetchError)
+      } else {
+        console.log('[Push] ✅ Token verified in database:', savedToken)
+      }
+    }
+    console.log('[Push] saveDeviceTokenDirectly completed')
+  } catch (error) {
+    console.error('[Push] ❌ Exception in saveDeviceTokenDirectly:', error)
+    if (error instanceof Error) {
+      console.error('[Push] Error message:', error.message)
+      console.error('[Push] Error stack:', error.stack)
     }
   }
 }
