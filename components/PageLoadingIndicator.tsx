@@ -1,24 +1,20 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
 /**
  * ページ遷移時のローディングインジケーター
  * URLが変更されたときに表示される
  */
-export default function PageLoadingIndicator() {
+function PageLoadingIndicatorInner() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
-  const isFirstRender = useRef(true)
 
   useEffect(() => {
-    // 初回レンダリングはスキップ
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
+    console.log('[PageLoadingIndicator] URL changed:', pathname, searchParams?.toString())
 
     // URLが変更されたらローディング表示
     setIsLoading(true)
@@ -26,13 +22,38 @@ export default function PageLoadingIndicator() {
     // ページレンダリング完了を待つ
     // 実際のデータ取得とレンダリングに時間がかかるため、少し長めに表示
     const timer = setTimeout(() => {
+      console.log('[PageLoadingIndicator] Hiding loading indicator')
       setIsLoading(false)
-    }, 800) // 800ms後に非表示
+    }, 1000) // 1秒後に非表示
 
     return () => {
       clearTimeout(timer)
     }
   }, [pathname, searchParams])
+
+  // リンククリック時にローディングを開始
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const link = target.closest('a')
+
+      if (link && link.href && !link.href.startsWith('javascript:') && !link.target) {
+        const url = new URL(link.href)
+        const currentUrl = new URL(window.location.href)
+
+        // 別ページへの遷移の場合のみローディングを表示
+        if (url.pathname !== currentUrl.pathname || url.search !== currentUrl.search) {
+          console.log('[PageLoadingIndicator] Link clicked, showing loading')
+          setIsLoading(true)
+        }
+      }
+    }
+
+    document.addEventListener('click', handleClick, true)
+    return () => {
+      document.removeEventListener('click', handleClick, true)
+    }
+  }, [])
 
   if (!isLoading) return null
 
@@ -63,5 +84,13 @@ export default function PageLoadingIndicator() {
         }
       `}</style>
     </>
+  )
+}
+
+export default function PageLoadingIndicator() {
+  return (
+    <Suspense fallback={null}>
+      <PageLoadingIndicatorInner />
+    </Suspense>
   )
 }
