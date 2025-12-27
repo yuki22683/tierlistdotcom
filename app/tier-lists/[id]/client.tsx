@@ -367,7 +367,6 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
       <div className="bg-background mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 className="text-xl font-bold">ティアリスト編集</h2>
-            <button onClick={onCancel} className="px-10 py-4 rounded-lg font-bold text-lg border hover:bg-accent transition-all hover:scale-105 shadow-lg w-full sm:w-auto">キャンセル</button>
           </div>
           
           <div className="space-y-4 mb-8">
@@ -386,7 +385,7 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
                 <textarea
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    className="w-full p-2 border rounded-md bg-background h-24"
+                    className="w-full p-2 border rounded-md bg-background h-60"
                     placeholder="ティアリストの説明や各階層の基準などを入力してください。"
                 />
             </div>
@@ -518,6 +517,7 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
 
           <div className="mt-8 flex justify-center gap-4">
               <button onClick={handleSave} disabled={isSubmitting || !canPublish} className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:scale-100">保存</button>
+              <button onClick={onCancel} className="px-8 py-2 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700">キャンセル</button>
           </div>
 
           {/* 画像トリミングモーダル */}

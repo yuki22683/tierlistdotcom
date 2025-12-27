@@ -674,7 +674,7 @@ function CreateTierListContent() {
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="ティアリストの説明や各階層の基準などを入力してください。"
-                className="w-full p-2 border rounded-md bg-background h-24 focus:ring-1 focus:ring-indigo-500 outline-none"
+                className="w-full p-2 border rounded-md bg-background h-60 focus:ring-1 focus:ring-indigo-500 outline-none"
             />
         </div>
         <TagInput />
