@@ -437,7 +437,6 @@ export default function QuizPlayClient({
                             setTouchedItemId(touchedItemId === item.id ? null : item.id)
                           }
                         }}
-                        onDoubleClick={() => handleItemDoubleClick(item)}
                       >
                         {item.is_text_item ? (
                           <div
