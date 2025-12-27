@@ -45,6 +45,7 @@ export default function TierListCard({ list, isAdmin, currentUserId, userHasVote
     } else {
       // 削除成功時はカードを即座に非表示にしてからページをリフレッシュ
       setIsDeleted(true)
+      setIsDeleting(false) // 読み込み状態をリセット
       router.refresh()
     }
   }
