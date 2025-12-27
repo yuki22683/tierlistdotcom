@@ -12,12 +12,14 @@ import { deleteImageIfUnused } from '@/utils/imageCleanup'
 import TagInput from '@/components/TagInput'
 import AutocompleteInput from '@/components/AutocompleteInput'
 import ImageCropper from '@/components/ImageCropper'
+import { useLoading } from '@/context/LoadingContext'
 
 function CreateTierListContent() {
   const router = useRouter()
   const pathname = usePathname()
   // Removed categoryId dependency
   const supabase = createClient()
+  const { startLoading } = useLoading()
   
   const { 
     title, description, tiers, unrankedItems, tags, allowVoting,
@@ -618,7 +620,7 @@ function CreateTierListContent() {
   return (
           <div className="container mx-auto py-8 px-4 max-w-5xl">
           <button
-            onClick={() => router.back()}
+            onClick={() => { startLoading(); router.back(); }}
             className="fixed top-1/2 -translate-y-1/2 left-4 z-40 p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
             aria-label="戻る"
           >

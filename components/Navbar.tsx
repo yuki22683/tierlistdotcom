@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { ShieldAlert, Crown, HelpCircle, Search, X } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+import { useLoading } from '@/context/LoadingContext'
 
 interface NavbarProps {
   disableLogout?: boolean
@@ -20,6 +21,7 @@ export default function Navbar({ disableLogout = false }: NavbarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
+  const { startLoading } = useLoading()
 
   // Auto-disable logout on quiz play screen
   const isQuizPlayPage = pathname?.startsWith('/quiz/play')
@@ -46,6 +48,7 @@ export default function Navbar({ disableLogout = false }: NavbarProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
+    startLoading()
     router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
   }
 

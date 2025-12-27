@@ -2,11 +2,13 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useLoading } from '@/context/LoadingContext'
 
 export default function QuizButton() {
   const router = useRouter()
   const [bottomOffset, setBottomOffset] = useState(8)
   const [isNavigating, setIsNavigating] = useState(false)
+  const { startLoading } = useLoading()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,6 +43,7 @@ export default function QuizButton() {
 
   const handleClick = () => {
     setIsNavigating(true)
+    startLoading()
     router.push('/quiz/select-genre')
   }
 

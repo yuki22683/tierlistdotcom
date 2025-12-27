@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import { useLoading } from '@/context/LoadingContext'
 
 interface BackButtonProps {
   href?: string
@@ -9,8 +10,10 @@ interface BackButtonProps {
 
 export default function BackButton({ href }: BackButtonProps) {
   const router = useRouter()
+  const { startLoading } = useLoading()
 
   const handleClick = () => {
+    startLoading()
     if (href) {
       router.push(href)
     } else {
