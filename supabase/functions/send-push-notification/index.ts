@@ -185,9 +185,25 @@ async function sendFCMNotification(
     })
 
     console.log('[FCM] FCM response status:', response.status)
+    console.log('[FCM] FCM response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2))
 
-    const result = await response.json()
-    console.log('[FCM] FCM response body:', JSON.stringify(result, null, 2))
+    // まずテキストとして取得してログ出力
+    const responseText = await response.text()
+    console.log('[FCM] FCM response body (raw):', responseText.substring(0, 500))
+
+    // JSONとしてパース
+    let result
+    try {
+      result = JSON.parse(responseText)
+      console.log('[FCM] FCM response body (parsed):', JSON.stringify(result, null, 2))
+    } catch (e) {
+      console.error('[FCM] ❌ Failed to parse FCM response as JSON:', e.message)
+      return {
+        success: false,
+        platform: 'android',
+        error: `Invalid FCM response: ${responseText.substring(0, 100)}`
+      }
+    }
 
     if (response.ok && result.success === 1) {
       console.log(`[FCM] ✅ FCM notification sent successfully to ${token.substring(0, 20)}...`)
