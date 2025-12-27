@@ -46,10 +46,42 @@ export async function initializePushNotifications(): Promise<void> {
     supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('[Push] Auth state changed:', event)
 
-      // ログイン時に保留中のトークンを保存
-      if (event === 'SIGNED_IN' && pendingDeviceToken) {
-        console.log('[Push] User signed in, saving pending device token...')
+      // INITIAL_SESSIONでもセッションとユーザーが存在する場合はトークンを保存
+      if (event === 'INITIAL_SESSION' && session?.user && pendingDeviceToken) {
+        console.log('[Push] Initial session detected with user, saving pending device token...')
         await saveDeviceToken(pendingDeviceToken)
+      }
+
+      // ログイン時に保留中のトークンを保存（リトライロジック付き）
+      if (event === 'SIGNED_IN' && pendingDeviceToken) {
+        console.log('[Push] User signed in, saving pending device token with retry logic...')
+
+        // ユーザーデータが完全にロードされるまでリトライ
+        let retries = 3
+        let saveSuccess = false
+
+        while (retries > 0 && !saveSuccess) {
+          // 少し待機してからユーザーデータを確認
+          if (retries < 3) {
+            console.log(`[Push] Retry attempt ${4 - retries}/3 after 500ms delay...`)
+            await new Promise(resolve => setTimeout(resolve, 500))
+          }
+
+          const { data: { user } } = await supabase.auth.getUser()
+          if (user) {
+            console.log('[Push] User data loaded, attempting to save device token...')
+            await saveDeviceToken(pendingDeviceToken)
+            saveSuccess = true
+            break
+          } else {
+            console.log('[Push] User data not yet available, retrying...')
+            retries--
+          }
+        }
+
+        if (!saveSuccess) {
+          console.error('[Push] ❌ Failed to save device token after all retries')
+        }
       }
 
       // ログアウト時はトークンをクリア（オプション）
