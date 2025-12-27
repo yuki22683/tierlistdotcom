@@ -43,10 +43,9 @@ export default function TierListCard({ list, isAdmin, currentUserId, userHasVote
       alert('削除に失敗しました: ' + result.error)
       setIsDeleting(false)
     } else {
-      // 削除成功時はカードを即座に非表示にしてからページをリフレッシュ
+      // 削除成功時はカードを即座に非表示にする
       setIsDeleted(true)
-      setIsDeleting(false) // 読み込み状態をリセット
-      router.refresh()
+      setIsDeleting(false)
     }
   }
 
@@ -78,6 +77,7 @@ export default function TierListCard({ list, isAdmin, currentUserId, userHasVote
       {canDelete && (
         <button
           onClick={handleDelete}
+          data-no-loading="true"
           className="absolute top-2 left-2 z-10 bg-red-600 text-white p-1.5 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-red-700 shadow-md"
           title="削除"
         >

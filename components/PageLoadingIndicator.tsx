@@ -48,6 +48,13 @@ function PageLoadingIndicatorInner() {
 
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement
+
+      // data-no-loading属性を持つ要素またはその子孫のクリックは無視
+      if (target.closest('[data-no-loading]')) {
+        console.log('[PageLoadingIndicator] Click on no-loading element, skipping')
+        return
+      }
+
       const link = target.closest('a')
 
       if (link && link.href && !link.href.startsWith('javascript:') && !link.target) {
