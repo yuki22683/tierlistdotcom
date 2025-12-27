@@ -619,7 +619,7 @@ function CreateTierListContent() {
           <div className="container mx-auto py-8 px-4 max-w-5xl">
           <button
             onClick={() => router.back()}
-            className="fixed top-4 left-4 z-50 p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
+            className="fixed top-20 left-4 z-40 p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
             aria-label="戻る"
           >
             <ArrowLeft size={20} />
