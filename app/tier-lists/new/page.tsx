@@ -617,17 +617,15 @@ function CreateTierListContent() {
 
   return (
           <div className="container mx-auto py-8 px-4 max-w-5xl">
+          <button
+            onClick={() => router.back()}
+            className="fixed top-4 left-4 z-50 p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
+            aria-label="戻る"
+          >
+            <ArrowLeft size={20} />
+          </button>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
-                aria-label="戻る"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <h1 className="text-2xl font-bold">新規ティアリスト作成</h1>
-            </div>
+            <h1 className="text-2xl font-bold">新規ティアリスト作成</h1>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <button
                     onClick={handleStartOver}

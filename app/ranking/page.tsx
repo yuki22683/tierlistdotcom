@@ -21,13 +21,11 @@ export default async function RankingPage() {
   return (
     <main className="container mx-auto py-10 px-4 max-w-4xl">
       <HomeWrapper uniqueKey="ranking">
-      <div className="mb-8 flex items-center gap-4 justify-center">
-        <BackButton />
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <span className="text-yellow-500">👑</span>
-          ランキング
-        </h1>
-      </div>
+      <BackButton />
+      <h1 className="text-3xl font-bold flex items-center gap-3 justify-center mb-8">
+        <span className="text-yellow-500">👑</span>
+        ランキング
+      </h1>
 
       <div className="bg-card border rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">

@@ -9,10 +9,8 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
-      <div className="flex items-center gap-4 mb-8">
-        <BackButton />
-        <h1 className="text-4xl font-bold">プライバシーポリシー</h1>
-      </div>
+      <BackButton />
+      <h1 className="text-4xl font-bold mb-8">プライバシーポリシー</h1>
 
       <div className="prose prose-slate dark:prose-invert max-w-none">
         <p className="text-gray-600 dark:text-gray-400 mb-8">

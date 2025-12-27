@@ -303,6 +303,7 @@ export default async function ItemDetailPage(props: Props) {
     <div className="container mx-auto py-12 px-4 max-w-4xl">
       <HomeWrapper uniqueKey="item-detail">
       <SaveItemToHistory itemName={itemName} imageUrl={itemImages[0] || null} />
+      <BackButton />
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-8 items-center md:items-start mb-12">
         <div className="w-48 h-48 relative rounded-xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100">
@@ -310,10 +311,7 @@ export default async function ItemDetailPage(props: Props) {
         </div>
 
         <div className="flex-grow text-center md:text-left">
-           <div className="flex items-center gap-4 mb-4 justify-center md:justify-start">
-             <BackButton />
-             <h1 className="text-4xl font-bold">{itemName}</h1>
-           </div>
+           <h1 className="text-4xl font-bold mb-4">{itemName}</h1>
            <p className="text-gray-500 text-lg">
              登場回数：{sortedOccurrences.length}
            </p>

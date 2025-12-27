@@ -362,12 +362,10 @@ export default function QuizPlayClient({
       <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
       <RakutenRightWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
       <main className="pb-10 pt-4">
-      <div className="flex items-center gap-4 mb-6 justify-center">
-        <BackButton href="/quiz/select-genre" />
-        <h1 className="text-3xl font-bold">
-          {isAnswerRevealed ? currentTierList.title : '？？？？'}
-        </h1>
-      </div>
+      <BackButton href="/quiz/select-genre" />
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        {isAnswerRevealed ? currentTierList.title : '？？？？'}
+      </h1>
 
       {/* Question Counter */}
       <div className="text-center mb-4 text-lg font-semibold text-muted-foreground">

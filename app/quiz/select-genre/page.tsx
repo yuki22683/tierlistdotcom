@@ -45,10 +45,8 @@ export default async function SelectGenrePage(props: Props) {
     <main className="container mx-auto pb-10 pt-4 px-4 max-w-5xl">
       <QuizSessionCleaner />
       <HomeWrapper uniqueKey="quiz-select-genre">
-        <div className="flex items-center gap-4 mb-6">
-          <BackButton href="/" />
-          <h1 className="text-3xl font-bold">ジャンル選択</h1>
-        </div>
+        <BackButton href="/" />
+        <h1 className="text-3xl font-bold mb-6">ジャンル選択</h1>
         <p className="text-center text-muted-foreground mb-8">
           クイズで出題するジャンルを選んでください
         </p>

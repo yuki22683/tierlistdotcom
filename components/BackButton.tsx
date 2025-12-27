@@ -21,7 +21,7 @@ export default function BackButton({ href }: BackButtonProps) {
   return (
     <button
       onClick={handleClick}
-      className="p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
+      className="fixed top-4 left-4 z-50 p-2 rounded-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700 flex items-center justify-center"
       aria-label="戻る"
     >
       <ArrowLeft size={20} />

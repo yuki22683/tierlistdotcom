@@ -1462,11 +1462,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     <div ref={containerRef} className="container mx-auto py-4 px-4 max-w-5xl relative">
       <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={tierList.id} />
       <RakutenRightWidget containerHeight={containerHeight} uniqueKey={tierList.id} />
+      <BackButton />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
-        <div className="w-full flex items-center gap-4">
-          <BackButton />
-          <h1 className="text-3xl font-bold my-0 m-0 p-0">{tierList.title}</h1>
-        </div>
+        <h1 className="text-3xl font-bold my-0 m-0 p-0">{tierList.title}</h1>
       </div>
 
       <div className="flex border-b mb-0 items-end overflow-x-auto">

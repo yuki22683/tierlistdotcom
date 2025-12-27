@@ -287,8 +287,8 @@ export default async function Home({
       {/* Popular Section */}
       {fetchPopular && (
         <section className="mb-12">
+          {view === 'popular' && <BackButton href="/" />}
           <div className="flex items-center gap-4 mb-6">
-            {view === 'popular' && <BackButton href="/" />}
             <a href="/?view=popular" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-yellow-500">🏆</span> 人気のティアリスト
@@ -315,8 +315,8 @@ export default async function Home({
       {/* Trending Section */}
       {fetchTrending && (
         <section className="mb-12">
+          {view === 'trending' && <BackButton href="/" />}
           <div className="flex items-center gap-4 mb-6">
-            {view === 'trending' && <BackButton href="/" />}
             <a href="/?view=trending" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-orange-500">👀</span> 注目のティアリスト
@@ -343,8 +343,8 @@ export default async function Home({
       {/* New Section */}
       {fetchNew && (
         <section className="mb-12">
+          {view === 'new' && <BackButton href="/" />}
           <div className="flex items-center gap-4 mb-6">
-            {view === 'new' && <BackButton href="/" />}
             <a href="/?view=new" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span className="text-blue-500">🆕</span> 新しいティアリスト
@@ -371,8 +371,8 @@ export default async function Home({
       {/* Popular Tags Section */}
       {fetchTags && popularTags.length > 0 && (
           <section className="mb-12">
+            {view === 'tags' && <BackButton href="/" />}
             <div className="flex items-center gap-4 mb-6">
-                {view === 'tags' && <BackButton href="/" />}
                 <a href="/?view=tags" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-green-500">🏷️</span> 人気のタグ
@@ -398,8 +398,8 @@ export default async function Home({
       {/* Trending Tags Section */}
       {fetchTrendingTags && trendingTags.length > 0 && (
           <section className="mb-12">
+            {view === 'trending-tags' && <BackButton href="/" />}
             <div className="flex items-center gap-4 mb-6">
-                {view === 'trending-tags' && <BackButton href="/" />}
                 <a href="/?view=trending-tags" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-cyan-500">🔖</span> 注目のタグ
@@ -425,8 +425,8 @@ export default async function Home({
       {/* Popular Items Section */}
       {fetchItems && popularItems.length > 0 && (
           <section className="mb-12">
+            {view === 'items' && <BackButton href="/" />}
             <div className="flex items-center gap-4 mb-6">
-                {view === 'items' && <BackButton href="/" />}
                 <a href="/?view=items" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-purple-500">🔥</span> 人気のアイテム
@@ -472,8 +472,8 @@ export default async function Home({
       {/* Trending Items Section */}
       {fetchTrendingItems && (
           <section className="mb-12">
+            {view === 'trending-items' && <BackButton href="/" />}
             <div className="flex items-center gap-4 mb-6">
-                {view === 'trending-items' && <BackButton href="/" />}
                 <a href="/?view=trending-items" className="cursor-pointer hover:underline">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                     <span className="text-pink-500">👁️</span> 注目のアイテム
