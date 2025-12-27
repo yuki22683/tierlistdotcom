@@ -24,18 +24,18 @@ export const metadata: Metadata = {
   description: "みんなで決める、最強のティアリスト。ティアリスト.comは、アニメ、ゲーム、あらゆるジャンルのティアリストを作成・共有・投票できるコミュニティサイトです。",
   icons: {
     icon: [
-      { url: "/logo.png" },
-      { url: "/logo.png", sizes: "16x16", type: "image/png" },
-      { url: "/logo.png", sizes: "32x32", type: "image/png" },
-      { url: "/logo.png", sizes: "48x48", type: "image/png" },
-      { url: "/logo.png", sizes: "96x96", type: "image/png" },
-      { url: "/logo.png", sizes: "144x144", type: "image/png" },
-      { url: "/logo.png", sizes: "192x192", type: "image/png" },
-      { url: "/logo.png", sizes: "512x512", type: "image/png" },
+      { url: "https://tier-lst.com/logo.png" },
+      { url: "https://tier-lst.com/logo.png", sizes: "16x16", type: "image/png" },
+      { url: "https://tier-lst.com/logo.png", sizes: "32x32", type: "image/png" },
+      { url: "https://tier-lst.com/logo.png", sizes: "48x48", type: "image/png" },
+      { url: "https://tier-lst.com/logo.png", sizes: "96x96", type: "image/png" },
+      { url: "https://tier-lst.com/logo.png", sizes: "144x144", type: "image/png" },
+      { url: "https://tier-lst.com/logo.png", sizes: "192x192", type: "image/png" },
+      { url: "https://tier-lst.com/logo.png", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/logo.png",
+    shortcut: "https://tier-lst.com/logo.png",
     apple: [
-      { url: "/logo.png", sizes: "180x180", type: "image/png" },
+      { url: "https://tier-lst.com/logo.png", sizes: "180x180", type: "image/png" },
     ],
   },
   openGraph: {
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: "ティアリスト.com",
     images: [
       {
-        url: "/logo.png",
+        url: "https://tier-lst.com/logo.png",
         width: 512,
         height: 512,
         alt: "ティアリスト.com Logo",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "ティアリスト.com",
     description: "みんなで決める、最強のティアリスト。ティアリスト.comは、アニメ、ゲーム、あらゆるジャンルのティアリストを作成・共有・投票できるコミュニティサイトです。",
-    images: ["/logo.png"],
+    images: ["https://tier-lst.com/logo.png"],
   },
   robots: {
     index: true,
@@ -73,6 +73,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
+      <head>
+        <link rel="icon" href="https://tier-lst.com/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="https://tier-lst.com/logo.png" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
