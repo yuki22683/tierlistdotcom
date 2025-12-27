@@ -1733,7 +1733,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                                           {...provided.draggableProps}
                                                                           {...provided.dragHandleProps}
                                                                           className="w-full h-full relative group"
+                                                                          onMouseEnter={!isTouchDevice ? () => setSelectedItemId(placedItem.id) : undefined}
+                                                                          onMouseLeave={!isTouchDevice ? () => setSelectedItemId(null) : undefined}
                                                                           onClick={() => {
+                                                                            setSelectedItemId(selectedItemId === placedItem.id ? null : placedItem.id)
                                                                             if (isTouchDevice && !showLabels) {
                                                                               setTouchedItemId(touchedItemId === placedItem.id ? null : placedItem.id)
                                                                             }
@@ -1790,7 +1793,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
                                                     className="w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] rounded shadow-sm relative group"
+                                                    onMouseEnter={!isTouchDevice ? () => setSelectedItemId(item.id) : undefined}
+                                                    onMouseLeave={!isTouchDevice ? () => setSelectedItemId(null) : undefined}
                                                     onClick={() => {
+                                                      setSelectedItemId(selectedItemId === item.id ? null : item.id)
                                                       if (isTouchDevice && !showLabels) {
                                                         setTouchedItemId(touchedItemId === item.id ? null : item.id)
                                                       }
