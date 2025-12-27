@@ -23,7 +23,7 @@ BEGIN
       AND i.image_url IS NOT NULL
       LIMIT 1
     ) as image_url,
-    iv.view_count as total_detail_views
+    iv.view_count::BIGINT as total_detail_views
   FROM item_views iv
   WHERE iv.name IS NOT NULL
     AND iv.name != ''
