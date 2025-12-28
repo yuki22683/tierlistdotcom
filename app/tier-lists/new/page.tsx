@@ -426,9 +426,13 @@ function CreateTierListContent() {
         .from('category_images')
         .getPublicUrl(fileName)
 
+      // ファイル名から拡張子を除いた名前を取得
+      const originalFileName = croppingFiles[currentCroppingIndex].name
+      const nameWithoutExt = originalFileName.replace(/\.[^/.]+$/, '')
+
       const newItem: TierItem = {
         id: Math.random().toString(36).substr(2, 9),
-        name: '',
+        name: nameWithoutExt,
         imageUrl: publicUrl,
       }
       addUnrankedItem(newItem)
