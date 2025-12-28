@@ -70,7 +70,8 @@ export async function deleteTierList(tierListId: string) {
   for (const imageUrl of imageUrls) {
     try {
       // Check if this image is still used by other tier lists
-      const { data: otherItems } = await supabase
+      // Use adminClient to bypass RLS and see all items across all users
+      const { data: otherItems } = await adminClient
         .from('items')
         .select('id')
         .eq('image_url', imageUrl)
@@ -80,11 +81,18 @@ export async function deleteTierList(tierListId: string) {
       if (!otherItems || otherItems.length === 0) {
         const filePath = extractStoragePathFromUrl(imageUrl)
         if (filePath) {
-          await adminClient.storage
+          const { error: deleteError } = await adminClient.storage
             .from('category_images')
             .remove([filePath])
-          console.log('Deleted unused image:', filePath)
+
+          if (deleteError) {
+            console.error('Failed to delete image from storage:', filePath, deleteError)
+          } else {
+            console.log('Successfully deleted unused image:', filePath)
+          }
         }
+      } else {
+        console.log('Image still in use by other tier lists, keeping:', imageUrl)
       }
     } catch (imageError) {
       console.error('Error cleaning up image:', imageUrl, imageError)

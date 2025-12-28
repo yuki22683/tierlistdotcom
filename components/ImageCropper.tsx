@@ -223,8 +223,8 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // 500x500pxを超える場合のみ500x500にリサイズ、それ以外は元のサイズを保持
-    const maxSize = 500
+    // 250x250pxを超える場合のみ250x250にリサイズ、それ以外は元のサイズを保持
+    const maxSize = 250
     const outputSize = cropArea.size > maxSize ? maxSize : cropArea.size
     canvas.width = outputSize
     canvas.height = outputSize
@@ -311,15 +311,15 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
               {/* 頂点ハンドル */}
               {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => {
                 const positions = {
-                  'top-left': { top: -24, left: -24 },
-                  'top-right': { top: -24, right: -24 },
-                  'bottom-left': { bottom: -24, left: -24 },
-                  'bottom-right': { bottom: -24, right: -24 },
+                  'top-left': { top: -12, left: -12 },
+                  'top-right': { top: -12, right: -12 },
+                  'bottom-left': { bottom: -12, left: -12 },
+                  'bottom-right': { bottom: -12, right: -12 },
                 }
                 return (
                   <div
                     key={corner}
-                    className="absolute w-12 h-12 bg-white cursor-nwse-resize hover:bg-indigo-500 touch-none shadow-lg"
+                    className="absolute w-6 h-6 bg-white cursor-nwse-resize hover:bg-indigo-500 touch-none shadow-lg"
                     style={{
                       ...positions[corner as keyof typeof positions],
                       border: '4px solid rgb(99, 102, 241)',
