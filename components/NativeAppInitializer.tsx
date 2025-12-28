@@ -6,12 +6,15 @@ import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { App as CapApp } from '@capacitor/app'
 import { initializePushNotifications, cleanupPushNotifications } from '@/utils/notifications'
+import { useLoading } from '@/context/LoadingContext'
 
 /**
  * ネイティブアプリの初期化処理
  * Webアプリには影響しません
  */
 export default function NativeAppInitializer() {
+  const { startLoading, stopLoading } = useLoading()
+
   useEffect(() => {
     console.log('[NativeAppInit] useEffect triggered')
     console.log('[NativeAppInit] isNativeApp:', isNativeApp())
@@ -65,6 +68,13 @@ export default function NativeAppInitializer() {
 
           // OAuth認証のコールバック処理
           if (event.url.includes('auth/callback')) {
+            // ローディング開始
+            console.log('[DeepLink] Starting authentication loading...')
+            startLoading()
+            if (typeof document !== 'undefined') {
+              document.body.classList.add('page-loading')
+            }
+
             try {
               const url = new URL(event.url)
 
@@ -83,6 +93,11 @@ export default function NativeAppInitializer() {
 
                 if (error) {
                   console.error('[DeepLink] Failed to exchange code:', error)
+                  // エラー時はローディング解除
+                  stopLoading()
+                  if (typeof document !== 'undefined') {
+                    document.body.classList.remove('page-loading')
+                  }
                   return
                 }
 
@@ -92,6 +107,7 @@ export default function NativeAppInitializer() {
                 sessionStorage.setItem('just-authenticated', 'true')
 
                 // nextパラメータがあればそのページに遷移
+                // ページ遷移するため、ローディングは解除しない（遷移時に自然に終了）
                 const nextPath = new URLSearchParams(url.search).get('next')
                 if (nextPath) {
                   window.location.replace(decodeURIComponent(nextPath))
@@ -100,9 +116,19 @@ export default function NativeAppInitializer() {
                 }
               } else {
                 console.error('[DeepLink] No code parameter found in URL')
+                // エラー時はローディング解除
+                stopLoading()
+                if (typeof document !== 'undefined') {
+                  document.body.classList.remove('page-loading')
+                }
               }
             } catch (error) {
               console.error('[DeepLink] Failed to handle OAuth callback:', error)
+              // エラー時はローディング解除
+              stopLoading()
+              if (typeof document !== 'undefined') {
+                document.body.classList.remove('page-loading')
+              }
             }
           }
         })
@@ -130,7 +156,7 @@ export default function NativeAppInitializer() {
         cleanupPushNotifications()
       }
     }
-  }, [])
+  }, [startLoading, stopLoading])
 
   // このコンポーネントは何も表示しない
   return null
