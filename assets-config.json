@@ -1,11 +1,17 @@
 {
   "ios": {
+    "icon": {
+      "image": "resources/icon.png"
+    },
     "splash": {
       "image": "resources/splash.png",
       "width": 0.2
     }
   },
   "android": {
+    "icon": {
+      "image": "resources/icon.png"
+    },
     "splash": {
       "image": "resources/splash.png",
       "width": 0.25
