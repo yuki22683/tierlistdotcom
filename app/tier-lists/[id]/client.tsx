@@ -1565,7 +1565,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.droppableProps}
-                                    className={`flex-1 flex flex-wrap gap-0 p-0 transition-colors ${snapshot.isDraggingOver ? 'bg-white/10' : 'bg-[#1a1a1a]'} touch-none`}
+                                    className={`flex-1 flex flex-wrap gap-0 p-0 transition-colors ${snapshot.isDraggingOver ? 'bg-red-500/20' : 'bg-[#1a1a1a]'} touch-none`}
                                   >
                                     {votingState.tiers[tier.id]?.map((item, index) => (
                                       <Draggable key={item.id} draggableId={item.id} index={index}>
