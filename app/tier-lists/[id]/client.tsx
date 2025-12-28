@@ -62,7 +62,8 @@ type Props = {
 // --- Edit Component ---
 function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { tierListId: string, initialVoteId: string, onCancel: () => void, onSaveSuccess: (allowVoting: boolean) => void }) {
   const supabase = createClient()
-  const { 
+  const { startLoading } = useLoading()
+  const {
     title, description, tiers, unrankedItems, tags, allowVoting,
     setTitle, setDescription, addTier, updateTier, deleteTier,
     addUnrankedItem, addUnrankedTextItem, removeUnrankedItem, updateItemName, updateItemColor, moveItem,
