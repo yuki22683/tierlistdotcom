@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "9CABCMSHB7.com.tierlist.app",
+        "paths": ["*"]
+      }
+    ]
+  }
+}
