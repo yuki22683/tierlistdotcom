@@ -62,7 +62,7 @@ type Props = {
 // --- Edit Component ---
 function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { tierListId: string, initialVoteId: string, onCancel: () => void, onSaveSuccess: (allowVoting: boolean) => void }) {
   const supabase = createClient()
-  const { startLoading } = useLoading()
+  const { startLoading, stopLoading } = useLoading()
   const {
     title, description, tiers, unrankedItems, tags, allowVoting,
     setTitle, setDescription, addTier, updateTier, deleteTier,
@@ -362,6 +362,7 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
           alert("保存に失敗しました: " + err.message)
       } finally {
           setIsSubmitting(false)
+          stopLoading()
       }
   }
 
