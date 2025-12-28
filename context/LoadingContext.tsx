@@ -27,8 +27,8 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
     console.log('[LoadingContext] Stopping loading')
     // UIブロックを解除
     if (typeof document !== 'undefined') {
-      document.body.style.pointerEvents = ''
-      document.body.style.cursor = ''
+      document.body.style.pointerEvents = 'auto'
+      document.body.style.cursor = 'auto'
     }
     setIsLoading(false)
   }
