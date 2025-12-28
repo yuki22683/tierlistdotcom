@@ -467,8 +467,9 @@ function CreateTierListContent() {
         alert("タイトルを入力してください")
         return
     }
-    
+
     setIsSubmitting(true)
+    startLoading()
     try {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) throw new Error("認証されていません")
@@ -955,14 +956,9 @@ function CreateTierListContent() {
           <button
               onClick={handleSave}
               disabled={isSubmitting || !canPublish || !user}
-              className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center min-w-[140px] gap-2"
+              className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center min-w-[140px]"
           >
-              {isSubmitting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    更新中...
-                  </>
-              ) : !user ? (
+              {!user ? (
                   <div className="flex flex-col items-center leading-tight">
                       <span>公開</span>
                       <span className="text-xs font-normal opacity-90 mt-0.5">ログインが必要です</span>

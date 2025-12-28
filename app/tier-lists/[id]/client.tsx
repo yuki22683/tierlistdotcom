@@ -170,8 +170,9 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
           alert("タイトルを入力してください")
           return
       }
-      
+
       setIsSubmitting(true)
+      startLoading()
       try {
           const { data: { user } } = await supabase.auth.getUser()
           if (!user) throw new Error("認証されていません")
@@ -515,9 +516,8 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
           </DragDropContext>
 
           <div className="mt-8 flex justify-center gap-4">
-              <button onClick={handleSave} disabled={isSubmitting || !canPublish} className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2">
-                {isSubmitting && <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-                {isSubmitting ? '保存中...' : '保存'}
+              <button onClick={handleSave} disabled={isSubmitting || !canPublish} className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:scale-100">
+                保存
               </button>
               <button onClick={onCancel} className="px-8 py-2 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700">キャンセル</button>
           </div>
@@ -1372,6 +1372,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       return
     }
     setIsSubmitting(true)
+    startLoading()
     try {
       // vote_items のペイロードを準備
       const voteItemsPayload: any[] = []
@@ -1670,15 +1671,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                     <button
                       onClick={handleVote}
                       disabled={isSubmitting || !currentUser || votingState.unranked.length > 0}
-                      className="px-6 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed leading-tight flex items-center justify-center gap-2"
+                      className="px-6 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed leading-tight"
                       title={!currentUser ? "ログインが必要です" : votingState.unranked.length > 0 ? "全てのアイテムを配置してください" : undefined}
                     >
-                      {isSubmitting ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          送信中...
-                        </>
-                      ) : !currentUser ? (
+                      {!currentUser ? (
                         <div className="flex flex-col items-center">
                           <span>投票</span>
                           <span className="text-xs font-normal opacity-90 mt-0.5">ログインが必要です</span>

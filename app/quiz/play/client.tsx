@@ -15,6 +15,7 @@ import TierListReportModal from '@/components/TierListReportModal'
 import RakutenLeftWidget from '@/components/RakutenLeftWidget'
 import RakutenRightWidget from '@/components/RakutenRightWidget'
 import RandomAffiliateLink from '@/components/RandomAffiliateLink'
+import { useLoading } from '@/context/LoadingContext'
 
 type Tier = {
   id: string
@@ -69,6 +70,7 @@ export default function QuizPlayClient({
 }: Props) {
   const router = useRouter()
   const supabase = createClient()
+  const { startLoading } = useLoading()
   const tierListRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerHeight, setContainerHeight] = useState(0)
@@ -336,6 +338,7 @@ export default function QuizPlayClient({
 
   const handleHomeClick = () => {
     setIsNavigatingHome(true)
+    startLoading()
     router.push('/')
   }
 
@@ -511,20 +514,11 @@ export default function QuizPlayClient({
               disabled={isNavigatingHome}
               className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
-              {isNavigatingHome ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>読み込み中...</span>
-                </>
-              ) : (
-                <>
-                  <Home size={20} />
-                  <span>
-                    <span className="hidden sm:inline">ホームに戻る</span>
-                    <span className="sm:hidden">終了</span>
-                  </span>
-                </>
-              )}
+              <Home size={20} />
+              <span>
+                <span className="hidden sm:inline">ホームに戻る</span>
+                <span className="sm:hidden">終了</span>
+              </span>
             </button>
           ) : (
             <button
