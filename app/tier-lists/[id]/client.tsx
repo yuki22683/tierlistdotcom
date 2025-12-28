@@ -824,7 +824,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       : tierList.allow_voting
         ? ' に投票しました。'
         : 'を共有します。'
-    const statusText = tierList.allow_voting ? '投票受付中👇' : '公開中👇'
+    const statusText = tierList.allow_voting ? '投票受付中👇\n' : '公開中👇\n'
 
     // Get tags from tier list
     const tierListTags = tierList.tier_list_tags?.map((t: any) => t.tags?.name).filter(Boolean) || []
