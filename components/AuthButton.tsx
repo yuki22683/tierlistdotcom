@@ -7,6 +7,7 @@ import { User as UserIcon, LogIn, LogOut } from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { isNativeApp } from '@/utils/platform'
 import { useLoading } from '@/context/LoadingContext'
+import { Browser } from '@capacitor/browser'
 
 interface AuthButtonProps {
   disableLogout?: boolean
@@ -76,12 +77,20 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
         ? `com.tierlist.app://auth/callback?next=${encodedPath}`
         : `${window.location.origin}/auth/callback?next=${encodedPath}`
 
-      await supabase.auth.signInWithOAuth({
+      const { data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo,
         },
       })
+
+      // ネイティブアプリの場合は、Capacitor Browserで開く
+      if (isNativeApp() && data?.url) {
+        await Browser.open({
+          url: data.url,
+          windowName: '_self'
+        })
+      }
       // OAuth処理が開始されたらローディングは継続（ページ遷移するまで）
     } catch (error) {
       console.error('[AuthButton] Login error:', error)

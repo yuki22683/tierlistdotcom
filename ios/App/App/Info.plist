@@ -54,5 +54,16 @@
 	<string>プロフィール画像やティアリストアイテムの画像を撮影するために使用します</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>プロフィール画像やティアリストアイテムの画像を選択するために使用します</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.tierlist.app</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.tierlist.app</string>
+		</dict>
+	</array>
 </dict>
 </plist>
