@@ -26,9 +26,6 @@ export default function NativeAppInitializer() {
       try {
         console.log('[NativeAppInit] Starting native features initialization...')
 
-        // スプラッシュスクリーンを非表示
-        await SplashScreen.hide()
-
         // ステータスバーの設定
         await StatusBar.setStyle({ style: Style.Light })
         await StatusBar.setBackgroundColor({ color: '#000000' })
@@ -40,6 +37,27 @@ export default function NativeAppInitializer() {
         console.log('[NativeAppInit] Calling initializePushNotifications...')
         await initializePushNotifications()
         console.log('[NativeAppInit] initializePushNotifications completed')
+
+        // ページの読み込みが完了するまで待機
+        console.log('[NativeAppInit] Waiting for page to load...')
+        await new Promise<void>((resolve) => {
+          if (document.readyState === 'complete') {
+            console.log('[NativeAppInit] Page already loaded')
+            resolve()
+          } else {
+            window.addEventListener('load', () => {
+              console.log('[NativeAppInit] Page load event fired')
+              resolve()
+            }, { once: true })
+          }
+        })
+
+        // 追加の遅延を入れて、Reactのレンダリングが完了するのを待つ
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        // スプラッシュスクリーンを非表示
+        console.log('[NativeAppInit] Hiding splash screen')
+        await SplashScreen.hide()
 
         // アプリのURLスキームハンドリング（ディープリンク用）
         CapApp.addListener('appUrlOpen', async (event) => {
