@@ -21,7 +21,7 @@ function CreateTierListContent() {
   const pathname = usePathname()
   // Removed categoryId dependency
   const supabase = createClient()
-  const { startLoading } = useLoading()
+  const { startLoading, stopLoading } = useLoading()
 
   const {
     title, description, tiers, unrankedItems, tags, allowVoting,
@@ -627,6 +627,7 @@ function CreateTierListContent() {
         alert("ティアリストの保存に失敗しました: " + err.message)
     } finally {
         setIsSubmitting(false)
+        stopLoading()
     }
   }
 

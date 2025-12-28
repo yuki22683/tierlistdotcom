@@ -660,7 +660,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
-  const { startLoading } = useLoading()
+  const { startLoading, stopLoading } = useLoading()
   const [showLabels, setShowLabels] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [voteCount, setVoteCount] = useState<number>(tierList.vote_count)
@@ -1421,6 +1421,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       alert("投票に失敗しました: " + err.message)
     } finally {
       setIsSubmitting(false)
+      stopLoading()
     }
   }
 
