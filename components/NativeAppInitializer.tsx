@@ -6,15 +6,12 @@ import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { App as CapApp } from '@capacitor/app'
 import { initializePushNotifications, cleanupPushNotifications } from '@/utils/notifications'
-import { useLoading } from '@/context/LoadingContext'
 
 /**
  * ネイティブアプリの初期化処理
  * Webアプリには影響しません
  */
 export default function NativeAppInitializer() {
-  const { startLoading } = useLoading()
-
   useEffect(() => {
     console.log('[NativeAppInit] useEffect triggered')
     console.log('[NativeAppInit] isNativeApp:', isNativeApp())
@@ -28,12 +25,6 @@ export default function NativeAppInitializer() {
     const initializeNativeFeatures = async () => {
       try {
         console.log('[NativeAppInit] Starting native features initialization...')
-
-        // 認証直後の場合、スプラッシュスクリーンを隠す前にローディングを開始
-        if (typeof window !== 'undefined' && sessionStorage.getItem('just-authenticated') === 'true') {
-          console.log('[NativeAppInit] Just authenticated, starting loading before hiding splash')
-          startLoading()
-        }
 
         // スプラッシュスクリーンを非表示
         await SplashScreen.hide()
@@ -56,9 +47,6 @@ export default function NativeAppInitializer() {
 
           // OAuth認証のコールバック処理
           if (event.url.includes('auth/callback')) {
-            // アプリに戻ってきたらすぐにローディングを開始
-            startLoading()
-            
             try {
               const url = new URL(event.url)
 
@@ -124,7 +112,7 @@ export default function NativeAppInitializer() {
         cleanupPushNotifications()
       }
     }
-  }, [startLoading])
+  }, [])
 
   // このコンポーネントは何も表示しない
   return null

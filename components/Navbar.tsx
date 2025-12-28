@@ -48,6 +48,10 @@ export default function Navbar({ disableLogout = false }: NavbarProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
+    // 即座にUIをブロック
+    if (typeof document !== 'undefined') {
+      document.body.classList.add('page-loading')
+    }
     startLoading()
     router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
   }

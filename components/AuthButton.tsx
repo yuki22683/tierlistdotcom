@@ -46,6 +46,10 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
         setUser(session?.user ?? null)
         setIsLoading(false)
+        // UIブロックを解除
+        if (typeof document !== 'undefined') {
+          document.body.classList.remove('page-loading')
+        }
         stopLoading()
       }
     })
@@ -57,6 +61,10 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
     if (isLoading) return
 
     setIsLoading(true)
+    // 即座にUIをブロック
+    if (typeof document !== 'undefined') {
+      document.body.classList.add('page-loading')
+    }
     startLoading()
     try {
       // 現在のパスとクエリパラメータを保持
@@ -78,6 +86,10 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
     } catch (error) {
       console.error('[AuthButton] Login error:', error)
       setIsLoading(false)
+      // UIブロックを解除
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('page-loading')
+      }
       stopLoading()
     }
   }
@@ -86,6 +98,10 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
     if (isLogoutDisabled || isLoading) return
 
     setIsLoading(true)
+    // 即座にUIをブロック
+    if (typeof document !== 'undefined') {
+      document.body.classList.add('page-loading')
+    }
     startLoading()
     try {
       await supabase.auth.signOut()
@@ -93,6 +109,10 @@ export default function AuthButton({ disableLogout = false }: AuthButtonProps) {
     } catch (error) {
       console.error('[AuthButton] Logout error:', error)
       setIsLoading(false)
+      // UIブロックを解除
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('page-loading')
+      }
       stopLoading()
     }
   }

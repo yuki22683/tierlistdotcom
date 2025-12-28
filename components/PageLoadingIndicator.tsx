@@ -34,18 +34,21 @@ function PageLoadingIndicatorInner() {
     // 実際のデータ取得とレンダリングに時間がかかるため、少し長めに表示
     const timer = setTimeout(() => {
       console.log('[PageLoadingIndicator] Hiding loading indicator')
-      stopLoading()
-
-      // 認証完了フラグをクリーンアップ
-      if (typeof window !== 'undefined' && sessionStorage.getItem('just-authenticated') === 'true') {
-        sessionStorage.removeItem('just-authenticated')
+      // UIブロックを解除
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('page-loading')
       }
+      stopLoading()
     }, 1000) // 1秒後に非表示
 
     return () => {
       clearTimeout(timer)
+      // クリーンアップ時もUIブロックを解除
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('page-loading')
+      }
     }
-  }, [pathname, searchParams, isMounted, stopLoading])
+  }, [pathname, searchParams, isMounted, startLoading, stopLoading])
 
   // リンククリック時にローディングを開始
   useEffect(() => {
@@ -69,6 +72,8 @@ function PageLoadingIndicatorInner() {
         // 別ページへの遷移の場合のみローディングを表示
         if (url.pathname !== currentUrl.pathname || url.search !== currentUrl.search) {
           console.log('[PageLoadingIndicator] Link clicked, showing loading')
+          // 即座にUIをブロック（React状態更新を待たない）
+          document.body.classList.add('page-loading')
           startLoading()
         }
       }

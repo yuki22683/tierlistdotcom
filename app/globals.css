@@ -52,6 +52,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ページ読み込み中はすべての操作をブロック */
+body.page-loading {
+  pointer-events: none;
+  cursor: wait;
+}
+
 /* =====================================
    コメント本文（フェード対応）
 ===================================== */

@@ -15,21 +15,11 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
 
   const startLoading = () => {
     console.log('[LoadingContext] Starting loading')
-    // 即座にUIをブロック（React状態更新を待たない）
-    if (typeof document !== 'undefined') {
-      document.body.style.pointerEvents = 'none'
-      document.body.style.cursor = 'wait'
-    }
     setIsLoading(true)
   }
 
   const stopLoading = () => {
     console.log('[LoadingContext] Stopping loading')
-    // UIブロックを解除
-    if (typeof document !== 'undefined') {
-      document.body.style.pointerEvents = 'auto'
-      document.body.style.cursor = 'auto'
-    }
     setIsLoading(false)
   }
 
