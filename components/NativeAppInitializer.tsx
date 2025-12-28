@@ -29,6 +29,12 @@ export default function NativeAppInitializer() {
       try {
         console.log('[NativeAppInit] Starting native features initialization...')
 
+        // 認証直後の場合、スプラッシュスクリーンを隠す前にローディングを開始
+        if (typeof window !== 'undefined' && sessionStorage.getItem('just-authenticated') === 'true') {
+          console.log('[NativeAppInit] Just authenticated, starting loading before hiding splash')
+          startLoading()
+        }
+
         // スプラッシュスクリーンを非表示
         await SplashScreen.hide()
 

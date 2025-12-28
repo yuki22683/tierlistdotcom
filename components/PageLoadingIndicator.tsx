@@ -35,12 +35,17 @@ function PageLoadingIndicatorInner() {
     const timer = setTimeout(() => {
       console.log('[PageLoadingIndicator] Hiding loading indicator')
       stopLoading()
+
+      // 認証完了フラグをクリーンアップ
+      if (typeof window !== 'undefined' && sessionStorage.getItem('just-authenticated') === 'true') {
+        sessionStorage.removeItem('just-authenticated')
+      }
     }, 1000) // 1秒後に非表示
 
     return () => {
       clearTimeout(timer)
     }
-  }, [pathname, searchParams, isMounted])
+  }, [pathname, searchParams, isMounted, stopLoading])
 
   // リンククリック時にローディングを開始
   useEffect(() => {

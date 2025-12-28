@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'  // 追加
 import { useState } from 'react'
 import { deleteTierList } from '@/app/actions/tierList'
 import { format } from 'date-fns'
@@ -15,7 +14,6 @@ interface TierListCardProps {
 }
 
 export default function TierListCard({ list, isAdmin, currentUserId, userHasVoted = false }: TierListCardProps) {
-  const router = useRouter()  // 追加
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDeleted, setIsDeleted] = useState(false)
 
@@ -47,12 +45,6 @@ export default function TierListCard({ list, isAdmin, currentUserId, userHasVote
       setIsDeleted(true)
       setIsDeleting(false)
     }
-  }
-
-  // 作成者名クリック時の処理（カード全体の遷移を阻止）
-  const handleCreatorClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    router.push(`/users/${list.user_id}/tier-lists`)
   }
 
   // 削除完了後はカードを非表示
@@ -126,12 +118,13 @@ export default function TierListCard({ list, isAdmin, currentUserId, userHasVote
               )}
             </div>
             <div className="flex items-center gap-1 sm:gap-2 truncate">
-              <span
+              <Link
+                href={`/users/${list.user_id}/tier-lists`}
                 className="hover:underline hover:text-indigo-600 transition-colors cursor-pointer truncate max-w-[60px] sm:max-w-none"
-                onClick={handleCreatorClick}
+                onClick={(e) => e.stopPropagation()}
               >
                 {user?.full_name || '匿名'}
-              </span>
+              </Link>
               <span>•</span>
               <span>{format(new Date(list.created_at), 'yyyy/MM/dd')}</span>
             </div>
