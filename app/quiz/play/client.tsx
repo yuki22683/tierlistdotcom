@@ -535,7 +535,7 @@ export default function QuizPlayClient({
         {/* Description Display */}
         {isAnswerRevealed && currentTierList.description && (
           <div className="w-full max-w-3xl text-left mt-4 mb-2">
-            <p className="text-muted-foreground whitespace-pre-wrap">{currentTierList.description}</p>
+            <p className="text-foreground whitespace-pre-wrap">{currentTierList.description}</p>
           </div>
         )}
       </div>

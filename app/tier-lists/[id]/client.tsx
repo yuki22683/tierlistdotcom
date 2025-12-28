@@ -365,10 +365,6 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
 
   return (
       <div className="bg-background mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 className="text-xl font-bold">ティアリスト編集</h2>
-          </div>
-          
           <div className="space-y-4 mb-8">
             <div>
                 <label className="block text-sm font-medium mb-1">タイトル(必須)</label>
@@ -540,7 +536,7 @@ function TierListMetadata({ tierList }: { tierList: any }) {
   return (
     <div className="flex flex-col items-start gap-2 mt-0 mb-1 text-sm text-gray-500">
       {tierList.description && ( // Conditionally render description
-        <p className="text-muted-foreground text-left whitespace-pre-wrap mt-4 mb-2">{tierList.description}</p>
+        <p className="text-foreground text-left whitespace-pre-wrap mt-4 mb-2">{tierList.description}</p>
       )}
       <div className="flex flex-wrap items-center justify-start gap-4">
         <Link href={`/users/${tierList.user_id}/tier-lists`} className="flex items-center gap-2 hover:underline hover:text-indigo-600 transition-colors">
