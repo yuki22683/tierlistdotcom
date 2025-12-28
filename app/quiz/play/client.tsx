@@ -511,11 +511,20 @@ export default function QuizPlayClient({
               disabled={isNavigatingHome}
               className="px-6 py-3 rounded-lg font-bold bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
-              <Home size={20} />
-              <span>
-                <span className="hidden sm:inline">ホームに戻る</span>
-                <span className="sm:hidden">終了</span>
-              </span>
+              {isNavigatingHome ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>読み込み中...</span>
+                </>
+              ) : (
+                <>
+                  <Home size={20} />
+                  <span>
+                    <span className="hidden sm:inline">ホームに戻る</span>
+                    <span className="sm:hidden">終了</span>
+                  </span>
+                </>
+              )}
             </button>
           ) : (
             <button

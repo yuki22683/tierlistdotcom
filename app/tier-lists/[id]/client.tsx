@@ -515,7 +515,10 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
           </DragDropContext>
 
           <div className="mt-8 flex justify-center gap-4">
-              <button onClick={handleSave} disabled={isSubmitting || !canPublish} className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:scale-100">保存</button>
+              <button onClick={handleSave} disabled={isSubmitting || !canPublish} className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2">
+                {isSubmitting && <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                {isSubmitting ? '保存中...' : '保存'}
+              </button>
               <button onClick={onCancel} className="px-8 py-2 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700">キャンセル</button>
           </div>
 
@@ -534,12 +537,12 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
 
 function TierListMetadata({ tierList }: { tierList: any }) {
   return (
-    <div className="flex flex-col items-start gap-2 mt-0 mb-1 text-sm text-gray-500">
+    <div className="flex flex-col items-start gap-2 mt-0 mb-1 text-sm text-foreground">
       {tierList.description && ( // Conditionally render description
         <p className="text-foreground text-left whitespace-pre-wrap mt-4 mb-2">{tierList.description}</p>
       )}
       <div className="flex flex-wrap items-center justify-start gap-4">
-        <Link href={`/users/${tierList.user_id}/tier-lists`} className="flex items-center gap-2 hover:underline hover:text-indigo-600 transition-colors">
+        <Link href={`/users/${tierList.user_id}/tier-lists`} className="flex items-center gap-2 text-foreground hover:underline hover:text-indigo-600 transition-colors">
           <img src={tierList.users?.avatar_url || '/placeholder-avatar.png'} className="w-5 h-5 rounded-full" alt="creator" />
           <span>作成者: {tierList.users?.full_name || '不明'}</span>
         </Link>
@@ -1667,11 +1670,14 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                     <button
                       onClick={handleVote}
                       disabled={isSubmitting || !currentUser || votingState.unranked.length > 0}
-                      className="px-6 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed leading-tight"
+                      className="px-6 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed leading-tight flex items-center justify-center gap-2"
                       title={!currentUser ? "ログインが必要です" : votingState.unranked.length > 0 ? "全てのアイテムを配置してください" : undefined}
                     >
                       {isSubmitting ? (
-                        '送信中...'
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          送信中...
+                        </>
                       ) : !currentUser ? (
                         <div className="flex flex-col items-center">
                           <span>投票</span>

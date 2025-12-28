@@ -74,6 +74,7 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
           e.preventDefault()
           alert("1日の作成上限は20件です。")
       } else {
+          setIsNavigating(true)
           const url = categoryId ? `/tier-lists/new?categoryId=${categoryId}` : '/tier-lists/new'
           router.push(url)
       }
@@ -111,12 +112,13 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
     }
 
     return (
-        <button 
+        <button
             onClick={handleClick}
-            disabled={dailyLimitReached}
-            className={`px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-indigo-600 hover:scale-105 hover:bg-indigo-700 whitespace-nowrap ${dailyLimitReached ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={dailyLimitReached || isNavigating}
+            className={`px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-indigo-600 hover:scale-105 hover:bg-indigo-700 whitespace-nowrap flex items-center justify-center gap-2 ${dailyLimitReached || isNavigating ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-            + ティアリストを作成
+            {isNavigating && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+            {isNavigating ? '読み込み中...' : '+ ティアリストを作成'}
         </button>
       )
   }
@@ -134,9 +136,10 @@ export default function CreateTierListButton({ isBanned, dailyLimitReached, isLo
             router.push('/quiz/select-genre')
           }}
           disabled={isNavigating}
-          className="px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 sm:px-10 py-4 rounded-lg font-bold text-sm sm:text-lg text-white transition-all shadow-lg bg-gray-600 hover:scale-105 hover:bg-gray-700 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          タイトル当てクイズ
+          {isNavigating && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+          {isNavigating ? '読み込み中...' : 'タイトル当てクイズ'}
         </button>
       </div>
       <div className="transition-all duration-300 transform translate-x-0 group-hover/container:translate-x-1 flex-shrink-0">

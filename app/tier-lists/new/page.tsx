@@ -952,13 +952,16 @@ function CreateTierListContent() {
           >
               一時保存
           </button>
-          <button 
+          <button
               onClick={handleSave}
               disabled={isSubmitting || !canPublish || !user}
-              className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center min-w-[140px]"
+              className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-indigo-600 hover:scale-105 hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center min-w-[140px] gap-2"
           >
               {isSubmitting ? (
-                  '更新中...'
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    更新中...
+                  </>
               ) : !user ? (
                   <div className="flex flex-col items-center leading-tight">
                       <span>公開</span>
