@@ -2,7 +2,7 @@
 
 import { createClient } from '@/utils/supabase/client'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { getContrastColor } from '@/utils/colors'
@@ -64,32 +64,37 @@ function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLD
   const [scrollbarHeight, setScrollbarHeight] = useState(0)
   const [scrollbarTop, setScrollbarTop] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const scrollbarRef = useRef<HTMLDivElement>(null)
+
+  const updateScrollbar = useCallback(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const { scrollTop, scrollHeight, clientHeight } = container
+
+    // スクロールが必要かチェック
+    if (scrollHeight <= clientHeight) {
+      setIsVisible(false)
+      return
+    }
+
+    setIsVisible(true)
+
+    // スクロールバーの高さを計算（コンテナの高さに対する可視領域の割合）
+    const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight, 40)
+    setScrollbarHeight(thumbHeight)
+
+    // スクロールバーの位置を計算
+    const maxScroll = scrollHeight - clientHeight
+    const scrollPercentage = scrollTop / maxScroll
+    const maxThumbTop = clientHeight - thumbHeight
+    setScrollbarTop(scrollPercentage * maxThumbTop)
+  }, [containerRef])
 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
-
-    const updateScrollbar = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container
-
-      // スクロールが必要かチェック
-      if (scrollHeight <= clientHeight) {
-        setIsVisible(false)
-        return
-      }
-
-      setIsVisible(true)
-
-      // スクロールバーの高さを計算（コンテナの高さに対する可視領域の割合）
-      const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight, 40)
-      setScrollbarHeight(thumbHeight)
-
-      // スクロールバーの位置を計算
-      const maxScroll = scrollHeight - clientHeight
-      const scrollPercentage = scrollTop / maxScroll
-      const maxThumbTop = clientHeight - thumbHeight
-      setScrollbarTop(scrollPercentage * maxThumbTop)
-    }
 
     updateScrollbar()
     container.addEventListener('scroll', updateScrollbar)
@@ -99,12 +104,57 @@ function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLD
       container.removeEventListener('scroll', updateScrollbar)
       window.removeEventListener('resize', updateScrollbar)
     }
-  }, [containerRef])
+  }, [containerRef, updateScrollbar])
+
+  const handleThumbMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  useEffect(() => {
+    if (!isDragging) return
+
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      e.preventDefault()
+      const container = containerRef.current
+      const scrollbarEl = scrollbarRef.current
+      if (!container || !scrollbarEl) return
+
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+      const scrollbarRect = scrollbarEl.getBoundingClientRect()
+      const clickPosition = clientY - scrollbarRect.top
+
+      const { scrollHeight, clientHeight } = container
+      const maxScroll = scrollHeight - clientHeight
+      const maxThumbTop = clientHeight - scrollbarHeight
+      const scrollPercentage = Math.max(0, Math.min(1, clickPosition / clientHeight))
+
+      container.scrollTop = scrollPercentage * maxScroll
+    }
+
+    const handleEnd = () => {
+      setIsDragging(false)
+    }
+
+    document.addEventListener('mousemove', handleMove)
+    document.addEventListener('mouseup', handleEnd)
+    document.addEventListener('touchmove', handleMove, { passive: false })
+    document.addEventListener('touchend', handleEnd)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMove)
+      document.removeEventListener('mouseup', handleEnd)
+      document.removeEventListener('touchmove', handleMove)
+      document.removeEventListener('touchend', handleEnd)
+    }
+  }, [isDragging, containerRef, scrollbarHeight])
 
   if (!isVisible) return null
 
   return (
     <div
+      ref={scrollbarRef}
       className="fixed left-0 w-3 bg-gray-300/50 dark:bg-gray-600/50 rounded-r-lg sm:hidden"
       style={{
         top: containerRef.current?.getBoundingClientRect().top || 0,
@@ -113,11 +163,14 @@ function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLD
       }}
     >
       <div
-        className="absolute left-0 w-3 bg-indigo-500 dark:bg-indigo-400 rounded-lg transition-all duration-100"
+        className="absolute left-0 w-3 bg-indigo-500 dark:bg-indigo-400 rounded-lg cursor-pointer active:bg-indigo-600 dark:active:bg-indigo-500"
         style={{
           height: `${scrollbarHeight}px`,
           transform: `translateY(${scrollbarTop}px)`,
+          transition: isDragging ? 'none' : 'all 0.1s',
         }}
+        onMouseDown={handleThumbMouseDown}
+        onTouchStart={handleThumbMouseDown}
       />
     </div>
   )
