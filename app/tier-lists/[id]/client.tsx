@@ -105,7 +105,7 @@ function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLD
 
   return (
     <div
-      className="fixed right-0 w-3 bg-gray-300/50 dark:bg-gray-600/50 rounded-l-lg sm:hidden"
+      className="fixed left-0 w-3 bg-gray-300/50 dark:bg-gray-600/50 rounded-r-lg sm:hidden"
       style={{
         top: containerRef.current?.getBoundingClientRect().top || 0,
         height: containerRef.current?.clientHeight || 0,
@@ -113,7 +113,7 @@ function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLD
       }}
     >
       <div
-        className="absolute right-0 w-3 bg-indigo-500 dark:bg-indigo-400 rounded-lg transition-all duration-100"
+        className="absolute left-0 w-3 bg-indigo-500 dark:bg-indigo-400 rounded-lg transition-all duration-100"
         style={{
           height: `${scrollbarHeight}px`,
           transform: `translateY(${scrollbarTop}px)`,
