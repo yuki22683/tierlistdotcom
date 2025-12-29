@@ -1693,6 +1693,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         ) : (
           <div className="bg-background">
             {activeTab === 'vote' ? (
+              <>
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="space-y-1 mb-4 sm:p-1">
                   <div className="space-y-4">
@@ -1843,7 +1844,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                 </div>
               </DragDropContext>
               <PageScrollbar />
+              </>
             ) : activeTab === 'quiz' ? (
+              <>
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="space-y-1 mb-4 sm:p-1">
                     <div className="space-y-4">
@@ -1989,6 +1992,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                 </div>
               </DragDropContext>
               <PageScrollbar />
+              </>
             ) : (
               <div className="space-y-1 sm:p-1">
                 {/* 説明文 + トグルボタン */}
