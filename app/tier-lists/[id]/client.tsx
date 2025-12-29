@@ -59,6 +59,70 @@ type Props = {
   userVotedTierListIds?: string[]
 }
 
+// --- Custom Scrollbar Component for iOS ---
+function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) {
+  const [scrollbarHeight, setScrollbarHeight] = useState(0)
+  const [scrollbarTop, setScrollbarTop] = useState(0)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const updateScrollbar = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container
+
+      // スクロールが必要かチェック
+      if (scrollHeight <= clientHeight) {
+        setIsVisible(false)
+        return
+      }
+
+      setIsVisible(true)
+
+      // スクロールバーの高さを計算（コンテナの高さに対する可視領域の割合）
+      const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight, 40)
+      setScrollbarHeight(thumbHeight)
+
+      // スクロールバーの位置を計算
+      const maxScroll = scrollHeight - clientHeight
+      const scrollPercentage = scrollTop / maxScroll
+      const maxThumbTop = clientHeight - thumbHeight
+      setScrollbarTop(scrollPercentage * maxThumbTop)
+    }
+
+    updateScrollbar()
+    container.addEventListener('scroll', updateScrollbar)
+    window.addEventListener('resize', updateScrollbar)
+
+    return () => {
+      container.removeEventListener('scroll', updateScrollbar)
+      window.removeEventListener('resize', updateScrollbar)
+    }
+  }, [containerRef])
+
+  if (!isVisible) return null
+
+  return (
+    <div
+      className="fixed right-0 w-3 bg-gray-300/50 dark:bg-gray-600/50 rounded-l-lg sm:hidden"
+      style={{
+        top: containerRef.current?.getBoundingClientRect().top || 0,
+        height: containerRef.current?.clientHeight || 0,
+        zIndex: 50,
+      }}
+    >
+      <div
+        className="absolute right-0 w-3 bg-indigo-500 dark:bg-indigo-400 rounded-lg transition-all duration-100"
+        style={{
+          height: `${scrollbarHeight}px`,
+          transform: `translateY(${scrollbarTop}px)`,
+        }}
+      />
+    </div>
+  )
+}
+
 // --- Edit Component ---
 function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { tierListId: string, initialVoteId: string, onCancel: () => void, onSaveSuccess: (allowVoting: boolean) => void }) {
   const supabase = createClient()
@@ -713,6 +777,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       if (!tierList.allow_voting) return 'quiz';
       return 'vote';
   })
+
+  // Refs for custom scrollbar
+  const voteScrollRef = useRef<HTMLDivElement>(null)
+  const quizScrollRef = useRef<HTMLDivElement>(null)
 
   // Reset touched item when tab changes
   useEffect(() => {
@@ -1563,8 +1631,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         ) : (
           <div className="bg-background">
             {activeTab === 'vote' ? (
+              <>
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <div className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-scroll sm:max-h-none sm:overflow-visible sm:p-1">
+                <div ref={voteScrollRef} className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-scroll sm:max-h-none sm:overflow-visible sm:p-1">
                   <div className="space-y-4">
                     <div className="mt-3 text-left text-sm text-muted-foreground">
                         あなたが考えたティアリストを投票しましょう。<br />
@@ -1712,9 +1781,12 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                   <ActionButtons {...{ currentUser, tierList, isScreenshotLoading, handleShare, setIsReportModalOpen, isBanned, handleSaveAsImage, setShowLabels, showLabels, activeTab }} />
                 </div>
               </DragDropContext>
+              <CustomScrollbar containerRef={voteScrollRef} />
+              </>
             ) : activeTab === 'quiz' ? (
+              <>
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <div className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-scroll sm:max-h-none sm:overflow-visible sm:p-1">
+                <div ref={quizScrollRef} className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-scroll sm:max-h-none sm:overflow-visible sm:p-1">
                     <div className="space-y-4">
                     <div className="mt-3 text-left text-sm text-muted-foreground">
                         ティアリストの投票結果を予想しましょう。<br />
@@ -1857,6 +1929,8 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                   <ActionButtons {...{ currentUser, tierList, isScreenshotLoading, handleShare, setIsReportModalOpen, isBanned, handleSaveAsImage, setShowLabels, showLabels, activeTab }} />
                 </div>
               </DragDropContext>
+              <CustomScrollbar containerRef={quizScrollRef} />
+              </>
             ) : (
               <div className="space-y-1 sm:p-1">
                 {/* 説明文 + トグルボタン */}
