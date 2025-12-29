@@ -20,6 +20,9 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
   const imageRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
+    // 新しい画像に切り替わったら処理中フラグをリセット
+    setIsProcessing(false)
+
     const url = URL.createObjectURL(imageFile)
     setImageSrc(url)
 
