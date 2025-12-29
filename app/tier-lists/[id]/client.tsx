@@ -59,139 +59,6 @@ type Props = {
   userVotedTierListIds?: string[]
 }
 
-// --- Custom Scrollbar Component for iOS ---
-function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
-  const [scrollbarHeight, setScrollbarHeight] = useState(0)
-  const [scrollbarTop, setScrollbarTop] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
-  const [isDragging, setIsDragging] = useState(false)
-  const scrollbarRef = useRef<HTMLDivElement>(null)
-  const dragStartRef = useRef({ y: 0, scrollTop: 0 })
-
-  const updateScrollbar = useCallback(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const { scrollTop, scrollHeight, clientHeight } = container
-
-    // スクロールが必要かチェック
-    if (scrollHeight <= clientHeight) {
-      setIsVisible(false)
-      return
-    }
-
-    setIsVisible(true)
-
-    // スクロールバーの高さを計算（コンテナの高さに対する可視領域の割合）
-    const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight, 40)
-    setScrollbarHeight(thumbHeight)
-
-    // スクロールバーの位置を計算
-    const maxScroll = scrollHeight - clientHeight
-    const scrollPercentage = scrollTop / maxScroll
-    const maxThumbTop = clientHeight - thumbHeight
-    setScrollbarTop(scrollPercentage * maxThumbTop)
-  }, [containerRef])
-
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    updateScrollbar()
-    container.addEventListener('scroll', updateScrollbar)
-    window.addEventListener('resize', updateScrollbar)
-
-    return () => {
-      container.removeEventListener('scroll', updateScrollbar)
-      window.removeEventListener('resize', updateScrollbar)
-    }
-  }, [containerRef, updateScrollbar])
-
-  const handleThumbMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    const container = containerRef.current
-    if (!container) return
-
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-
-    // ドラッグ開始時の位置とスクロール位置を記録
-    dragStartRef.current = {
-      y: clientY,
-      scrollTop: container.scrollTop
-    }
-
-    setIsDragging(true)
-  }
-
-  useEffect(() => {
-    if (!isDragging) return
-
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-      e.preventDefault()
-      const container = containerRef.current
-      if (!container) return
-
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-
-      // タッチ開始位置からの移動量を計算
-      const deltaY = clientY - dragStartRef.current.y
-
-      const { scrollHeight, clientHeight } = container
-      const maxScroll = scrollHeight - clientHeight
-
-      // 移動量をスクロール量に変換（スクロールバーの移動距離に対するコンテンツのスクロール比率）
-      const scrollRatio = maxScroll / (clientHeight - scrollbarHeight)
-      const newScrollTop = dragStartRef.current.scrollTop + (deltaY * scrollRatio)
-
-      // スクロール位置を設定（範囲内に制限）
-      container.scrollTop = Math.max(0, Math.min(maxScroll, newScrollTop))
-    }
-
-    const handleEnd = () => {
-      setIsDragging(false)
-    }
-
-    document.addEventListener('mousemove', handleMove)
-    document.addEventListener('mouseup', handleEnd)
-    document.addEventListener('touchmove', handleMove, { passive: false })
-    document.addEventListener('touchend', handleEnd)
-
-    return () => {
-      document.removeEventListener('mousemove', handleMove)
-      document.removeEventListener('mouseup', handleEnd)
-      document.removeEventListener('touchmove', handleMove)
-      document.removeEventListener('touchend', handleEnd)
-    }
-  }, [isDragging, containerRef, scrollbarHeight])
-
-  if (!isVisible) return null
-
-  return (
-    <div
-      ref={scrollbarRef}
-      className="fixed left-0 w-3 bg-gray-300/50 dark:bg-gray-600/50 rounded-r-lg sm:hidden"
-      style={{
-        top: containerRef.current?.getBoundingClientRect().top || 0,
-        height: containerRef.current?.clientHeight || 0,
-        zIndex: 50,
-      }}
-    >
-      <div
-        className="absolute left-0 w-3 bg-indigo-500 dark:bg-indigo-400 rounded-lg cursor-pointer active:bg-indigo-600 dark:active:bg-indigo-500"
-        style={{
-          height: `${scrollbarHeight}px`,
-          transform: `translateY(${scrollbarTop}px)`,
-          transition: isDragging ? 'none' : 'all 0.1s',
-        }}
-        onMouseDown={handleThumbMouseDown}
-        onTouchStart={handleThumbMouseDown}
-      />
-    </div>
-  )
-}
-
 // --- Edit Component ---
 function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { tierListId: string, initialVoteId: string, onCancel: () => void, onSaveSuccess: (allowVoting: boolean) => void }) {
   const supabase = createClient()
@@ -847,19 +714,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
       return 'vote';
   })
 
-  // Refs for custom scrollbar
-  const voteScrollRef = useRef<HTMLDivElement>(null)
-  const quizScrollRef = useRef<HTMLDivElement>(null)
-
   // Reset touched item and scroll position when tab changes
   useEffect(() => {
     setTouchedItemId(null)
 
     // Reset scroll position for vote and quiz tabs
-    if (activeTab === 'vote' && voteScrollRef.current) {
-      voteScrollRef.current.scrollTop = 0
-    } else if (activeTab === 'quiz' && quizScrollRef.current) {
-      quizScrollRef.current.scrollTop = 0
+    if (activeTab === 'vote' || activeTab === 'quiz') {
+      window.scrollTo(0, 0)
     }
   }, [activeTab])
 
@@ -1707,9 +1568,8 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         ) : (
           <div className="bg-background">
             {activeTab === 'vote' ? (
-              <>
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <div ref={voteScrollRef} className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-scroll sm:max-h-none sm:overflow-visible sm:p-1">
+                <div className="space-y-1 mb-4 sm:p-1">
                   <div className="space-y-4">
                     <div className="mt-3 text-left text-sm text-muted-foreground">
                         あなたが考えたティアリストを投票しましょう。<br />
@@ -1857,12 +1717,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                   <ActionButtons {...{ currentUser, tierList, isScreenshotLoading, handleShare, setIsReportModalOpen, isBanned, handleSaveAsImage, setShowLabels, showLabels, activeTab }} />
                 </div>
               </DragDropContext>
-              <CustomScrollbar containerRef={voteScrollRef} />
-              </>
             ) : activeTab === 'quiz' ? (
-              <>
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <div ref={quizScrollRef} className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-scroll sm:max-h-none sm:overflow-visible sm:p-1">
+                <div className="space-y-1 mb-4 sm:p-1">
                     <div className="space-y-4">
                     <div className="mt-3 text-left text-sm text-muted-foreground">
                         ティアリストの投票結果を予想しましょう。<br />
@@ -2005,8 +1862,6 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                   <ActionButtons {...{ currentUser, tierList, isScreenshotLoading, handleShare, setIsReportModalOpen, isBanned, handleSaveAsImage, setShowLabels, showLabels, activeTab }} />
                 </div>
               </DragDropContext>
-              <CustomScrollbar containerRef={quizScrollRef} />
-              </>
             ) : (
               <div className="space-y-1 sm:p-1">
                 {/* 説明文 + トグルボタン */}
