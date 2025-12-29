@@ -105,19 +105,19 @@ body.page-loading {
 
   /* Webkit系ブラウザ用 */
   .tier-list-scroll-container::-webkit-scrollbar {
-    width: 24px;
+    width: 12px;
   }
 
   .tier-list-scroll-container::-webkit-scrollbar-track {
     background: #e5e7eb;
-    border-radius: 12px;
+    border-radius: 6px;
   }
 
   .tier-list-scroll-container::-webkit-scrollbar-thumb {
     background: #4f46e5;
-    border-radius: 12px;
-    border: 2px solid #e5e7eb;
-    min-height: 60px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    min-height: 40px;
   }
 
   .tier-list-scroll-container::-webkit-scrollbar-thumb:hover {
@@ -132,14 +132,14 @@ body.page-loading {
 
     .tier-list-scroll-container::-webkit-scrollbar-track {
       background: #374151;
-      border-radius: 12px;
+      border-radius: 6px;
     }
 
     .tier-list-scroll-container::-webkit-scrollbar-thumb {
       background: #6366f1;
-      border-radius: 12px;
-      border: 2px solid #374151;
-      min-height: 60px;
+      border-radius: 6px;
+      border: 1px solid #374151;
+      min-height: 40px;
     }
 
     .tier-list-scroll-container::-webkit-scrollbar-thumb:hover {
