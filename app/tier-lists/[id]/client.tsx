@@ -999,8 +999,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         console.error('Failed to load saved state from localStorage', e)
       }
 
-      // 保存された配置がない場合 → すべて未配置に配置
-      setVotingState({ tiers: initialTiers, unranked: [...items] })
+      // 保存された配置がない場合 → すべて未配置に配置（シャッフル）
+      const shuffledItems = [...items].sort(() => Math.random() - 0.5)
+      setVotingState({ tiers: initialTiers, unranked: shuffledItems })
     }
   }, [items, tiers, userVote, userVoteItems, tierList.id])
 
