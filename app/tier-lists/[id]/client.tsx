@@ -66,6 +66,7 @@ function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLD
   const [isVisible, setIsVisible] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const scrollbarRef = useRef<HTMLDivElement>(null)
+  const dragStartRef = useRef({ y: 0, scrollTop: 0 })
 
   const updateScrollbar = useCallback(() => {
     const container = containerRef.current
@@ -109,6 +110,18 @@ function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLD
   const handleThumbMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+    const container = containerRef.current
+    if (!container) return
+
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+
+    // ドラッグ開始時の位置とスクロール位置を記録
+    dragStartRef.current = {
+      y: clientY,
+      scrollTop: container.scrollTop
+    }
+
     setIsDragging(true)
   }
 
@@ -118,19 +131,22 @@ function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLD
     const handleMove = (e: MouseEvent | TouchEvent) => {
       e.preventDefault()
       const container = containerRef.current
-      const scrollbarEl = scrollbarRef.current
-      if (!container || !scrollbarEl) return
+      if (!container) return
 
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-      const scrollbarRect = scrollbarEl.getBoundingClientRect()
-      const clickPosition = clientY - scrollbarRect.top
+
+      // タッチ開始位置からの移動量を計算
+      const deltaY = clientY - dragStartRef.current.y
 
       const { scrollHeight, clientHeight } = container
       const maxScroll = scrollHeight - clientHeight
-      const maxThumbTop = clientHeight - scrollbarHeight
-      const scrollPercentage = Math.max(0, Math.min(1, clickPosition / clientHeight))
 
-      container.scrollTop = scrollPercentage * maxScroll
+      // 移動量をスクロール量に変換（スクロールバーの移動距離に対するコンテンツのスクロール比率）
+      const scrollRatio = maxScroll / (clientHeight - scrollbarHeight)
+      const newScrollTop = dragStartRef.current.scrollTop + (deltaY * scrollRatio)
+
+      // スクロール位置を設定（範囲内に制限）
+      container.scrollTop = Math.max(0, Math.min(maxScroll, newScrollTop))
     }
 
     const handleEnd = () => {
