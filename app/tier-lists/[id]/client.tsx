@@ -1564,7 +1564,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
           <div className="bg-background">
             {activeTab === 'vote' ? (
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <div className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-auto sm:max-h-none sm:overflow-visible sm:p-1">
+                <div className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-scroll sm:max-h-none sm:overflow-visible sm:p-1">
                   <div className="space-y-4">
                     <div className="mt-3 text-left text-sm text-muted-foreground">
                         あなたが考えたティアリストを投票しましょう。<br />
@@ -1714,7 +1714,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
               </DragDropContext>
             ) : activeTab === 'quiz' ? (
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <div className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-auto sm:max-h-none sm:overflow-visible sm:p-1">
+                <div className="tier-list-scroll-container space-y-1 mb-4 max-h-[80vh] overflow-y-scroll sm:max-h-none sm:overflow-visible sm:p-1">
                     <div className="space-y-4">
                     <div className="mt-3 text-left text-sm text-muted-foreground">
                         ティアリストの投票結果を予想しましょう。<br />
