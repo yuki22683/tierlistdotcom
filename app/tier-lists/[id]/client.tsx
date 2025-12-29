@@ -851,9 +851,16 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const voteScrollRef = useRef<HTMLDivElement>(null)
   const quizScrollRef = useRef<HTMLDivElement>(null)
 
-  // Reset touched item when tab changes
+  // Reset touched item and scroll position when tab changes
   useEffect(() => {
     setTouchedItemId(null)
+
+    // Reset scroll position for vote and quiz tabs
+    if (activeTab === 'vote' && voteScrollRef.current) {
+      voteScrollRef.current.scrollTop = 0
+    } else if (activeTab === 'quiz' && quizScrollRef.current) {
+      quizScrollRef.current.scrollTop = 0
+    }
   }, [activeTab])
 
   // 評価方式の切り替え（結果表示時のみ使用）
