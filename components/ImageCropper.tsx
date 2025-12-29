@@ -223,11 +223,9 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // 250x250pxを超える場合のみ250x250にリサイズ、それ以外は元のサイズを保持
-    const maxSize = 250
-    const outputSize = cropArea.size > maxSize ? maxSize : cropArea.size
-    canvas.width = outputSize
-    canvas.height = outputSize
+    // 元の解像度を保持（Cloudflare Imagesは枚数課金なのでサイズ制限不要）
+    canvas.width = cropArea.size
+    canvas.height = cropArea.size
 
     const img = new Image()
     img.src = imageSrc
@@ -241,15 +239,15 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
         cropArea.size,
         0,
         0,
-        outputSize,
-        outputSize
+        cropArea.size,
+        cropArea.size
       )
 
       canvas.toBlob((blob) => {
         if (blob) {
           onCropComplete(blob)
         }
-      }, 'image/jpeg', 0.9)
+      }, 'image/jpeg', 0.95)
     }
   }
 
