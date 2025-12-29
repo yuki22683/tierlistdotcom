@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'nldyphaanpobqqviezou.supabase.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'imagedelivery.net',
+      },
     ],
   },
   async headers() {
