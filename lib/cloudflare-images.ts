@@ -2,10 +2,6 @@
  * Cloudflare Images API utilities
  */
 
-const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID!
-const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN!
-const CLOUDFLARE_ACCOUNT_HASH = process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH!
-
 export interface CloudflareImageUploadResult {
   id: string
   filename: string
@@ -24,6 +20,13 @@ export async function uploadToCloudflareImages(
   file: File | Blob,
   metadata?: Record<string, string>
 ): Promise<CloudflareImageUploadResult> {
+  const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID
+  const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN
+
+  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
+    throw new Error('Cloudflare Images credentials not configured')
+  }
+
   const formData = new FormData()
 
   // Add file
@@ -60,6 +63,13 @@ export async function uploadToCloudflareImages(
  * @param imageId - The image ID to delete
  */
 export async function deleteFromCloudflareImages(imageId: string): Promise<void> {
+  const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID
+  const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN
+
+  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
+    throw new Error('Cloudflare Images credentials not configured')
+  }
+
   const response = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1/${imageId}`,
     {
@@ -83,6 +93,12 @@ export async function deleteFromCloudflareImages(imageId: string): Promise<void>
  * @returns The public URL
  */
 export function getCloudflareImageUrl(imageId: string, variant: string = 'public'): string {
+  const CLOUDFLARE_ACCOUNT_HASH = process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH
+
+  if (!CLOUDFLARE_ACCOUNT_HASH) {
+    throw new Error('Cloudflare Images account hash not configured')
+  }
+
   return `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${imageId}/${variant}`
 }
 
