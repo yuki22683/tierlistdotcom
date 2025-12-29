@@ -60,7 +60,7 @@ type Props = {
 }
 
 // --- Custom Scrollbar Component for iOS ---
-function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) {
+function CustomScrollbar({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
   const [scrollbarHeight, setScrollbarHeight] = useState(0)
   const [scrollbarTop, setScrollbarTop] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
