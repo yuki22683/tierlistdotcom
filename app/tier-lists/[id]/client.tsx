@@ -61,6 +61,7 @@ type Props = {
 
 // --- Custom Scrollbar Component for Page Scroll ---
 function PageScrollbar() {
+  const [isMounted, setIsMounted] = useState(false)
   const [scrollbarHeight, setScrollbarHeight] = useState(0)
   const [scrollbarTop, setScrollbarTop] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
@@ -68,7 +69,14 @@ function PageScrollbar() {
   const scrollbarRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef({ y: 0, scrollTop: 0 })
 
+  // クライアントサイドでのみマウント
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   const updateScrollbar = useCallback(() => {
+    if (typeof window === 'undefined') return
+
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop
     const scrollHeight = document.documentElement.scrollHeight
     const clientHeight = window.innerHeight
@@ -158,7 +166,7 @@ function PageScrollbar() {
     }
   }, [isDragging, scrollbarHeight])
 
-  if (!isVisible) return null
+  if (!isMounted || !isVisible) return null
 
   return (
     <div
