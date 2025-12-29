@@ -2,15 +2,7 @@
 
 import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
-
-/**
- * Extract storage file path from Supabase public URL (server version)
- */
-function extractStoragePathFromUrl(imageUrl: string): string | null {
-  if (!imageUrl) return null
-  const match = imageUrl.match(/\/storage\/v1\/object\/public\/category_images\/(.+)$/)
-  return match ? match[1] : null
-}
+import { deleteFromCloudflareImages, extractImageIdFromUrl } from '@/lib/cloudflare-images'
 
 export async function deleteTierList(tierListId: string) {
   const supabase = await createClient()
@@ -77,18 +69,15 @@ export async function deleteTierList(tierListId: string) {
         .eq('image_url', imageUrl)
         .limit(1)
 
-      // If no other items use this image, delete it from storage
+      // If no other items use this image, delete it from Cloudflare Images
       if (!otherItems || otherItems.length === 0) {
-        const filePath = extractStoragePathFromUrl(imageUrl)
-        if (filePath) {
-          const { error: deleteError } = await adminClient.storage
-            .from('category_images')
-            .remove([filePath])
-
-          if (deleteError) {
-            console.error('Failed to delete image from storage:', filePath, deleteError)
-          } else {
-            console.log('Successfully deleted unused image:', filePath)
+        const imageId = extractImageIdFromUrl(imageUrl)
+        if (imageId) {
+          try {
+            await deleteFromCloudflareImages(imageId)
+            console.log('Successfully deleted unused image:', imageId)
+          } catch (deleteError) {
+            console.error('Failed to delete image from Cloudflare Images:', imageId, deleteError)
           }
         }
       } else {

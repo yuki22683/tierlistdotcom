@@ -39,24 +39,25 @@ export default function NewCategoryPage() {
     }
 
     try {
-      // 1. Upload image
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}.${fileExt}`
-      const { error: uploadError, data: uploadData } = await supabase.storage
-        .from('category_images')
-        .upload(fileName, file)
+      // 1. Upload image to Cloudflare Images
+      const formData = new FormData()
+      formData.append('file', file)
 
-      if (uploadError) throw uploadError
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
 
-      // 2. Get Public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('category_images')
-        .getPublicUrl(fileName)
+      if (!response.ok) {
+        throw new Error('Upload failed')
+      }
 
-      // 3. Insert Category
+      const { url: imageUrl } = await response.json()
+
+      // 2. Insert Category
       const { error: insertError } = await supabase
         .from('categories')
-        .insert({ name, image_url: publicUrl })
+        .insert({ name, image_url: imageUrl })
 
       if (insertError) throw insertError
 

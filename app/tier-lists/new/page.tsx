@@ -414,22 +414,20 @@ function CreateTierListContent() {
   const handleCropComplete = async (croppedBlob: Blob) => {
     setIsSubmitting(true)
     try {
-      // Use correct extension based on blob type
-      const fileExt = croppedBlob.type.split('/')[1]
-      const fileName = `items/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+      // Upload to Cloudflare Images via API route
+      const formData = new FormData()
+      formData.append('file', croppedBlob, `item-${Date.now()}.jpg`)
 
-      // Upload
-      const { error: uploadError } = await supabase.storage
-        .from('category_images')
-        .upload(fileName, croppedBlob, {
-          contentType: croppedBlob.type
-        })
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
 
-      if (uploadError) throw uploadError
+      if (!response.ok) {
+        throw new Error('Upload failed')
+      }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('category_images')
-        .getPublicUrl(fileName)
+      const { url: imageUrl } = await response.json()
 
       // ファイル名から拡張子を除いた名前を取得
       const originalFileName = croppingFiles[currentCroppingIndex].name
@@ -438,7 +436,7 @@ function CreateTierListContent() {
       const newItem: TierItem = {
         id: Math.random().toString(36).substr(2, 9),
         name: nameWithoutExt,
-        imageUrl: publicUrl,
+        imageUrl,
       }
       addUnrankedItem(newItem)
 
