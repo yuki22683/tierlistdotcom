@@ -253,9 +253,10 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
       canvas.toBlob((blob) => {
         if (blob) {
           onCropComplete(blob)
+          // isProcessingはtrueのまま維持（親コンポーネントでアップロード完了まで連打防止）
+        } else {
+          setIsProcessing(false)
         }
-        // 処理完了後に状態をリセット（実際にはコンポーネントが閉じられる可能性が高い）
-        setIsProcessing(false)
       }, 'image/jpeg', 0.95)
     }
   }
