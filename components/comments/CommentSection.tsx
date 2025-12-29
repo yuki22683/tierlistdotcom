@@ -124,15 +124,15 @@ export default function CommentSection({
 
       {/* Filter / Sort */}
       <div className="flex items-center gap-4 mb-6 border-b border-gray-200 dark:border-zinc-800 pb-2">
-        <button 
+        <button
             onClick={() => setSortOrder('newest')}
-            className={`pb-2 text-sm font-medium transition border-b-2 ${sortOrder === 'newest' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'}`}
+            className={`pb-2 text-sm font-medium transition border-b-2 ${sortOrder === 'newest' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-300' : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'}`}
         >
             新しい順
         </button>
-        <button 
+        <button
             onClick={() => setSortOrder('popular')}
-            className={`pb-2 text-sm font-medium transition border-b-2 ${sortOrder === 'popular' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'}`}
+            className={`pb-2 text-sm font-medium transition border-b-2 ${sortOrder === 'popular' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-300' : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'}`}
         >
             人気順
         </button>

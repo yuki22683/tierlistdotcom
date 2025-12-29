@@ -104,10 +104,8 @@ const calculateRanks = (
 
   // --- Absolute Rank ---
   // score = median - index  =>  index = median - score
-  const absRoundedScore = Math.round(targetAvg + 0.5)
-  let absTierIdx = Math.round(medianIndex - absRoundedScore)
-  if (absTierIdx < 0) absTierIdx = 0
-  if (absTierIdx >= numTiers) absTierIdx = numTiers - 1
+  let absTierIdx = Math.round(medianIndex - targetAvg)
+  absTierIdx = Math.max(0, Math.min(numTiers - 1, absTierIdx))
   const absoluteTier = listTiers[absTierIdx]
 
   // --- Relative Rank ---

@@ -41,9 +41,14 @@ function CreateTierListContent() {
   const [currentCroppingIndex, setCurrentCroppingIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerHeight, setContainerHeight] = useState(0)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
 
   const searchParams = useSearchParams()
   const forkFrom = searchParams.get('forkFrom')
+
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  }, [])
 
   // Monitor container height for Rakuten widgets
   useEffect(() => {
@@ -257,7 +262,7 @@ function CreateTierListContent() {
 
       try {
           localStorage.setItem(`tierListDraft_${user.id}`, JSON.stringify(draftData));
-          alert("一時保存しました。\n次回「+ティアリストを作成」をクリックした際に復元されます。");
+          alert(`一時保存しました。\n次回「+ティアリストを作成」を${isTouchDevice ? 'タップ' : 'クリック'}した際に復元されます。`);
       } catch (e) {
           console.error("Failed to save draft", e);
           alert("一時保存に失敗しました。");

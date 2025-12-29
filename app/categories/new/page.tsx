@@ -2,17 +2,22 @@
 
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function NewCategoryPage() {
   const router = useRouter()
   const supabase = createClient()
-  
+
   const [name, setName] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -105,7 +110,7 @@ export default function NewCategoryPage() {
               />
             ) : (
               <div className="text-center text-muted-foreground">
-                <p>クリックしてアップロード、またはドラッグ＆ドロップ</p>
+                <p>{isTouchDevice ? 'タップ' : 'クリック'}してアップロード、またはドラッグ＆ドロップ</p>
                 <p className="text-xs">SVG, PNG, JPG, GIF (最大 800x400px)</p>
               </div>
             )}

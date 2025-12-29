@@ -722,6 +722,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   // 評価方式の切り替え（結果表示時のみ使用）
   const [evaluationMode, setEvaluationMode] = useState<'absolute' | 'relative'>('absolute')
 
+  // Double tap detection for touch devices
+  const [lastTapTime, setLastTapTime] = useState<number>(0)
+  const [lastTapItemId, setLastTapItemId] = useState<string | null>(null)
+
   // Quiz states
   const [quizCorrectAnswers, setQuizCorrectAnswers] = useState<Record<string, string> | null>(null) // { [itemId]: tierId }
   const [quizShuffledItems, setQuizShuffledItems] = useState<Item[]>([])
@@ -1491,8 +1495,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                 onClick={() => {
                   setActiveTab('vote')
                   setSelectedItemId(null)
+                  window.scrollTo(0, 0)
                 }}
-                className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'vote' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'vote' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-300' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
               >
                 投票
               </button>
@@ -1502,8 +1507,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
             onClick={() => {
               setActiveTab('quiz')
               setSelectedItemId(null)
+              window.scrollTo(0, 0)
             }}
-            className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'quiz' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+            className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'quiz' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-300' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
           >
             クイズ
           </button>
@@ -1514,8 +1520,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
               onClick={() => {
                 setActiveTab('result')
                 setSelectedItemId(null)
+                window.scrollTo(0, 0)
               }}
-              className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'result' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+              className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'result' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-300' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
             >
               結果
             </button>
@@ -1526,8 +1533,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
               onClick={() => {
                 handleEditClick()
                 setSelectedItemId(null)
+                window.scrollTo(0, 0)
               }}
-              className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'edit' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+              className={`px-4 py-0 font-medium text-sm transition-colors border-b-2 ${activeTab === 'edit' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-300' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
             >
               編集
             </button>
@@ -1552,12 +1560,12 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
             }}
           />
         ) : (
-          <div className="bg-background p-1">
+          <div className="bg-background">
             {activeTab === 'vote' ? (
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <div className="space-y-1 mb-4">
-                  <div className="space-y-4 p-2">
-                    <div className="mb-2 text-left text-sm text-muted-foreground">
+                <div className="space-y-1 mb-4 p-1">
+                  <div className="space-y-4">
+                    <div className="mt-3 text-left text-sm text-muted-foreground">
                         あなたが考えたティアリストを投票しましょう。<br />
                         全アイテムを配置してから投票してください。
                     </div>
@@ -1693,7 +1701,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                       )}
                     </button>
                     <button
-                        onClick={() => { setIsResultMode(true); setActiveTab('result'); setEvaluationMode('absolute'); }}
+                        onClick={() => { setIsResultMode(true); setActiveTab('result'); setEvaluationMode('absolute'); window.scrollTo(0, 0); }}
                         className="px-8 py-2 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105 hover:bg-gray-700"
                     >
                         結果を見る
@@ -1705,9 +1713,9 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
               </DragDropContext>
             ) : activeTab === 'quiz' ? (
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <div className="space-y-1 mb-4">
-                    <div className="space-y-4 p-2">
-                    <div className="mb-2 text-left text-sm text-muted-foreground">
+                <div className="space-y-1 mb-4 p-1">
+                    <div className="space-y-4">
+                    <div className="mt-3 text-left text-sm text-muted-foreground">
                         ティアリストの投票結果を予想しましょう。<br />
                         ?にアイテムを配置して解答を押してください。
                     </div>
@@ -1842,21 +1850,21 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                         >
                           解答
                         </button>
-                        <button onClick={() => { setIsResultMode(true); setActiveTab('result'); setEvaluationMode('absolute'); }} className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105">答えを見る</button>
+                        <button onClick={() => { setIsResultMode(true); setActiveTab('result'); setEvaluationMode('absolute'); window.scrollTo(0, 0); }} className="px-10 py-4 rounded-lg font-bold text-lg shadow-lg text-white transition-all bg-gray-600 hover:scale-105">答えを見る</button>
                     </div>
                     <TierListMetadata tierList={tierList} />
                   <ActionButtons {...{ currentUser, tierList, isScreenshotLoading, handleShare, setIsReportModalOpen, isBanned, handleSaveAsImage, setShowLabels, showLabels, activeTab }} />
                 </div>
               </DragDropContext>
             ) : (
-              <div className="space-y-1">
+              <div className="space-y-1 p-1">
                 {/* 説明文 + トグルボタン */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm text-muted-foreground">
-                  <p className="mb-2 text-left text-sm text-muted-foreground">
-                    アイテムをダブルクリックするとアイテムの詳細ページに遷移します。
+                <div className="mt-3 flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm text-muted-foreground">
+                  <p className="text-left text-sm text-muted-foreground">
+                    アイテムを{isTouchDevice ? 'ダブルタップ' : 'ダブルクリック'}するとアイテムの詳細ページに遷移します。
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="inline-flex rounded-md shadow-sm" role="group">
+                    <div className="my-1 inline-flex rounded-md shadow-sm" role="group">
                       <button
                         type="button"
                         onClick={() => setEvaluationMode('absolute')}
@@ -1882,7 +1890,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                 {loadingResults ? (
                   <div className="text-center py-20 text-muted-foreground">集計中...</div>
                 ) : (
-                  <div id="tier-list-content" className="p-2">
+                  <div id="tier-list-content">
                   <div className="flex flex-col">
                     {tiers.map((tier) => (
                       <div key={tier.id} className="flex min-h-[68px] sm:min-h-[102px] border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900">
@@ -1902,12 +1910,29 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                               onMouseEnter={!isTouchDevice ? () => setSelectedItemId(item.id) : undefined}
                               onMouseLeave={!isTouchDevice ? () => setSelectedItemId(null) : undefined}
                               onClick={() => {
-                                setSelectedItemId(selectedItemId === item.id ? null : item.id)
-                                if (isTouchDevice && !showLabels) {
-                                  setTouchedItemId(touchedItemId === item.id ? null : item.id)
+                                if (isTouchDevice) {
+                                  const now = Date.now()
+                                  const DOUBLE_TAP_DELAY = 300
+
+                                  if (lastTapItemId === item.id && now - lastTapTime < DOUBLE_TAP_DELAY) {
+                                    // ダブルタップ
+                                    handleItemDoubleClick(item)
+                                    setLastTapTime(0)
+                                    setLastTapItemId(null)
+                                  } else {
+                                    // シングルタップ
+                                    setSelectedItemId(selectedItemId === item.id ? null : item.id)
+                                    if (!showLabels) {
+                                      setTouchedItemId(touchedItemId === item.id ? null : item.id)
+                                    }
+                                    setLastTapTime(now)
+                                    setLastTapItemId(item.id)
+                                  }
+                                } else {
+                                  setSelectedItemId(selectedItemId === item.id ? null : item.id)
                                 }
                               }}
-                              onDoubleClick={() => handleItemDoubleClick(item)}
+                              onDoubleClick={() => !isTouchDevice && handleItemDoubleClick(item)}
                             >
                               {item.is_text_item ? (
                                 <div

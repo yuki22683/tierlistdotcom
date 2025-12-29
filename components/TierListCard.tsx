@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { deleteTierList } from '@/app/actions/tierList'
 import { format } from 'date-fns'
 import { formatNumber } from '@/utils/formatNumber'
@@ -14,6 +15,7 @@ interface TierListCardProps {
 }
 
 export default function TierListCard({ list, isAdmin, currentUserId, userHasVoted = false }: TierListCardProps) {
+  const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDeleted, setIsDeleted] = useState(false)
 
@@ -118,13 +120,16 @@ export default function TierListCard({ list, isAdmin, currentUserId, userHasVote
               )}
             </div>
             <div className="flex items-center gap-1 sm:gap-2 truncate">
-              <Link
-                href={`/users/${list.user_id}/tier-lists`}
+              <span
                 className="hover:underline hover:text-indigo-600 transition-colors cursor-pointer truncate max-w-[60px] sm:max-w-none"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  router.push(`/users/${list.user_id}/tier-lists`)
+                }}
               >
                 {user?.full_name || '匿名'}
-              </Link>
+              </span>
               <span>•</span>
               <span>{format(new Date(list.created_at), 'yyyy/MM/dd')}</span>
             </div>

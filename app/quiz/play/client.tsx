@@ -373,9 +373,9 @@ export default function QuizPlayClient({
     <div ref={containerRef} className="container mx-auto py-4 px-4 max-w-5xl relative">
       <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
       <RakutenRightWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
-      <main className="pb-10 pt-4">
+      <main className="pb-10 pt-2">
       <BackButton href="/quiz/select-genre" />
-      <h1 className="text-3xl font-bold mb-6 text-center">
+      <h1 className="text-3xl font-bold mb-2 text-center">
         {isAnswerRevealed ? currentTierList.title : '？？？？'}
       </h1>
 
