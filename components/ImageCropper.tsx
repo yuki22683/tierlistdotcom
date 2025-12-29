@@ -15,6 +15,7 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
   const [cropArea, setCropArea] = useState({ x: 0, y: 0, size: 0 })
   const [dragging, setDragging] = useState<string | null>(null)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [isProcessing, setIsProcessing] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
 
@@ -219,9 +220,15 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
   }, [dragging, dragStart])
 
   const handleCrop = async () => {
+    if (isProcessing) return
+    setIsProcessing(true)
+
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (!ctx) {
+      setIsProcessing(false)
+      return
+    }
 
     // 元の解像度を保持（Cloudflare Imagesは枚数課金なのでサイズ制限不要）
     canvas.width = cropArea.size
@@ -247,6 +254,8 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
         if (blob) {
           onCropComplete(blob)
         }
+        // 処理完了後に状態をリセット（実際にはコンポーネントが閉じられる可能性が高い）
+        setIsProcessing(false)
       }, 'image/jpeg', 0.95)
     }
   }
@@ -340,10 +349,11 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
           </button>
           <button
             onClick={handleCrop}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+            disabled={isProcessing}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600"
           >
             <Check size={16} />
-            トリミング完了
+            {isProcessing ? '処理中...' : 'トリミング完了'}
           </button>
         </div>
       </div>
