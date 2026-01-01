@@ -329,19 +329,19 @@ export default async function ItemDetailPage(props: Props) {
       {/* Top Comment Section */}
       {topComment && (
         <div className="mb-16">
-            <div className="bg-transparent p-6 rounded-xl border border-amber-200 dark:border-amber-900 w-full shadow-sm">
-                <div className="flex items-center gap-2 mb-4 text-amber-600 dark:text-amber-500 font-bold text-lg">
+            <div className="bg-transparent p-4 rounded-xl border border-amber-200 dark:border-amber-900 w-full shadow-sm">
+                <div className="flex items-center gap-2 mb-3 text-amber-600 dark:text-amber-500 font-bold text-lg">
                     <span>🏆</span>
                     <span>トップコメント</span>
                 </div>
                 
                 {/* Comment Content */}
-                <div className="text-base md:text-lg text-gray-800 dark:text-gray-200 mb-6 whitespace-pre-wrap leading-relaxed px-1">
+                <div className="text-base md:text-lg text-gray-800 dark:text-gray-200 mb-4 whitespace-pre-wrap leading-relaxed px-1">
                     {topComment.content}
                 </div>
 
                 {/* Footer: Author & Link */}
-                <div className="flex items-center justify-between border-t border-amber-200/50 dark:border-amber-900/50 pt-4">
+                <div className="flex items-center justify-between border-t border-amber-200/50 dark:border-amber-900/50 pt-3">
                     {/* User Info */}
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 relative rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex-shrink-0">
