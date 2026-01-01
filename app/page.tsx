@@ -33,6 +33,7 @@ export default async function Home({
   const tierListLimit = view ? 100 : 7;  // Tier lists: 7 + 1 ad = 8 total
   const tagLimit = view ? 100 : 12;      // Tags: 12 (no ads)
   const itemLimit = view ? 100 : 11;     // Items: 11 + 1 ad = 12 total
+  const recentItemsLimit = view ? 100 : 11; // Recently viewed items: 11 + 1 ad = 12 total
 
   const supabase = await createClient()
 
@@ -293,7 +294,7 @@ export default async function Home({
           affiliateIndex={2}
           view={view}
           page={page}
-          limit={12}
+          limit={recentItemsLimit}
         />
       )}
 

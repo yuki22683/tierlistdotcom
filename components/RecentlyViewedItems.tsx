@@ -76,7 +76,7 @@ export default function RecentlyViewedItems({
     }
 
     fetchRecentlyViewedItems()
-  }, [view, page])
+  }, [view, page, limit])
 
   const renderAmazonAd = (item: any, keyPrefix: string) => {
       const cardClass = "group relative bg-card border rounded-lg overflow-hidden hover:shadow-lg transition-all aspect-square flex flex-col";
