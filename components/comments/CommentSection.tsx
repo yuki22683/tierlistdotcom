@@ -78,7 +78,11 @@ export default function CommentSection({
       if (tierListId) formData.append('tierListId', tierListId)
       if (itemName) formData.append('itemName', itemName)
 
-      await addComment(null, formData)
+      const result = await addComment(null, formData)
+      if (result?.error) {
+        alert(result.error)
+        return
+      }
       setNewComment('')
     } catch (error) {
       console.error('Failed to submit comment:', error)

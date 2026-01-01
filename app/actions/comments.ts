@@ -36,7 +36,7 @@ export async function addComment(prevState: any, formData: FormData) {
   }
 
   if ((count || 0) >= 20) {
-      return { error: '1日のコメント投稿数の上限は20件です。' };
+      return { error: '1日のコメント投稿数の上限は20件です。明日また投稿してください。' };
   }
 
   const { error } = await supabase.from('comments').insert({
