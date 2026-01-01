@@ -8,7 +8,7 @@ import HomeWrapper from '@/components/HomeWrapper'
 import ImageSlideshow from '@/components/ImageSlideshow'
 import SaveItemToHistory from '@/components/SaveItemToHistory'
 import RandomAffiliateLink from '@/components/RandomAffiliateLink'
-import CommentItem from '@/components/comments/CommentItem'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -329,24 +329,42 @@ export default async function ItemDetailPage(props: Props) {
       {/* Top Comment Section */}
       {topComment && (
         <div className="mb-16">
-            <div className="bg-amber-50 dark:bg-amber-950/30 p-6 rounded-xl border border-amber-200 dark:border-amber-900 w-full">
+            <div className="bg-amber-50 dark:bg-amber-950/30 p-6 rounded-xl border border-amber-200 dark:border-amber-900 w-full shadow-sm">
                 <div className="flex items-center gap-2 mb-4 text-amber-600 dark:text-amber-500 font-bold text-lg">
                     <span>🏆</span>
                     <span>トップコメント</span>
                 </div>
-                <div className="bg-white dark:bg-zinc-900/50 rounded-lg p-2 border border-amber-100 dark:border-amber-900/30">
-                    <CommentItem 
-                        comment={topComment}
-                        replies={[]} 
-                        allComments={comments || []}
-                        currentUserId={user?.id}
-                        itemName={itemName}
-                        isAdmin={false}
-                        isBanned={false}
-                    />
+                
+                {/* Comment Content */}
+                <div className="text-base md:text-lg text-gray-800 dark:text-gray-200 mb-6 whitespace-pre-wrap leading-relaxed px-1">
+                    {topComment.content}
                 </div>
-                <div className="mt-3 text-right">
-                    <a href="#comments" className="text-sm text-amber-600/70 hover:text-amber-600 underline">
+
+                {/* Footer: Author & Link */}
+                <div className="flex items-center justify-between border-t border-amber-200/50 dark:border-amber-900/50 pt-4">
+                    {/* User Info */}
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 relative rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex-shrink-0">
+                            {topComment.users?.avatar_url ? (
+                                <Image
+                                    src={topComment.users.avatar_url}
+                                    alt={topComment.users.full_name || 'User'}
+                                    fill
+                                    className="object-cover"
+                                />
+                            ) : (
+                                <span className="flex items-center justify-center w-full h-full text-gray-500 text-xs font-bold">
+                                    {topComment.users?.full_name?.[0] || 'U'}
+                                </span>
+                            )}
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {topComment.users?.full_name || '名無し'}
+                        </span>
+                    </div>
+
+                    {/* Link */}
+                    <a href="#comments" className="text-sm text-amber-600/70 hover:text-amber-600 underline flex-shrink-0 ml-4">
                         コメント欄で見る
                     </a>
                 </div>
