@@ -9,6 +9,8 @@ import ImageSlideshow from '@/components/ImageSlideshow'
 import SaveItemToHistory from '@/components/SaveItemToHistory'
 import RandomAffiliateLink from '@/components/RandomAffiliateLink'
 import Image from 'next/image'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -335,9 +337,32 @@ export default async function ItemDetailPage(props: Props) {
                     <span>トップコメント</span>
                 </div>
                 
-                {/* Comment Content */}
+                {/* Comment Content (Markdown) */}
                 <div className="text-base md:text-lg text-gray-800 dark:text-gray-200 mb-4 whitespace-pre-wrap leading-relaxed px-1">
-                    {topComment.content}
+                    <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            a: ({ node, ...props }) => (
+                                <a 
+                                    {...props} 
+                                    target="_blank" 
+                                    rel="nofollow noopener noreferrer" 
+                                    className="text-amber-600 dark:text-amber-500 hover:underline break-all"
+                                />
+                            ),
+                            p: ({ node, ...props }) => <p {...props} className="mb-2 last:mb-0" />,
+                            ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-4 mb-2" />,
+                            ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-4 mb-2" />,
+                            blockquote: ({ node, ...props }) => (
+                                <blockquote {...props} className="border-l-4 border-amber-200 pl-4 italic text-gray-600 dark:text-gray-400 mb-2" />
+                            ),
+                            code: ({ node, ...props }) => (
+                                <code {...props} className="bg-amber-100/50 dark:bg-amber-900/30 px-1 rounded font-mono text-xs" />
+                            ),
+                        }}
+                    >
+                        {topComment.content}
+                    </ReactMarkdown>
                 </div>
 
                 {/* Footer: Author & Link */}

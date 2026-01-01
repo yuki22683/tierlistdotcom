@@ -12,11 +12,11 @@ import {
   reportComment
 } from '@/app/actions/comments'
 import Image from 'next/image'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 /* ===============================
    バッド率 → 背景一致率
-   ・5票未満は無効
-   ・5票以上は dislike / total
 ================================ */
 function calcFade(likes: number, dislikes: number) {
   const total = likes + dislikes
@@ -184,7 +184,7 @@ export default function CommentItem({
           </span>
         </div>
 
-        {/* ===== コメント本文（背景一致率フェード） ===== */}
+        {/* ===== コメント本文（Markdown対応 & 背景一致率フェード） ===== */}
         <div
           className="text-sm mb-2 whitespace-pre-wrap transition-colors duration-300"
           style={{
@@ -195,7 +195,30 @@ export default function CommentItem({
             )`
           }}
         >
-          {comment.content}
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]}
+            components={{
+              a: ({ node, ...props }) => (
+                <a 
+                  {...props} 
+                  target="_blank" 
+                  rel="nofollow noopener noreferrer" 
+                  className="text-blue-500 hover:underline break-all"
+                />
+              ),
+              p: ({ node, ...props }) => <p {...props} className="mb-2 last:mb-0" />,
+              ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-4 mb-2" />,
+              ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-4 mb-2" />,
+              blockquote: ({ node, ...props }) => (
+                <blockquote {...props} className="border-l-4 border-gray-300 pl-4 italic text-gray-600 dark:text-gray-400 mb-2" />
+              ),
+              code: ({ node, ...props }) => (
+                <code {...props} className="bg-gray-100 dark:bg-zinc-800 px-1 rounded font-mono text-xs" />
+              ),
+            }}
+          >
+            {comment.content}
+          </ReactMarkdown>
         </div>
 
         {/* Actions */}
