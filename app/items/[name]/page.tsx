@@ -329,7 +329,7 @@ export default async function ItemDetailPage(props: Props) {
       {/* Top Comment Section */}
       {topComment && (
         <div className="mb-16">
-            <div className="bg-amber-50 dark:bg-amber-950/30 p-6 rounded-xl border border-amber-200 dark:border-amber-900 w-full shadow-sm">
+            <div className="bg-transparent p-6 rounded-xl border border-amber-200 dark:border-amber-900 w-full shadow-sm">
                 <div className="flex items-center gap-2 mb-4 text-amber-600 dark:text-amber-500 font-bold text-lg">
                     <span>🏆</span>
                     <span>トップコメント</span>
