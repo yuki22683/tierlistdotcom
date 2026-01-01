@@ -98,6 +98,26 @@ export default function QuizPlayClient({
   const [touchedItemId, setTouchedItemId] = useState<string | null>(null)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
   
+  // Item size scale
+  const [isDesktop, setIsDesktop] = useState(true)
+  const [itemScale, setItemScale] = useState<number>(1)
+
+  // Initialize and update itemScale and isDesktop based on screen size
+  useEffect(() => {
+    const updateSize = () => {
+      const desktop = window.innerWidth >= 640
+      setIsDesktop(desktop)
+      setItemScale(1)
+    }
+
+    // Initial setup
+    updateSize()
+
+    // Listen for resize
+    window.addEventListener('resize', updateSize)
+    return () => window.removeEventListener('resize', updateSize)
+  }, [])
+  
   // Determine if it is the last question
   // If we are at the end of history AND we have visited all available tier lists
   const isLastQuestion = (currentIndex === history.length - 1) && (visitedIds.length >= totalCount)
@@ -372,6 +392,10 @@ export default function QuizPlayClient({
     router.push(`/items/${encodeURIComponent(item.name)}`)
   }
 
+  // Calculate scaled sizes for items and tier names
+  const itemSize = isDesktop ? 102 * itemScale : 68 * itemScale
+  const tierNameWidth = isDesktop ? 128 : 64
+
   return (
     <div ref={containerRef} className="container mx-auto py-4 px-4 max-w-5xl relative">
       <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
@@ -415,6 +439,22 @@ export default function QuizPlayClient({
         </div>
       </div>
 
+      {/* Item Size Slider */}
+      <div className="flex items-center gap-3 px-4 py-1 my-0 mb-4">
+        <input
+          type="range"
+          min="0.5"
+          max="2"
+          step="0.01"
+          value={itemScale}
+          onChange={(e) => setItemScale(parseFloat(e.target.value))}
+          className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
+        />
+        <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
+          {Math.round(itemScale * 100)}%
+        </span>
+      </div>
+
       {/* Tier List Results Display */}
       <div ref={tierListRef}>
         {loadingResults ? (
@@ -423,10 +463,10 @@ export default function QuizPlayClient({
           <div id="tier-list-content" className="p-2 mb-6">
             <div className="flex flex-col">
               {currentTiers.map((tier) => (
-                <div key={tier.id} className="flex min-h-[68px] sm:min-h-[102px] border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900">
+                <div key={tier.id} className="flex border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900" style={{ minHeight: `${itemSize}px` }}>
                   <div
-                    className="w-16 sm:w-32 flex flex-col justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3"
-                    style={{ backgroundColor: tier.color, color: getContrastColor(tier.color) }}
+                    className="flex flex-col justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3"
+                    style={{ width: `${tierNameWidth}px`, backgroundColor: tier.color, color: getContrastColor(tier.color) }}
                   >
                     {tier.name}
                   </div>
@@ -434,7 +474,8 @@ export default function QuizPlayClient({
                     {results?.[tier.id]?.map((item) => (
                       <div
                         key={item.id}
-                        className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-pointer"
+                        className="relative group cursor-pointer"
+                        style={{ width: `${itemSize}px`, height: `${itemSize}px` }}
                         onMouseEnter={!isTouchDevice ? () => setSelectedItemId(item.id) : undefined}
                         onMouseLeave={!isTouchDevice ? () => setSelectedItemId(null) : undefined}
                         onClick={() => {
