@@ -58,6 +58,11 @@ export async function deleteImageIfUnused(
 ): Promise<boolean> {
   if (!imageUrl) return false
 
+  // Skip deletion for external URLs (Cloudflare Images, etc.)
+  if (imageUrl.includes('imagedelivery.net')) {
+    return false
+  }
+
   // Check if the image is used by other tier lists
   const isUsed = await isImageUsedByOtherTierLists(imageUrl, excludeTierListId)
 

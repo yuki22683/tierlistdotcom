@@ -67,6 +67,7 @@ function PageScrollbar() {
   const [isVisible, setIsVisible] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const scrollbarRef = useRef<HTMLDivElement>(null)
+  const thumbRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef({ y: 0, scrollTop: 0 })
 
   // クライアントサイドでのみマウント
@@ -77,9 +78,11 @@ function PageScrollbar() {
   const updateScrollbar = useCallback(() => {
     if (typeof window === 'undefined') return
 
+    const navbarHeight = 56 // h-14 = 56px
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop
     const scrollHeight = document.documentElement.scrollHeight
     const clientHeight = window.innerHeight
+    const availableHeight = clientHeight - navbarHeight
 
     // スクロールが必要かチェック
     if (scrollHeight <= clientHeight) {
@@ -90,13 +93,13 @@ function PageScrollbar() {
     setIsVisible(true)
 
     // スクロールバーの高さを計算（ページの高さに対する可視領域の割合）
-    const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight, 40)
+    const thumbHeight = Math.max((clientHeight / scrollHeight) * availableHeight, 40)
     setScrollbarHeight(thumbHeight)
 
     // スクロールバーの位置を計算
     const maxScroll = scrollHeight - clientHeight
     const scrollPercentage = scrollTop / maxScroll
-    const maxThumbTop = clientHeight - thumbHeight
+    const maxThumbTop = availableHeight - thumbHeight
     setScrollbarTop(scrollPercentage * maxThumbTop)
   }, [])
 
@@ -111,20 +114,43 @@ function PageScrollbar() {
     }
   }, [updateScrollbar])
 
-  const handleThumbMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleThumbMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-
     // ドラッグ開始時の位置とスクロール位置を記録
     dragStartRef.current = {
-      y: clientY,
+      y: e.clientY,
       scrollTop: window.pageYOffset || document.documentElement.scrollTop
     }
 
     setIsDragging(true)
   }
+
+  // タッチイベント用のハンドラー（passive: falseで登録するため）
+  useEffect(() => {
+    const thumbElement = thumbRef.current
+    if (!thumbElement) return
+
+    const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      // ドラッグ開始時の位置とスクロール位置を記録
+      dragStartRef.current = {
+        y: e.touches[0].clientY,
+        scrollTop: window.pageYOffset || document.documentElement.scrollTop
+      }
+
+      setIsDragging(true)
+    }
+
+    thumbElement.addEventListener('touchstart', handleTouchStart, { passive: false })
+
+    return () => {
+      thumbElement.removeEventListener('touchstart', handleTouchStart)
+    }
+  }, [isMounted, isVisible])
 
   useEffect(() => {
     if (!isDragging) return
@@ -168,17 +194,20 @@ function PageScrollbar() {
 
   if (!isMounted || !isVisible) return null
 
+  const navbarHeight = 56 // h-14 = 56px
+
   return (
     <div
       ref={scrollbarRef}
       className="fixed left-0 w-3 bg-gray-300/50 dark:bg-gray-600/50 rounded-r-lg sm:hidden"
       style={{
-        top: 0,
-        height: '100vh',
+        top: `${navbarHeight}px`,
+        height: `calc(100vh - ${navbarHeight}px)`,
         zIndex: 50,
       }}
     >
       <div
+        ref={thumbRef}
         className="absolute left-0 w-3 bg-indigo-500 dark:bg-indigo-400 rounded-lg cursor-pointer active:bg-indigo-600 dark:active:bg-indigo-500"
         style={{
           height: `${scrollbarHeight}px`,
@@ -186,7 +215,6 @@ function PageScrollbar() {
           transition: isDragging ? 'none' : 'all 0.1s',
         }}
         onMouseDown={handleThumbMouseDown}
-        onTouchStart={handleThumbMouseDown}
       />
     </div>
   )
@@ -571,7 +599,7 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
                                             ) : (
                                                 <>
                                                     <img src={item.imageUrl} className="w-full h-full object-cover" />
-                                                    <AutocompleteInput value={item.name} onValueChange={(v) => updateItemName(item.id, v)} className="absolute bottom-0 w-full text-xs bg-black/70 text-white text-center border-none outline-none break-words line-clamp-3" placeholder="名無し"/>
+                                                    <AutocompleteInput value={item.name} onValueChange={(v) => updateItemName(item.id, v)} className="absolute bottom-0 w-full text-xs bg-black/70 text-white text-center border-none outline-none break-words" placeholder="名無し"/>
                                                 </>
                                             )}
                                         </div>
@@ -633,7 +661,7 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
                                                           <>
                                                               <img src={item.imageUrl} className="w-full h-full object-cover" />
                                                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center"><GripVertical className="text-white"/></div>
-                                                              <AutocompleteInput value={item.name} onValueChange={(v) => updateItemName(item.id, v)} className="absolute bottom-0 w-full text-xs bg-black/70 text-white text-center border-none outline-none break-words line-clamp-3" placeholder="名無し"/>
+                                                              <AutocompleteInput value={item.name} onValueChange={(v) => updateItemName(item.id, v)} className="absolute bottom-0 w-full text-xs bg-black/70 text-white text-center border-none outline-none break-words" placeholder="名無し"/>
                                                           </>
                                                       )}
                                                   </div>
@@ -802,6 +830,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const [voteCount, setVoteCount] = useState<number>(tierList.vote_count)
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const tierListRef = useRef<HTMLDivElement>(null)
+  const tierListContentRef = useRef<HTMLDivElement>(null)
   const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
   const [itemVoteDist, setItemVoteDist] = useState<Record<string, Record<string, number>> | null>(null)
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
@@ -868,6 +897,26 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const [quizShuffledItems, setQuizShuffledItems] = useState<Item[]>([])
   const [quizUserPlacements, setQuizUserPlacements] = useState<Record<string, Item | null>>({}) // { [placeholderId]: item }
   const [quizResults, setQuizResults] = useState<Record<string, boolean>>({}) // { [placeholderId]: isCorrect }
+
+  // Item size scale for vote and quiz tabs
+  const [isDesktop, setIsDesktop] = useState(true)
+  const [itemScale, setItemScale] = useState<number>(1)
+
+  // Initialize and update itemScale and isDesktop based on screen size
+  useEffect(() => {
+    const updateSize = () => {
+      const desktop = window.innerWidth >= 640
+      setIsDesktop(desktop)
+      setItemScale(desktop ? 1 : 2/3)
+    }
+
+    // Initial setup
+    updateSize()
+
+    // Listen for resize
+    window.addEventListener('resize', updateSize)
+    return () => window.removeEventListener('resize', updateSize)
+  }, [])
 
   const [displayedRelatedLists, setDisplayedRelatedLists] = useState<any[]>(relatedTierLists || []);
 
@@ -1616,6 +1665,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     // Check if there are any placed items that haven't been graded yet
     const hasUngradedPlacedItems = Object.entries(quizUserPlacements).some(([key, item]) => item !== null && quizResults[key] === undefined);
 
+    // Calculate scaled sizes for items and tier names
+    const itemSize = isDesktop ? 102 * itemScale : 68 * itemScale
+    const tierNameWidth = isDesktop ? 128 : 64
+
     return (
     <div ref={containerRef} className="container mx-auto py-4 px-4 max-w-5xl relative">
       <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={tierList.id} />
@@ -1703,15 +1756,30 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
               <>
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="space-y-1 mb-4 sm:p-1">
-                  <div className="space-y-4">
-                    <div className="mt-3 text-left text-sm text-muted-foreground">
+                  <div className="space-y-2">
+                    <div className="mt-2 mb-1 text-left text-sm text-muted-foreground">
                         あなたが考えたティアリストを投票しましょう。<br />
                         全アイテムを配置してから投票してください。
                     </div>
-                    <div id="tier-list-content" className="flex flex-col">
+                    {/* Item Size Slider */}
+                    <div className="flex items-center gap-3 px-4 py-1 my-0">
+                      <input
+                        type="range"
+                        min={isDesktop ? "0.5" : "0.333"}
+                        max={isDesktop ? "2" : "1.333"}
+                        step="0.01"
+                        value={itemScale}
+                        onChange={(e) => setItemScale(parseFloat(e.target.value))}
+                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
+                      />
+                      <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
+                        {Math.round(isDesktop ? itemScale * 100 : itemScale * 150)}%
+                      </span>
+                    </div>
+                    <div id="tier-list-content" ref={tierListContentRef} className="flex flex-col">
                         {tiers.map((tier) => (
-                        <div key={tier.id} className="flex min-h-[68px] sm:min-h-[102px] border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900">
-                        <div className="w-16 sm:w-32 flex justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3" style={{ backgroundColor: tier.color, color: getContrastColor(tier.color), touchAction: 'pan-y' }}>
+                        <div key={tier.id} className="flex border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900" style={{ minHeight: `${itemSize}px` }}>
+                        <div className="flex justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3" style={{ width: `${tierNameWidth}px`, backgroundColor: tier.color, color: getContrastColor(tier.color), touchAction: 'pan-y' }}>
                                 {tier.name}
                               </div>
                               <Droppable droppableId={tier.id} direction="horizontal">
@@ -1728,7 +1796,12 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                             ref={provided.innerRef}
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
-                                            className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-grab active:cursor-grabbing"
+                                            className="relative group cursor-grab active:cursor-grabbing"
+                                            style={{
+                                              ...provided.draggableProps.style,
+                                              width: `${itemSize}px`,
+                                              height: `${itemSize}px`
+                                            }}
                                             onClick={() => {
                                               if (isTouchDevice && !showLabels) {
                                                 setTouchedItemId(touchedItemId === item.id ? null : item.id)
@@ -1746,7 +1819,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                             ) : (
                                               <>
                                                 <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                                <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                                <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words ${
                                                   showLabels
                                                     ? ''
                                                     : isTouchDevice
@@ -1773,8 +1846,8 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                             <div
                               ref={provided.innerRef}
                               {...provided.droppableProps}
-                              className={`${votingState.unranked.length === 0 ? 'h-[34px] sm:h-[51px]' : ''} p-2 border-2 border-solid rounded-md flex flex-wrap gap-2 ${snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-100/20' : ''} touch-none`}
-                              style={{ touchAction: 'none' }}
+                              className={`p-2 border-2 border-solid rounded-md flex flex-wrap gap-2 ${snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-100/20' : ''} touch-none`}
+                              style={{ touchAction: 'none', minHeight: votingState.unranked.length === 0 ? `${itemSize / 2}px` : undefined }}
                             >
                                 {votingState.unranked.map((item, index) => (
                                     <Draggable key={item.id} draggableId={item.id} index={index}>
@@ -1783,7 +1856,12 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                               ref={provided.innerRef}
                                               {...provided.draggableProps}
                                               {...provided.dragHandleProps}
-                                              className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-grab active:cursor-grabbing"
+                                              className="relative group cursor-grab active:cursor-grabbing"
+                                              style={{
+                                                ...provided.draggableProps.style,
+                                                width: `${itemSize}px`,
+                                                height: `${itemSize}px`
+                                              }}
                                               onClick={() => {
                                                 if (isTouchDevice && !showLabels) {
                                                   setTouchedItemId(touchedItemId === item.id ? null : item.id)
@@ -1801,7 +1879,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                               ) : (
                                                 <>
                                                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words ${
                                                     showLabels
                                                       ? ''
                                                       : isTouchDevice
@@ -1856,16 +1934,31 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
               <>
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="space-y-1 mb-4 sm:p-1">
-                    <div className="space-y-4">
-                    <div className="mt-3 text-left text-sm text-muted-foreground">
+                    <div className="space-y-2">
+                    <div className="mt-2 mb-1 text-left text-sm text-muted-foreground">
                         ティアリストの投票結果を予想しましょう。<br />
                         ?にアイテムを配置して解答を押してください。
                     </div>
-                    <div id="tier-list-content" className="space-y-4">
+                    {/* Item Size Slider */}
+                    <div className="flex items-center gap-3 px-4 py-1 my-0">
+                      <input
+                        type="range"
+                        min={isDesktop ? "0.5" : "0.333"}
+                        max={isDesktop ? "2" : "1.333"}
+                        step="0.01"
+                        value={itemScale}
+                        onChange={(e) => setItemScale(parseFloat(e.target.value))}
+                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
+                      />
+                      <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
+                        {Math.round(isDesktop ? itemScale * 100 : itemScale * 150)}%
+                      </span>
+                    </div>
+                    <div id="tier-list-content" ref={tierListContentRef} className="space-y-4">
                         <div className="flex flex-col">
                             {tiers.map((tier) => (
-                                <div key={tier.id} className="flex min-h-[68px] sm:min-h-[102px] border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900">
-                                <div className="w-16 sm:w-32 flex justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3" style={{ backgroundColor: tier.color, color: getContrastColor(tier.color), touchAction: 'pan-y' }}>
+                                <div key={tier.id} className="flex border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900" style={{ minHeight: `${itemSize}px` }}>
+                                <div className="flex justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3" style={{ width: `${tierNameWidth}px`, backgroundColor: tier.color, color: getContrastColor(tier.color), touchAction: 'pan-y' }}>
                                       {tier.name}
                                   </div>
                                   <div className="flex-1 flex flex-wrap gap-0 p-0 bg-[#1a1a1a] touch-none">
@@ -1880,7 +1973,8 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                       <div
                                                           ref={provided.innerRef}
                                                           {...provided.droppableProps}
-                                                          className={`relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] border-2 border-solid border-gray-600 ${snapshot.isDraggingOver ? 'bg-blue-200 border-8 border-solid border-red-500' : ''} touch-none`}
+                                                          className={`relative border-2 border-solid border-gray-600 ${snapshot.isDraggingOver ? 'bg-blue-200 border-8 border-solid border-red-500' : ''} touch-none`}
+                                                          style={{ width: `${itemSize}px`, height: `${itemSize}px` }}
                                                       >
                                                           <div className="absolute inset-0 flex items-center justify-center bg-white text-gray-400 text-2xl sm:text-4xl">?</div>
                                                           {placedItem && (
@@ -1907,7 +2001,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                                           ) : (
                                                                               <>
                                                                                   <img src={placedItem.image_url} alt={placedItem.name} className="w-full h-full object-cover"/>
-                                                                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                                                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words ${
                                                                                     showLabels
                                                                                       ? ''
                                                                                       : isTouchDevice
@@ -1937,8 +2031,8 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.droppableProps}
-                                  className={`${quizShuffledItems.length === 0 ? 'h-[34px] sm:h-[51px]' : ''} p-2 border-2 border-solid rounded-md flex flex-wrap gap-2 touch-none`}
-                                  style={{ touchAction: 'none' }}
+                                  className={`p-2 border-2 border-solid rounded-md flex flex-wrap gap-2 touch-none`}
+                                  style={{ touchAction: 'none', minHeight: quizShuffledItems.length === 0 ? `${itemSize / 2}px` : undefined }}
                                 >
                                     {quizShuffledItems.map((item, index) => (
                                         <Draggable key={item.id} draggableId={item.id} index={index}>
@@ -1947,7 +2041,12 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
-                                                    className="w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] rounded shadow-sm relative group"
+                                                    className="rounded shadow-sm relative group"
+                                                    style={{
+                                                      ...provided.draggableProps.style,
+                                                      width: `${itemSize}px`,
+                                                      height: `${itemSize}px`
+                                                    }}
                                                     onClick={() => {
                                                       if (isTouchDevice && !showLabels) {
                                                         setTouchedItemId(touchedItemId === item.id ? null : item.id)
@@ -1964,7 +2063,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                                                     ) : (
                                                       <>
                                                           <img src={item.image_url} alt={item.name} className="w-full h-full"/>
-                                                          <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                                          <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words ${
                                                             showLabels
                                                               ? ''
                                                               : isTouchDevice
@@ -2088,7 +2187,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                               ) : (
                                 <>
                                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                                  <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words ${
                                     showLabels
                                       ? ''
                                       : isTouchDevice
