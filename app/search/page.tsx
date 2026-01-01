@@ -74,11 +74,9 @@ export default async function SearchPage(props: Props) {
 
       if (fetchTierLists) {
         // Always fetch total count for tier lists
-        const { count } = await supabase
-          .from('tier_lists')
-          .select('*, tier_list_tags!inner(tags!inner(name))', { count: 'exact', head: true })
-          .eq('tier_list_tags.tags.name', tagQuery)
-        tierListsTotalCount = count || 0
+        const { data: countData } = await supabase
+          .rpc('search_tier_lists_count', { search_tag: tagQuery })
+        tierListsTotalCount = Number(countData) || 0
         // Set totalCount for tag query pagination
         totalCount = tierListsTotalCount
         console.log(`[Tag Search] Total tier lists count: ${tierListsTotalCount}`)
@@ -105,11 +103,9 @@ export default async function SearchPage(props: Props) {
     // Fetch tier lists
     if (fetchTierLists) {
       // Always fetch total count for tier lists
-      const { count } = await supabase
-        .from('tier_lists')
-        .select('*', { count: 'exact', head: true })
-        .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
-      tierListsTotalCount = count || 0
+      const { data: countData } = await supabase
+        .rpc('search_tier_lists_count', { search_query: query })
+      tierListsTotalCount = Number(countData) || 0
       if (section === 'tierlists') {
         totalCount = tierListsTotalCount
       }
