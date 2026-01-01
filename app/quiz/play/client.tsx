@@ -107,7 +107,6 @@ export default function QuizPlayClient({
     const updateSize = () => {
       const desktop = window.innerWidth >= 640
       setIsDesktop(desktop)
-      setItemScale(1)
     }
 
     // Initial setup

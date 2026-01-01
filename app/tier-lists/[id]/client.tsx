@@ -907,7 +907,6 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     const updateSize = () => {
       const desktop = window.innerWidth >= 640
       setIsDesktop(desktop)
-      setItemScale(1)
     }
 
     // Initial setup
