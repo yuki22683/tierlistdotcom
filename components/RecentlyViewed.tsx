@@ -80,7 +80,10 @@ export default function RecentlyViewed({
           .map((id: string) => data.find((list: any) => list.id === id))
           .filter(Boolean)
 
-        if (sortedData.length > 0) {
+        // Create result array with ads
+        let result = [...sortedData];
+
+        if (result.length > 0) {
             if (view) {
                 // Filtered mode: Insert all 4 ads
                 const ads = [
@@ -90,17 +93,17 @@ export default function RecentlyViewed({
                     { isAmazonTimesaleAd: true }
                 ];
                 ads.forEach(ad => {
-                    const idx = Math.floor(Math.random() * (sortedData.length + 1));
-                    sortedData.splice(idx, 0, ad);
+                    const idx = Math.floor(Math.random() * (result.length + 1));
+                    result.splice(idx, 0, ad);
                 });
             } else {
                 // Default mode: Insert 1 ad (Furusato)
-                const randomIndex = Math.floor(Math.random() * (sortedData.length + 1));
-                sortedData.splice(randomIndex, 0, { isAmazonFurusatoAd: true });
+                const randomIndex = Math.floor(Math.random() * (result.length + 1));
+                result.splice(randomIndex, 0, { isAmazonFurusatoAd: true });
             }
         }
 
-        setTierLists(sortedData)
+        setTierLists(result)
       } catch (e) {
         console.error('Error in recently viewed:', e)
       } finally {

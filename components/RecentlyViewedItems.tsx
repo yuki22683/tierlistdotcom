@@ -47,7 +47,10 @@ export default function RecentlyViewedItems({
           return
         }
 
-        if (slicedData.length > 0) {
+        // Create result array with ads
+        let result = [...slicedData];
+
+        if (result.length > 0) {
             if (view) {
                 // Filtered mode: Insert all 4 ads
                 const ads = [
@@ -57,17 +60,17 @@ export default function RecentlyViewedItems({
                     { isAmazonTimesaleAd: true }
                 ];
                 ads.forEach(ad => {
-                    const idx = Math.floor(Math.random() * (slicedData.length + 1));
-                    slicedData.splice(idx, 0, ad);
+                    const idx = Math.floor(Math.random() * (result.length + 1));
+                    result.splice(idx, 0, ad);
                 });
             } else {
                 // Default mode: Insert 1 ad (Book)
-                const randomIndex = Math.floor(Math.random() * (slicedData.length + 1));
-                slicedData.splice(randomIndex, 0, { isAmazonBookAd: true });
+                const randomIndex = Math.floor(Math.random() * (result.length + 1));
+                result.splice(randomIndex, 0, { isAmazonBookAd: true });
             }
         }
 
-        setItems(slicedData)
+        setItems(result)
       } catch (e) {
         console.error('Error in recently viewed items:', e)
       } finally {
