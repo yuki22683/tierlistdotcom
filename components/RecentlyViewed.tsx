@@ -80,12 +80,12 @@ export default function RecentlyViewed({
           .map((id: string) => data.find((list: any) => list.id === id))
           .filter(Boolean)
 
-        // Create result array with ads
-        let result = [...sortedData];
+        // Add ads to the data
+        const result = [...sortedData];
 
-        if (result.length > 0) {
-            if (view) {
-                // Filtered mode: Insert all 4 ads
+        if (view) {
+            // Filtered mode: Insert all 4 ads
+            if (result.length > 0) {
                 const ads = [
                     { isAmazonBookAd: true },
                     { isAmazonFurusatoAd: true },
@@ -96,10 +96,13 @@ export default function RecentlyViewed({
                     const idx = Math.floor(Math.random() * (result.length + 1));
                     result.splice(idx, 0, ad);
                 });
-            } else {
-                // Default mode: Insert 1 ad (Furusato)
+            }
+        } else {
+            // Default mode: Always insert 1 ad (Furusato) regardless of data length
+            if (result.length > 0) {
                 const randomIndex = Math.floor(Math.random() * (result.length + 1));
                 result.splice(randomIndex, 0, { isAmazonFurusatoAd: true });
+                console.log('[RecentlyViewed] Added ad, total items:', result.length);
             }
         }
 
