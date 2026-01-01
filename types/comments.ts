@@ -4,6 +4,7 @@ export type CommentWithProfile = {
   id: string
   content: string
   created_at: string
+  updated_at: string
   like_count: number
   dislike_count: number
   parent_id: string | null

@@ -284,3 +284,38 @@ export async function reportComment(commentId: string, reason: string) {
 
     return { success: true }
 }
+
+export async function updateComment(commentId: string, content: string, currentPath: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) return { error: 'Unauthorized' }
+    if (!content.trim()) return { error: 'Content is required' }
+
+    // Check ownership
+    const { data: comment } = await supabase
+        .from('comments')
+        .select('user_id')
+        .eq('id', commentId)
+        .single()
+        
+    if (!comment || comment.user_id !== user.id) {
+        return { error: 'Unauthorized' }
+    }
+
+    const { error } = await supabase
+        .from('comments')
+        .update({ 
+            content: content,
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', commentId)
+
+    if (error) {
+        console.error('Update comment error:', error)
+        return { error: 'Failed to update' }
+    }
+
+    revalidatePath(currentPath)
+    return { success: true }
+}

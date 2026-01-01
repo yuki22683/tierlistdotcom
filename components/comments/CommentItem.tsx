@@ -9,7 +9,8 @@ import {
   toggleDislike,
   addComment,
   deleteComment,
-  reportComment
+  reportComment,
+  updateComment
 } from '@/app/actions/comments'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
@@ -56,9 +57,13 @@ export default function CommentItem({
   const [isReplySubmitting, setIsReplySubmitting] = useState(false)
   const [isReportSubmitting, setIsReportSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editContent, setEditContent] = useState(comment.content)
+  const [isUpdateSubmitting, setIsUpdateSubmitting] = useState(false)
 
   const isLiked = comment.likes?.some(l => l.user_id === currentUserId)
   const isDisliked = comment.dislikes?.some(d => d.user_id === currentUserId)
+  const isEdited = comment.updated_at && comment.created_at && new Date(comment.updated_at).getTime() > new Date(comment.created_at).getTime()
 
   /* ===============================
      フェード量（核心）
@@ -122,6 +127,25 @@ export default function CommentItem({
     }
   }
 
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editContent.trim() || isUpdateSubmitting) return
+
+    setIsUpdateSubmitting(true)
+    try {
+      const result = await updateComment(comment.id, editContent, window.location.pathname)
+      if (result.error) {
+        alert(result.error)
+      } else {
+        setIsEditing(false)
+      }
+    } catch (error) {
+      console.error('Failed to update comment:', error)
+    } finally {
+      setIsUpdateSubmitting(false)
+    }
+  }
+
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!replyContent.trim() || isReplySubmitting) return
@@ -181,10 +205,41 @@ export default function CommentItem({
               addSuffix: true,
               locale: ja
             })}
+            {isEdited && <span className="ml-1 text-gray-400">（編集済み）</span>}
           </span>
         </div>
 
         {/* ===== コメント本文（Markdown対応 & 背景一致率フェード） ===== */}
+        {isEditing ? (
+          <form onSubmit={handleUpdate} className="mb-2">
+            <textarea
+              value={editContent}
+              onChange={e => setEditContent(e.target.value)}
+              className="w-full p-2 border rounded text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-800 dark:border-zinc-700"
+              disabled={isUpdateSubmitting}
+            />
+            <div className="flex justify-end gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditing(false)
+                  setEditContent(comment.content)
+                }}
+                disabled={isUpdateSubmitting}
+                className="text-xs px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-800"
+              >
+                キャンセル
+              </button>
+              <button
+                type="submit"
+                disabled={isUpdateSubmitting || !editContent.trim()}
+                className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isUpdateSubmitting ? '保存中...' : '保存'}
+              </button>
+            </div>
+          </form>
+        ) : (
         <div
           className="text-sm mb-2 whitespace-pre-wrap transition-colors duration-300"
           style={{
@@ -220,6 +275,7 @@ export default function CommentItem({
             {comment.content}
           </ReactMarkdown>
         </div>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-4 text-xs text-gray-500">
@@ -250,6 +306,19 @@ export default function CommentItem({
           >
             返信
           </button>
+
+          {currentUserId === comment.user_id && !isBanned && (
+            <button
+              onClick={() => {
+                setIsEditing(!isEditing)
+                setEditContent(comment.content)
+              }}
+              disabled={isEditing}
+              className="hover:bg-gray-100 p-1 rounded transition disabled:opacity-50"
+            >
+              編集
+            </button>
+          )}
 
           <button
             onClick={() => setIsReporting(!isReporting)}
