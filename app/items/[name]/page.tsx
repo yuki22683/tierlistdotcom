@@ -355,14 +355,6 @@ export default async function ItemDetailPage(props: Props) {
       )}
 
       {/* Cross Reference List */}
-           <h1 className="text-4xl font-bold mb-4">{itemName}</h1>
-           <p className="text-gray-500 text-lg">
-             登場回数：{sortedOccurrences.length}
-           </p>
-        </div>
-      </div>
-
-      {/* Cross Reference List */}
       <div className="mb-16">
         <h2 className="text-2xl font-bold mb-6 border-b pb-2">成績</h2>
         <div className="grid gap-4">
