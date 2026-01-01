@@ -22,14 +22,26 @@ export default function TopComment({ comment }: TopCommentProps) {
   useEffect(() => {
     const checkOverflow = () => {
       if (contentRef.current) {
-        setShowReadMore(contentRef.current.scrollHeight > contentRef.current.clientHeight)
+        // Temporarily add line-clamp to measure if content overflows
+        const wasExpanded = isExpanded
+        if (wasExpanded) {
+          contentRef.current.classList.add('line-clamp-4')
+        }
+
+        const hasOverflow = contentRef.current.scrollHeight > contentRef.current.clientHeight
+
+        if (wasExpanded) {
+          contentRef.current.classList.remove('line-clamp-4')
+        }
+
+        setShowReadMore(hasOverflow)
       }
     }
-    
+
     checkOverflow()
     window.addEventListener('resize', checkOverflow)
     return () => window.removeEventListener('resize', checkOverflow)
-  }, [comment.content])
+  }, [comment.content, isExpanded])
 
   return (
     <div className="mb-16">
