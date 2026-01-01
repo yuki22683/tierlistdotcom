@@ -116,6 +116,27 @@ export default function QuizPlayClient({
     window.addEventListener('resize', updateSize)
     return () => window.removeEventListener('resize', updateSize)
   }, [])
+
+  // Load itemScale from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedScale = localStorage.getItem('tierList_itemScale')
+      if (savedScale) {
+        setItemScale(parseFloat(savedScale))
+      }
+    } catch (e) {
+      console.error('Failed to load itemScale from localStorage', e)
+    }
+  }, [])
+
+  const handleItemScaleChange = (newScale: number) => {
+    setItemScale(newScale)
+    try {
+      localStorage.setItem('tierList_itemScale', newScale.toString())
+    } catch (e) {
+      console.error('Failed to save itemScale to localStorage', e)
+    }
+  }
   
   // Determine if it is the last question
   // If we are at the end of history AND we have visited all available tier lists
@@ -446,7 +467,7 @@ export default function QuizPlayClient({
           max="2"
           step="0.01"
           value={itemScale}
-          onChange={(e) => setItemScale(parseFloat(e.target.value))}
+          onChange={(e) => handleItemScaleChange(parseFloat(e.target.value))}
           className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
         />
         <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
