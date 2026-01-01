@@ -293,7 +293,7 @@ export default async function Home({
           affiliateIndex={2}
           view={view}
           page={page}
-          limit={7}
+          limit={12}
         />
       )}
 
