@@ -21,22 +21,33 @@ export async function addComment(prevState: any, formData: FormData) {
     return { error: 'You must be logged in to comment' }
   }
 
-  // Check daily limit
-  const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
-  const { count, error: countError } = await supabase
-      .from('comments')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .gte('created_at', `${today}T00:00:00.000Z`)
-      .lte('created_at', `${today}T23:59:59.999Z`);
+  // Check if user is admin
+  const { data: userData } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+  
+  const isAdmin = !!userData?.is_admin
 
-  if (countError) {
-      console.error('Error counting comments:', countError);
-      return { error: 'Could not verify comment count.' };
-  }
+  if (!isAdmin) {
+      // Check daily limit for non-admins
+      const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+      const { count, error: countError } = await supabase
+          .from('comments')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .gte('created_at', `${today}T00:00:00.000Z`)
+          .lte('created_at', `${today}T23:59:59.999Z`);
 
-  if ((count || 0) >= 20) {
-      return { error: '1日のコメント投稿数の上限は20件です。明日また投稿してください。' };
+      if (countError) {
+          console.error('Error counting comments:', countError);
+          return { error: 'Could not verify comment count.' };
+      }
+
+      if ((count || 0) >= 20) {
+          return { error: '1日のコメント投稿数の上限は20件です。明日また投稿してください。' };
+      }
   }
 
   const { error } = await supabase.from('comments').insert({

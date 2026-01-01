@@ -481,18 +481,29 @@ function CreateTierListContent() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) throw new Error("認証されていません")
 
-        // Check daily limit (20)
-        const today = new Date().toISOString().split('T')[0]
-        const { count } = await supabase
-            .from('tier_lists')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', user.id)
-            .gte('created_at', today)
+        // Check if user is admin
+        const { data: userProfile } = await supabase
+            .from('users')
+            .select('is_admin')
+            .eq('id', user.id)
+            .single()
         
-        if ((count || 0) >= 20) {
-            alert("1日の作成上限は20件です。")
-            setIsSubmitting(false)
-            return
+        const isAdmin = !!userProfile?.is_admin
+
+        if (!isAdmin) {
+            // Check daily limit (20)
+            const today = new Date().toISOString().split('T')[0]
+            const { count } = await supabase
+                .from('tier_lists')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .gte('created_at', today)
+            
+            if ((count || 0) >= 20) {
+                alert("1日の作成上限は20件です。")
+                setIsSubmitting(false)
+                return
+            }
         }
 
         // 1. Create Tier List

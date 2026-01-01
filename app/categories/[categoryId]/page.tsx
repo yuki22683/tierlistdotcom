@@ -87,16 +87,18 @@ export default async function CategoryDetailPage(props: Props) {
     isAdmin = !!userProfile?.is_admin
     isBanned = !!userProfile?.is_banned
 
-    // Check daily limit
-    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
-    const { count } = await supabase
-        .from('tier_lists')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .gte('created_at', today)
+    // Check daily limit (Skip for admins)
+    if (!isAdmin) {
+        const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+        const { count } = await supabase
+            .from('tier_lists')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .gte('created_at', today)
 
-    if ((count || 0) >= 20) {
-        dailyLimitReached = true
+        if ((count || 0) >= 20) {
+            dailyLimitReached = true
+        }
     }
 
     // Get tier list IDs that the user has voted on
