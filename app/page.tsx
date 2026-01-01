@@ -20,8 +20,19 @@ export default async function Home({
   const resolvedSearchParams = await searchParamsPromise;
   const view = resolvedSearchParams.view;
   const page = parseInt(resolvedSearchParams.page || '1', 10);
-  const limit = view ? 100 : view === 'items' ? 7 : 11;
+
+  // Set different limits for different sections
+  let limit = 100; // Default for view mode
+  if (!view) {
+    // Home page limits
+    limit = 11; // Default for items
+  }
   const offset = (page - 1) * limit;
+
+  // Individual limits for each section (used when !view)
+  const tierListLimit = view ? 100 : 7;  // Tier lists: 7 + 1 ad = 8 total
+  const tagLimit = view ? 100 : 12;      // Tags: 12 (no ads)
+  const itemLimit = view ? 100 : 11;     // Items: 11 + 1 ad = 12 total
 
   const supabase = await createClient()
 
@@ -84,11 +95,11 @@ export default async function Home({
   }
 
   if (fetchPopular) {
-    const { data, error } = await supabase.rpc('get_home_tier_lists', { sort_type: 'popular', limit_count: limit, offset_val: offset });
+    const { data, error } = await supabase.rpc('get_home_tier_lists', { sort_type: 'popular', limit_count: tierListLimit, offset_val: offset });
     popularTierLists = data || [];
     if (error) {
       console.warn("RPC 'get_home_tier_lists' failed (popular), falling back:", error.message);
-      const { data: fallbackData } = await supabase.from('tier_lists').select('*, users(full_name, avatar_url), items(image_url)').order('vote_count', { ascending: false }).range(offset, offset + limit - 1);
+      const { data: fallbackData } = await supabase.from('tier_lists').select('*, users(full_name, avatar_url), items(image_url)').order('vote_count', { ascending: false }).range(offset, offset + tierListLimit - 1);
       popularTierLists = fallbackData || [];
     }
 
@@ -101,11 +112,11 @@ export default async function Home({
   }
 
   if (fetchTrending) {
-    const { data, error } = await supabase.rpc('get_home_tier_lists', { sort_type: 'trending', limit_count: limit, offset_val: offset });
+    const { data, error } = await supabase.rpc('get_home_tier_lists', { sort_type: 'trending', limit_count: tierListLimit, offset_val: offset });
     trendingTierLists = data || [];
     if (error) {
       console.warn("RPC 'get_home_tier_lists' failed (trending), falling back:", error.message);
-      const { data: fallbackData } = await supabase.from('tier_lists').select('*, users(full_name, avatar_url), items(image_url)').order('view_count', { ascending: false }).range(offset, offset + limit - 1);
+      const { data: fallbackData } = await supabase.from('tier_lists').select('*, users(full_name, avatar_url), items(image_url)').order('view_count', { ascending: false }).range(offset, offset + tierListLimit - 1);
       trendingTierLists = fallbackData || [];
     }
 
@@ -118,11 +129,11 @@ export default async function Home({
   }
 
   if (fetchNew) {
-    const { data, error } = await supabase.rpc('get_home_tier_lists', { sort_type: 'new', limit_count: limit, offset_val: offset });
+    const { data, error } = await supabase.rpc('get_home_tier_lists', { sort_type: 'new', limit_count: tierListLimit, offset_val: offset });
     newTierLists = data || [];
     if (error) {
       console.warn("RPC 'get_home_tier_lists' failed (new), falling back:", error.message);
-      const { data: fallbackData } = await supabase.from('tier_lists').select('*, users(full_name, avatar_url), items(image_url)').order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+      const { data: fallbackData } = await supabase.from('tier_lists').select('*, users(full_name, avatar_url), items(image_url)').order('created_at', { ascending: false }).range(offset, offset + tierListLimit - 1);
       newTierLists = fallbackData || [];
     }
 
@@ -135,7 +146,7 @@ export default async function Home({
   }
 
   if (fetchItems) {
-    const { data } = await supabase.rpc('get_popular_items', { limit_count: limit, offset_val: offset });
+    const { data } = await supabase.rpc('get_popular_items', { limit_count: itemLimit, offset_val: offset });
     // Filter out items with empty names
     popularItems = (data || []).filter((item: any) => item.name && item.name.trim() !== '');
 
@@ -148,7 +159,7 @@ export default async function Home({
   }
 
   if (fetchTrendingItems) {
-    const { data, error } = await supabase.rpc('get_trending_items', { limit_count: limit, offset_val: offset });
+    const { data, error } = await supabase.rpc('get_trending_items', { limit_count: itemLimit, offset_val: offset });
 
     if (error) {
       console.error('[Server] Error fetching trending items:', error.message, error.details, error.hint);
@@ -169,12 +180,12 @@ export default async function Home({
   }
 
   if (fetchTags) {
-    const { data } = await supabase.rpc('get_popular_tags', { limit_count: limit, offset_val: offset });
+    const { data } = await supabase.rpc('get_popular_tags', { limit_count: tagLimit, offset_val: offset });
     popularTags = data || [];
   }
 
   if (fetchTrendingTags) {
-    const { data } = await supabase.rpc('get_trending_tags', { limit_count: limit, offset_val: offset });
+    const { data } = await supabase.rpc('get_trending_tags', { limit_count: tagLimit, offset_val: offset });
     trendingTags = data || [];
   }
 
