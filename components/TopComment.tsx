@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -12,10 +12,27 @@ type TopCommentProps = {
 
 export default function TopComment({ comment }: TopCommentProps) {
   const [isOpen, setIsOpen] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [showReadMore, setShowReadMore] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   if (!comment) return null
 
   const isEdited = comment.updated_at && comment.created_at && new Date(comment.updated_at).getTime() > new Date(comment.created_at).getTime()
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (contentRef.current) {
+        setShowReadMore(contentRef.current.scrollHeight > contentRef.current.clientHeight)
+      }
+    }
+    
+    if (isOpen) {
+      checkOverflow()
+      window.addEventListener('resize', checkOverflow)
+      return () => window.removeEventListener('resize', checkOverflow)
+    }
+  }, [comment.content, isOpen])
 
   return (
     <div className="mb-16">
@@ -40,7 +57,10 @@ export default function TopComment({ comment }: TopCommentProps) {
         {isOpen && (
             <div className="animate-in slide-in-from-top-2 duration-200 fade-in">
                 {/* Comment Content */}
-                <div className="text-base md:text-lg text-gray-800 dark:text-gray-200 mb-4 whitespace-pre-wrap leading-relaxed px-1">
+                <div 
+                    ref={contentRef}
+                    className={`text-base md:text-lg text-gray-800 dark:text-gray-200 mb-1 whitespace-pre-wrap leading-relaxed px-1 ${!isExpanded ? 'line-clamp-4' : ''}`}
+                >
                     <ReactMarkdown 
                         remarkPlugins={[remarkGfm]}
                         components={{
@@ -66,6 +86,15 @@ export default function TopComment({ comment }: TopCommentProps) {
                         {comment.content}
                     </ReactMarkdown>
                 </div>
+
+                {showReadMore && (
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="text-sm text-amber-600 dark:text-amber-500 hover:underline mb-4 block ml-1"
+                    >
+                        {isExpanded ? '一部を表示' : '続きを読む'}
+                    </button>
+                )}
 
                 {/* Footer: Author & Link */}
                 <div className="flex items-center justify-between border-t border-amber-200/50 dark:border-amber-900/50 pt-3">

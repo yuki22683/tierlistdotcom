@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { CommentWithProfile } from '@/types/comments'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -60,10 +60,27 @@ export default function CommentItem({
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(comment.content)
   const [isUpdateSubmitting, setIsUpdateSubmitting] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [showReadMore, setShowReadMore] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const isLiked = comment.likes?.some(l => l.user_id === currentUserId)
   const isDisliked = comment.dislikes?.some(d => d.user_id === currentUserId)
   const isEdited = comment.updated_at && comment.created_at && new Date(comment.updated_at).getTime() > new Date(comment.created_at).getTime()
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (contentRef.current) {
+        // scrollHeight is the full height, clientHeight is the visible height (clamped)
+        setShowReadMore(contentRef.current.scrollHeight > contentRef.current.clientHeight)
+      }
+    }
+    
+    checkOverflow()
+    // Re-check on resize for responsiveness
+    window.addEventListener('resize', checkOverflow)
+    return () => window.removeEventListener('resize', checkOverflow)
+  }, [comment.content, isEditing])
 
   /* ===============================
      フェード量（核心）
@@ -240,41 +257,52 @@ export default function CommentItem({
             </div>
           </form>
         ) : (
-        <div
-          className="text-sm mb-2 whitespace-pre-wrap transition-colors duration-300"
-          style={{
-            color: `color-mix(
-              in srgb,
-              var(--comment-text-color) ${(1 - fade) * 100}%,
-              var(--comment-bg-color) ${fade * 100}%
-            )`
-          }}
-        >
-          <ReactMarkdown 
-            remarkPlugins={[remarkGfm]}
-            components={{
-              a: ({ node, ...props }) => (
-                <a 
-                  {...props} 
-                  target="_blank" 
-                  rel="nofollow noopener noreferrer" 
-                  className="text-blue-500 hover:underline break-all"
-                />
-              ),
-              p: ({ node, ...props }) => <p {...props} className="mb-2 last:mb-0" />,
-              ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-4 mb-2" />,
-              ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-4 mb-2" />,
-              blockquote: ({ node, ...props }) => (
-                <blockquote {...props} className="border-l-4 border-gray-300 pl-4 italic text-gray-600 dark:text-gray-400 mb-2" />
-              ),
-              code: ({ node, ...props }) => (
-                <code {...props} className="bg-gray-100 dark:bg-zinc-800 px-1 rounded font-mono text-xs" />
-              ),
-            }}
-          >
-            {comment.content}
-          </ReactMarkdown>
-        </div>
+          <>
+            <div
+              ref={contentRef}
+              className={`text-sm mb-1 whitespace-pre-wrap transition-colors duration-300 ${!isExpanded ? 'line-clamp-4' : ''}`}
+              style={{
+                color: `color-mix(
+                  in srgb,
+                  var(--comment-text-color) ${(1 - fade) * 100}%,
+                  var(--comment-bg-color) ${fade * 100}%
+                )`
+              }}
+            >
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ node, ...props }) => (
+                    <a 
+                      {...props} 
+                      target="_blank" 
+                      rel="nofollow noopener noreferrer" 
+                      className="text-blue-500 hover:underline break-all"
+                    />
+                  ),
+                  p: ({ node, ...props }) => <p {...props} className="mb-2 last:mb-0" />,
+                  ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-4 mb-2" />,
+                  ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-4 mb-2" />,
+                  blockquote: ({ node, ...props }) => (
+                    <blockquote {...props} className="border-l-4 border-gray-300 pl-4 italic text-gray-600 dark:text-gray-400 mb-2" />
+                  ),
+                  code: ({ node, ...props }) => (
+                    <code {...props} className="bg-gray-100 dark:bg-zinc-800 px-1 rounded font-mono text-xs" />
+                  ),
+                }}
+              >
+                {comment.content}
+              </ReactMarkdown>
+            </div>
+            {showReadMore && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-xs text-blue-500 hover:underline mb-2 block"
+              >
+                {isExpanded ? '一部を表示' : '続きを読む'}
+              </button>
+            )}
+          </>
         )}
 
         {/* Actions */}
