@@ -314,37 +314,47 @@ export default async function ItemDetailPage(props: Props) {
       <BackButton />
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-8 items-center md:items-start mb-12">
-        <div className="flex flex-col gap-4 flex-shrink-0 w-full max-w-[300px] md:w-auto">
-            <div className="w-48 h-48 relative rounded-xl overflow-hidden shadow-lg bg-gray-100 mx-auto md:mx-0">
-               <ImageSlideshow images={itemImages} itemName={itemName} />
-            </div>
-            {topComment && (
-                <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-xl border border-amber-200 dark:border-amber-900 w-full md:w-64">
-                    <div className="flex items-center gap-2 mb-2 text-amber-600 dark:text-amber-500 font-bold text-sm">
-                        <span>🏆</span>
-                        <span>トップコメント</span>
-                    </div>
-                    <div className="text-sm">
-                        <CommentItem 
-                            comment={topComment}
-                            replies={[]} 
-                            allComments={comments || []}
-                            currentUserId={user?.id}
-                            itemName={itemName}
-                            isAdmin={false} // View only context mostly
-                            isBanned={false}
-                        />
-                    </div>
-                    <div className="mt-1 text-right border-t border-amber-200/50 dark:border-amber-900/50 pt-2">
-                        <a href="#comments" className="text-xs text-amber-600/70 hover:text-amber-600 underline">
-                            コメント欄で見る
-                        </a>
-                    </div>
-                </div>
-            )}
+        <div className="w-48 h-48 relative rounded-xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100 mx-auto md:mx-0">
+           <ImageSlideshow images={itemImages} itemName={itemName} />
         </div>
 
         <div className="flex-grow text-center md:text-left">
+           <h1 className="text-4xl font-bold mb-4">{itemName}</h1>
+           <p className="text-gray-500 text-lg">
+             登場回数：{sortedOccurrences.length}
+           </p>
+        </div>
+      </div>
+
+      {/* Top Comment Section */}
+      {topComment && (
+        <div className="mb-16">
+            <div className="bg-amber-50 dark:bg-amber-950/30 p-6 rounded-xl border border-amber-200 dark:border-amber-900 w-full">
+                <div className="flex items-center gap-2 mb-4 text-amber-600 dark:text-amber-500 font-bold text-lg">
+                    <span>🏆</span>
+                    <span>トップコメント</span>
+                </div>
+                <div className="bg-white dark:bg-zinc-900/50 rounded-lg p-2 border border-amber-100 dark:border-amber-900/30">
+                    <CommentItem 
+                        comment={topComment}
+                        replies={[]} 
+                        allComments={comments || []}
+                        currentUserId={user?.id}
+                        itemName={itemName}
+                        isAdmin={false}
+                        isBanned={false}
+                    />
+                </div>
+                <div className="mt-3 text-right">
+                    <a href="#comments" className="text-sm text-amber-600/70 hover:text-amber-600 underline">
+                        コメント欄で見る
+                    </a>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Cross Reference List */}
            <h1 className="text-4xl font-bold mb-4">{itemName}</h1>
            <p className="text-gray-500 text-lg">
              登場回数：{sortedOccurrences.length}

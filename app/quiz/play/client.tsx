@@ -268,6 +268,7 @@ export default function QuizPlayClient({
       setCurrentIndex(currentIndex - 1)
       setIsAnswerRevealed(false) // Always reset to masked
       setEvaluationMode('absolute') // Reset evaluation mode
+      window.scrollTo(0, 0)
     }
   }
 
@@ -277,6 +278,7 @@ export default function QuizPlayClient({
       setCurrentIndex(currentIndex + 1)
       setIsAnswerRevealed(false)
       setEvaluationMode('absolute')
+      window.scrollTo(0, 0)
     } else {
       // Fetch new tier list
       setIsLoadingNext(true)
@@ -327,6 +329,7 @@ export default function QuizPlayClient({
         setVisitedIds([...visitedIds, nextTierList.id])
         setIsAnswerRevealed(false)
         setEvaluationMode('absolute')
+        window.scrollTo(0, 0)
       } catch (error) {
         console.error('Failed to fetch next tier list', error)
         alert('次の問題の取得に失敗しました')
