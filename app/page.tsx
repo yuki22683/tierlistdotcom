@@ -283,7 +283,7 @@ export default async function Home({
           affiliateIndex={1}
           view={view}
           page={page}
-          limit={limit}
+          limit={tierListLimit}
         />
       )}
 
