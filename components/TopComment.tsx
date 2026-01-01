@@ -117,7 +117,3 @@ export default function TopComment({ comment }: TopCommentProps) {
     </div>
   )
 }
-      </div>
-    </div>
-  )
-}
