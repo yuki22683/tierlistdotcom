@@ -281,8 +281,14 @@ export default async function ItemDetailPage(props: Props) {
               uniqueMap.set(item.name, item)
           }
       })
-      
-      relatedItems = Array.from(uniqueMap.values()).slice(0, 9)  // 9 items + 1 ad = 10 total
+
+      // Shuffle using Fisher-Yates algorithm, then take first 9
+      const uniqueItems = Array.from(uniqueMap.values())
+      for (let i = uniqueItems.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [uniqueItems[i], uniqueItems[j]] = [uniqueItems[j], uniqueItems[i]]
+      }
+      relatedItems = uniqueItems.slice(0, 9)  // 9 items + 1 ad = 10 total
 
       if (relatedItems.length > 0) {
           const amazonAds = [

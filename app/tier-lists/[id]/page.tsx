@@ -226,11 +226,21 @@ export default async function TierListDetailPage(props: Props) {
   }
 
   // 7. Fetch Related Tier Lists (7 tier lists + 1 ad = 8 total)
-  const { data: relatedTierLists, error: relatedError } = await supabase
-    .rpc('get_related_tier_lists', { p_tier_list_id: tierListId, p_limit: 7 })
+  const { data: relatedTierListsData, error: relatedError } = await supabase
+    .rpc('get_related_tier_lists', { p_tier_list_id: tierListId, p_limit: 100 })  // Fetch more for shuffling
 
   if (relatedError) {
       console.error('Error fetching related tier lists:', JSON.stringify(relatedError, null, 2))
+  }
+
+  // Shuffle using Fisher-Yates algorithm, then take first 7
+  let relatedTierLists = relatedTierListsData || []
+  if (relatedTierLists.length > 0) {
+      for (let i = relatedTierLists.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [relatedTierLists[i], relatedTierLists[j]] = [relatedTierLists[j], relatedTierLists[i]]
+      }
+      relatedTierLists = relatedTierLists.slice(0, 7)
   }
 
   return (
