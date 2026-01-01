@@ -440,7 +440,7 @@ export default function QuizPlayClient({
       </div>
 
       {/* Item Size Slider */}
-      <div className="flex items-center gap-3 px-4 py-1 my-0 mb-2">
+      <div className="flex items-center gap-3 px-4 py-1 mt-2 mb-2">
         <input
           type="range"
           min="0.5"
