@@ -402,17 +402,17 @@ export default function QuizPlayClient({
       <RakutenRightWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
       <main className="pb-6 pt-1">
       <BackButton href="/quiz/select-genre" />
-      <h1 className="text-3xl font-bold mb-2 text-center">
+      <h1 className="text-3xl font-bold mb-1 text-center">
         {isAnswerRevealed ? currentTierList.title : '？？？？'}
       </h1>
 
       {/* Question Counter */}
-      <div className="text-center mb-4 text-lg font-semibold text-muted-foreground">
+      <div className="text-center mb-1 text-lg font-semibold text-muted-foreground">
         問題 {currentIndex + 1} / {totalCount}
       </div>
 
       {/* Evaluation Mode Toggle */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-1">
         <div className="inline-flex rounded-md shadow-sm" role="group">
           <button
             type="button"
@@ -440,7 +440,7 @@ export default function QuizPlayClient({
       </div>
 
       {/* Item Size Slider */}
-      <div className="flex items-center gap-3 px-4 py-1 my-0 mb-4">
+      <div className="flex items-center gap-3 px-4 py-1 my-0 mb-2">
         <input
           type="range"
           min="0.5"
