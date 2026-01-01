@@ -397,10 +397,10 @@ export default function QuizPlayClient({
   const tierNameWidth = isDesktop ? 128 : 64
 
   return (
-    <div ref={containerRef} className="container mx-auto py-4 px-4 max-w-5xl relative">
+    <div ref={containerRef} className="container mx-auto py-2 px-1 sm:px-4 max-w-5xl relative">
       <RakutenLeftWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
       <RakutenRightWidget containerHeight={containerHeight} uniqueKey={currentTierList.id} />
-      <main className="pb-10 pt-2">
+      <main className="pb-6 pt-1">
       <BackButton href="/quiz/select-genre" />
       <h1 className="text-3xl font-bold mb-2 text-center">
         {isAnswerRevealed ? currentTierList.title : '？？？？'}
