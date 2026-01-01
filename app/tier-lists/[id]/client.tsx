@@ -2130,14 +2130,30 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                   </div>
                 </div>
 
+                {/* Item Size Slider */}
+                <div className="flex items-center gap-3 px-4 py-1 my-0">
+                  <input
+                    type="range"
+                    min={isDesktop ? "0.5" : "0.333"}
+                    max={isDesktop ? "2" : "1.333"}
+                    step="0.01"
+                    value={itemScale}
+                    onChange={(e) => setItemScale(parseFloat(e.target.value))}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
+                  />
+                  <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
+                    {Math.round(isDesktop ? itemScale * 100 : itemScale * 150)}%
+                  </span>
+                </div>
+
                 {loadingResults ? (
                   <div className="text-center py-20 text-muted-foreground">集計中...</div>
                 ) : (
                   <div id="tier-list-content">
                   <div className="flex flex-col">
                     {tiers.map((tier) => (
-                      <div key={tier.id} className="flex min-h-[68px] sm:min-h-[102px] border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900">
-                        <div className="w-16 sm:w-32 flex flex-col justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3" style={{ backgroundColor: tier.color, color: getContrastColor(tier.color) }}>
+                      <div key={tier.id} className="flex border-b border-x first:border-t overflow-hidden bg-white dark:bg-zinc-900" style={{ minHeight: `${itemSize}px` }}>
+                        <div className="flex flex-col justify-center items-center p-2 text-center font-bold text-sm sm:text-xl break-words line-clamp-3" style={{ width: `${tierNameWidth}px`, backgroundColor: tier.color, color: getContrastColor(tier.color) }}>
                           {tier.name}
                           {selectedItemId && itemVoteDist && (
                             <div className="text-xs mt-1">
@@ -2149,7 +2165,8 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                           {results?.[tier.id]?.map((item) => (
                             <div
                               key={item.id}
-                              className="relative w-[68px] h-[68px] sm:w-[102px] sm:h-[102px] group cursor-pointer"
+                              className="relative group cursor-pointer"
+                              style={{ width: `${itemSize}px`, height: `${itemSize}px` }}
                               onMouseEnter={!isTouchDevice ? () => setSelectedItemId(item.id) : undefined}
                               onMouseLeave={!isTouchDevice ? () => setSelectedItemId(null) : undefined}
                               onClick={() => {
