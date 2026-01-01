@@ -225,9 +225,9 @@ export default async function TierListDetailPage(props: Props) {
     console.error('Error fetching comments:', commentsError)
   }
 
-  // 7. Fetch Related Tier Lists
+  // 7. Fetch Related Tier Lists (7 tier lists + 1 ad = 8 total)
   const { data: relatedTierLists, error: relatedError } = await supabase
-    .rpc('get_related_tier_lists', { p_tier_list_id: tierListId, p_limit: 5 })
+    .rpc('get_related_tier_lists', { p_tier_list_id: tierListId, p_limit: 7 })
 
   if (relatedError) {
       console.error('Error fetching related tier lists:', JSON.stringify(relatedError, null, 2))

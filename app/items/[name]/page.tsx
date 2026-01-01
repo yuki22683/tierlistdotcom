@@ -282,7 +282,7 @@ export default async function ItemDetailPage(props: Props) {
           }
       })
       
-      relatedItems = Array.from(uniqueMap.values()).slice(0, 10)
+      relatedItems = Array.from(uniqueMap.values()).slice(0, 9)  // 9 items + 1 ad = 10 total
 
       if (relatedItems.length > 0) {
           const amazonAds = [
