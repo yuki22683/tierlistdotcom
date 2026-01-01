@@ -977,7 +977,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     let shareText = `#${tierList.title}${actionText}\n\n`
 
     // Build hashtags string
-    let hashtags = '#ティアリストcom'
+    let hashtags = '#ティアリストcom # ティア #Tier'
 
     // Add tier list tags
     for (const tag of tierListTags) {

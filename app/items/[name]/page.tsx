@@ -8,6 +8,7 @@ import HomeWrapper from '@/components/HomeWrapper'
 import ImageSlideshow from '@/components/ImageSlideshow'
 import SaveItemToHistory from '@/components/SaveItemToHistory'
 import RandomAffiliateLink from '@/components/RandomAffiliateLink'
+import CommentItem from '@/components/comments/CommentItem'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -298,6 +299,14 @@ export default async function ItemDetailPage(props: Props) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Find top comment (Popular sort logic: Most likes, then fewest dislikes)
+  const topComment = comments?.filter((c: any) => !c.parent_id).sort((a: any, b: any) => {
+     if ((b.like_count || 0) !== (a.like_count || 0)) {
+         return (b.like_count || 0) - (a.like_count || 0)
+     }
+     return (a.dislike_count || 0) - (b.dislike_count || 0)
+  })[0]
+
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
       <HomeWrapper uniqueKey="item-detail">
@@ -305,8 +314,34 @@ export default async function ItemDetailPage(props: Props) {
       <BackButton />
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-8 items-center md:items-start mb-12">
-        <div className="w-48 h-48 relative rounded-xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100">
-           <ImageSlideshow images={itemImages} itemName={itemName} />
+        <div className="flex flex-col gap-4 flex-shrink-0 w-full max-w-[300px] md:w-auto">
+            <div className="w-48 h-48 relative rounded-xl overflow-hidden shadow-lg bg-gray-100 mx-auto md:mx-0">
+               <ImageSlideshow images={itemImages} itemName={itemName} />
+            </div>
+            {topComment && (
+                <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-xl border border-amber-200 dark:border-amber-900 w-full md:w-64">
+                    <div className="flex items-center gap-2 mb-2 text-amber-600 dark:text-amber-500 font-bold text-sm">
+                        <span>🏆</span>
+                        <span>トップコメント</span>
+                    </div>
+                    <div className="text-sm">
+                        <CommentItem 
+                            comment={topComment}
+                            replies={[]} 
+                            allComments={comments || []}
+                            currentUserId={user?.id}
+                            itemName={itemName}
+                            isAdmin={false} // View only context mostly
+                            isBanned={false}
+                        />
+                    </div>
+                    <div className="mt-1 text-right border-t border-amber-200/50 dark:border-amber-900/50 pt-2">
+                        <a href="#comments" className="text-xs text-amber-600/70 hover:text-amber-600 underline">
+                            コメント欄で見る
+                        </a>
+                    </div>
+                </div>
+            )}
         </div>
 
         <div className="flex-grow text-center md:text-left">
@@ -462,7 +497,7 @@ export default async function ItemDetailPage(props: Props) {
       )}
 
       {/* Comments */}
-      <div className="border-t pt-8">
+      <div id="comments" className="border-t pt-8">
          <CommentSection 
             initialComments={comments || []}
             itemName={itemName}
