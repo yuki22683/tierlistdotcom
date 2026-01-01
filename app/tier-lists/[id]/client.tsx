@@ -582,6 +582,7 @@ function EditTierList({ tierListId, initialVoteId, onCancel, onSaveSuccess }: { 
                         </div>
                     )}
                  </Droppable>
+                 <div className="text-xs text-muted-foreground mt-2 text-right">アイテムは最大100個まで追加できます。</div>
               </div>
 
               {/* Tiers */}
