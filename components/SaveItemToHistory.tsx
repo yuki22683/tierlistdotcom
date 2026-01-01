@@ -13,7 +13,7 @@ export default function SaveItemToHistory({
     const saveToHistory = () => {
       try {
         const historyKey = 'viewedItems'
-        const maxHistory = 10
+        const maxHistory = 11  // 11 items + 1 ad = 12 total displayed
         const currentHistory = JSON.parse(localStorage.getItem(historyKey) || '[]')
 
         // Remove current item if exists (to move it to top)
