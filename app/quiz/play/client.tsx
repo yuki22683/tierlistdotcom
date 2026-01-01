@@ -498,7 +498,7 @@ export default function QuizPlayClient({
                         ) : (
                           <>
                             <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded shadow-sm"/>
-                            <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words line-clamp-3 ${
+                            <div className={`absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5 px-1 break-words ${
                               showLabels
                                 ? ''
                                 : isTouchDevice
