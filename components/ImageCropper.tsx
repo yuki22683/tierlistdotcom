@@ -268,15 +268,15 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-center p-4 border-b">
+      <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-center p-4 border-b dark:border-zinc-800">
           <h2 className="text-lg font-semibold">画像をトリミング</h2>
         </div>
 
         <div className="flex-1 overflow-auto p-4 flex items-center justify-center">
           {!imageSrc ? (
             <div className="flex items-center justify-center h-64">
-              <p className="text-gray-500">読み込み中...</p>
+              <p className="text-gray-500 dark:text-zinc-400">読み込み中...</p>
             </div>
           ) : (
             <div
@@ -344,17 +344,17 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
           )}
         </div>
 
-        <div className="flex justify-center gap-2 p-4 border-t">
+        <div className="flex justify-center gap-2 p-4 border-t dark:border-zinc-800">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors"
           >
             キャンセル
           </button>
           <button
             onClick={handleCrop}
             disabled={isProcessing}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600 transition-colors"
           >
             <Check size={16} />
             {isProcessing ? '処理中...' : 'トリミング完了'}

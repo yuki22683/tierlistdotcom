@@ -1782,7 +1782,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                         全アイテムを配置してから投票してください。
                     </div>
                     {/* Item Size Slider */}
-                    <div className="flex items-center gap-3 px-4 py-1 my-0">
+                    <div className="flex items-center gap-3 px-4 py-1 mt-0 mb-1">
                       <input
                         type="range"
                         min="0.5"
@@ -1960,7 +1960,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                         ?にアイテムを配置して解答を押してください。
                     </div>
                     {/* Item Size Slider */}
-                    <div className="flex items-center gap-3 px-4 py-1 my-0">
+                    <div className="flex items-center gap-3 px-4 py-1 mt-0 mb-1">
                       <input
                         type="range"
                         min="0.5"
@@ -2150,10 +2150,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                   </div>
                 </div>
 
-                {/* Item Size Slider */}
-                <div className="flex items-center gap-3 px-4 py-1 my-0">
-                  <input
-                    type="range"
+                                                    {/* Item Size Slider */}
+
+                                                    <div className="flex items-center gap-3 px-4 py-1 mt-0 mb-1">
+
+                                                      <input
+
+                                                        type="range"
                     min="0.5"
                     max="2"
                     step="0.01"
