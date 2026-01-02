@@ -95,14 +95,26 @@ export const useTierListStore = create<TierListState>((set) => ({
       allowVoting: data.allowVoting !== undefined ? data.allowVoting : true // Initialize allowVoting
   }),
 
-  addTier: () => set((state) => ({
-    tiers: [...state.tiers, {
-      id: `tier-${Date.now()}`,
-      name: '',
-      color: '#cccccc',
-      items: []
-    }]
-  })),
+  addTier: () => set((state) => {
+    const currentCount = state.tiers.length;
+    let newColor = '#cccccc';
+
+    if (currentCount === 5) newColor = '#7fff7f'; // 6th
+    else if (currentCount === 6) newColor = '#7fffff'; // 7th
+    else if (currentCount === 7) newColor = '#7fdfff'; // 8th
+    else if (currentCount === 8) newColor = '#7fbfff'; // 9th
+    else if (currentCount === 9) newColor = '#7f7fff'; // 10th
+    // 11th and beyond default to #cccccc
+
+    return {
+      tiers: [...state.tiers, {
+        id: `tier-${Date.now()}`,
+        name: '',
+        color: newColor,
+        items: []
+      }]
+    };
+  }),
 
   updateTier: (id, updates) => set((state) => ({
     tiers: state.tiers.map((t) => t.id === id ? { ...t, ...updates } : t)
