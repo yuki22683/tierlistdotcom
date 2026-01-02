@@ -71,8 +71,28 @@ export default function CommentItem({
   useEffect(() => {
     const checkOverflow = () => {
       if (contentRef.current) {
-        // scrollHeight is the full height, clientHeight is the visible height (clamped)
-        setShowReadMore(contentRef.current.scrollHeight > contentRef.current.clientHeight)
+        // Save current state
+        const currentClassList = contentRef.current.className
+        const wasExpanded = !currentClassList.includes('line-clamp-4')
+
+        // Temporarily add line-clamp to measure if content would overflow in collapsed state
+        if (wasExpanded) {
+          contentRef.current.classList.add('line-clamp-4')
+        }
+
+        // Small delay to ensure layout is calculated
+        requestAnimationFrame(() => {
+          if (contentRef.current) {
+            const hasOverflow = contentRef.current.scrollHeight > contentRef.current.clientHeight
+
+            // Restore original state
+            if (wasExpanded) {
+              contentRef.current.classList.remove('line-clamp-4')
+            }
+
+            setShowReadMore(hasOverflow)
+          }
+        })
       }
     }
     
