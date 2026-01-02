@@ -809,13 +809,6 @@ function ActionButtons({ activeTab, currentUser, tierList, isScreenshotLoading, 
          <Download size={16} />
          <span>画像として保存</span>
       </button>
-
-      <button 
-        onClick={() => setShowLabels(!showLabels)}
-        className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap"
-      >
-        {showLabels ? '名前を非表示' : '名前を表示'}
-      </button>
     </div>
   );
 }
@@ -1783,6 +1776,12 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                     </div>
                     {/* Item Size Slider */}
                     <div className="flex items-center gap-3 px-4 py-1 mt-0 mb-1">
+                      <button 
+                        onClick={() => setShowLabels(!showLabels)}
+                        className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap"
+                      >
+                        {showLabels ? '名前を非表示' : '名前を表示'}
+                      </button>
                       <input
                         type="range"
                         min="0.5"
@@ -1960,7 +1959,13 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                         ?にアイテムを配置して解答を押してください。
                     </div>
                     {/* Item Size Slider */}
-                    <div className="flex items-center gap-3 px-4 py-1 mt-0 mb-1">
+                    <div className="flex items-center gap-3 px-4 py-1 my-0">
+                      <button 
+                        onClick={() => setShowLabels(!showLabels)}
+                        className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap"
+                      >
+                        {showLabels ? '名前を非表示' : '名前を表示'}
+                      </button>
                       <input
                         type="range"
                         min="0.5"
@@ -2150,13 +2155,16 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                   </div>
                 </div>
 
-                                                    {/* Item Size Slider */}
-
-                                                    <div className="flex items-center gap-3 px-4 py-1 mt-0 mb-1">
-
-                                                      <input
-
-                                                        type="range"
+                {/* Item Size Slider */}
+                <div className="flex items-center gap-3 px-4 py-1 my-0">
+                  <button 
+                    onClick={() => setShowLabels(!showLabels)}
+                    className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap"
+                  >
+                    {showLabels ? '名前を非表示' : '名前を表示'}
+                  </button>
+                  <input
+                    type="range"
                     min="0.5"
                     max="2"
                     step="0.01"
