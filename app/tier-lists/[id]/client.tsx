@@ -1778,7 +1778,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                     <div className="flex items-center gap-3 px-4 py-1 mt-0 mb-1">
                       <button 
                         onClick={() => setShowLabels(!showLabels)}
-                        className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap min-w-[80px] flex justify-center"
+                        className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap w-[90px] shrink-0 flex justify-center"
                       >
                         {showLabels ? '名前を非表示' : '名前を表示'}
                       </button>
@@ -1962,7 +1962,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                     <div className="flex items-center gap-3 px-4 py-1 my-0">
                       <button 
                         onClick={() => setShowLabels(!showLabels)}
-                        className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap min-w-[80px] flex justify-center"
+                        className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap w-[90px] shrink-0 flex justify-center"
                       >
                         {showLabels ? '名前を非表示' : '名前を表示'}
                       </button>
@@ -2159,7 +2159,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                 <div className="flex items-center gap-3 px-4 py-1 my-0">
                   <button 
                     onClick={() => setShowLabels(!showLabels)}
-                    className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap min-w-[80px] flex justify-center"
+                    className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md hover:bg-accent transition-colors whitespace-nowrap w-[90px] shrink-0 flex justify-center"
                   >
                     {showLabels ? '名前を非表示' : '名前を表示'}
                   </button>
