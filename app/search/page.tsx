@@ -19,10 +19,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   if (tag) {
     return {
       title: `${tag}のティアリスト一覧・ランキング | ティアリスト.com`,
-      description: `${tag}に関連するティアリスト（ランキング）の一覧です。みんなが作成したティアリストをチェックして、投票に参加しましょう。`,
+      description: `${tag}関連ティアリスト（ランキング）の一覧です。みんなが作成したティアリストをチェックして、投票に参加しましょう。`,
       openGraph: {
         title: `${tag}のティアリスト一覧・ランキング`,
-        description: `${tag}に関連するティアリストの一覧です。`,
+        description: `${tag}関連ティアリストの一覧です。`,
       }
     }
   }
@@ -30,7 +30,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   if (q) {
     return {
       title: `「${q}」の検索結果 | ティアリスト.com`,
-      description: `「${q}」に関連するティアリスト、アイテム、タグの検索結果を表示しています。`,
+      description: `「${q}」関連ティアリスト、アイテム、タグの検索結果を表示しています。`,
       robots: {
         index: false, // 検索結果の検索ページは基本インデックスさせない（タグページのみインデックスさせる戦略）
         follow: true,

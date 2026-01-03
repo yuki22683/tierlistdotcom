@@ -243,6 +243,24 @@ export default async function TierListDetailPage(props: Props) {
       relatedTierLists = relatedTierLists.slice(0, 7)
   }
 
+  // 8. Fetch Related Items
+  const { data: relatedItemsData, error: relatedItemsError } = await supabase
+    .rpc('get_related_items', { p_tier_list_id: tierListId, p_limit: 100 })  // Fetch more for shuffling
+
+  if (relatedItemsError) {
+      console.error('Error fetching related items:', JSON.stringify(relatedItemsError, null, 2))
+  }
+
+  // Shuffle using Fisher-Yates algorithm, then take first 9 (1 Amazon banner will be added to make 10 total)
+  let relatedItems = relatedItemsData || []
+  if (relatedItems.length > 0) {
+      for (let i = relatedItems.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [relatedItems[i], relatedItems[j]] = [relatedItems[j], relatedItems[i]]
+      }
+      relatedItems = relatedItems.slice(0, 9)
+  }
+
   return (
     <>
       <script
@@ -259,6 +277,7 @@ export default async function TierListDetailPage(props: Props) {
           currentUser={user}
           initialComments={comments || []}
           relatedTierLists={relatedTierLists || []}
+          relatedItems={relatedItems || []}
           isAdmin={isAdmin}
           isBanned={isBanned}
           userVotedTierListIds={userVotedTierListIds}

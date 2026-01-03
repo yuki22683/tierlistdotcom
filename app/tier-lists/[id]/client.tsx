@@ -56,6 +56,7 @@ type Props = {
   isAdmin?: boolean
   isBanned?: boolean
   relatedTierLists?: any[]
+  relatedItems?: any[]
   userVotedTierListIds?: string[]
 }
 
@@ -813,7 +814,7 @@ function ActionButtons({ activeTab, currentUser, tierList, isScreenshotLoading, 
   );
 }
 
-export default function TierListClientPage({ tierList, tiers, items, userVote, userVoteItems, currentUser, initialComments, isAdmin = false, isBanned = false, relatedTierLists = [], userVotedTierListIds = [] }: Props) {
+export default function TierListClientPage({ tierList, tiers, items, userVote, userVoteItems, allVoteItems, currentUser, initialComments, isAdmin = false, isBanned = false, relatedTierLists = [], relatedItems = [], userVotedTierListIds = [] }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -831,10 +832,22 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const [touchedItemId, setTouchedItemId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerHeight, setContainerHeight] = useState(0)
+  const [isDarkMode, setIsDarkMode] = useState(false)
 
   // Detect touch device
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  }, [])
+
+  // Detect dark mode
+  useEffect(() => {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    setIsDarkMode(darkModeQuery.matches)
+
+    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches)
+    darkModeQuery.addEventListener('change', handleChange)
+
+    return () => darkModeQuery.removeEventListener('change', handleChange)
   }, [])
 
   useEffect(() => {
@@ -922,6 +935,14 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     }
   }, [])
 
+  // Calculate slider background based on current value and dark mode
+  const getSliderBackground = useCallback((value: number) => {
+    const percentage = ((value - 0.5) / (2 - 0.5)) * 100
+    const activeColor = 'rgb(79 70 229)' // indigo-600
+    const inactiveColor = isDarkMode ? 'rgb(55 65 81)' : 'rgb(229 231 235)' // gray-700 : gray-200
+    return `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${percentage}%, ${inactiveColor} ${percentage}%, ${inactiveColor} 100%)`
+  }, [isDarkMode])
+
   const handleItemScaleChange = (newScale: number) => {
     setItemScale(newScale)
     try {
@@ -932,6 +953,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   }
 
   const [displayedRelatedLists, setDisplayedRelatedLists] = useState<any[]>(relatedTierLists || []);
+  const [displayedRelatedItems, setDisplayedRelatedItems] = useState<any[]>(relatedItems || []);
 
   // Update URL parameter when activeTab changes to 'quiz'
   useEffect(() => {
@@ -956,7 +978,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         setDisplayedRelatedLists([]);
         return;
     }
-    
+
     const list = [...relatedTierLists];
     const amazonAds = [
         { isAmazonBookAd: true },
@@ -966,13 +988,36 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
     ];
     // Select one random ad type
     const randomAd = amazonAds[Math.floor(Math.random() * amazonAds.length)];
-    
+
     // Insert at random position
     const randomIndex = Math.floor(Math.random() * (list.length + 1));
     list.splice(randomIndex, 0, randomAd);
-    
+
     setDisplayedRelatedLists(list);
   }, [relatedTierLists]);
+
+  useEffect(() => {
+    if (!relatedItems || relatedItems.length === 0) {
+        setDisplayedRelatedItems([]);
+        return;
+    }
+
+    const list = [...relatedItems];
+    const amazonAds = [
+        { isAmazonBookAd: true },
+        { isAmazonFurusatoAd: true },
+        { isAmazonRankingAd: true },
+        { isAmazonTimesaleAd: true }
+    ];
+    // Select one random ad type
+    const randomAd = amazonAds[Math.floor(Math.random() * amazonAds.length)];
+
+    // Insert at random position
+    const randomIndex = Math.floor(Math.random() * (list.length + 1));
+    list.splice(randomIndex, 0, randomAd);
+
+    setDisplayedRelatedItems(list);
+  }, [relatedItems]);
 
   useEffect(() => {
     // Save to recently viewed
@@ -1789,7 +1834,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                         step="0.01"
                         value={itemScale}
                         onChange={(e) => handleItemScaleChange(parseFloat(e.target.value))}
-                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
+                        style={{
+                          background: getSliderBackground(itemScale)
+                        }}
+                        className="flex-1 h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
                       />
                       <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
                         {Math.round(itemScale * 100)}%
@@ -1973,7 +2021,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                         step="0.01"
                         value={itemScale}
                         onChange={(e) => handleItemScaleChange(parseFloat(e.target.value))}
-                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
+                        style={{
+                          background: getSliderBackground(itemScale)
+                        }}
+                        className="flex-1 h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
                       />
                       <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
                         {Math.round(itemScale * 100)}%
@@ -2170,7 +2221,10 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                     step="0.01"
                     value={itemScale}
                     onChange={(e) => handleItemScaleChange(parseFloat(e.target.value))}
-                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
+                    style={{
+                      background: getSliderBackground(itemScale)
+                    }}
+                    className="flex-1 h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
                     {Math.round(itemScale * 100)}%
@@ -2270,7 +2324,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
           {displayedRelatedLists.length > 0 && (
             <div className="mb-3">
               <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-4">
-                <h2 className="text-2xl font-bold">関連するティアリスト</h2>
+                <h2 className="text-2xl font-bold">関連ティアリスト</h2>
                 <RandomAffiliateLink index={100} />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -2311,8 +2365,86 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
             </div>
           )}
 
-          <CommentSection 
-            initialComments={initialComments} 
+          {displayedRelatedItems.length > 0 && (
+            <div className="mb-12 border-t pt-8">
+              <div className="flex flex-col-reverse sm:flex-row items-start sm:items-center gap-4 mb-6">
+                <h2 className="text-2xl font-bold">関連アイテム</h2>
+                <RandomAffiliateLink index={200} />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {displayedRelatedItems.map((item: any, index: number) => {
+                  // Handle Amazon ads
+                  if (item.isAmazonBookAd) {
+                      return (
+                        <a key={`ad-book-${index}`} href="https://amzn.to/3YHTkdu" target="_blank" rel="nofollow sponsored noopener" className="group block">
+                            <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                                <img src="/images/Amazon/Amazon_book.png" alt="Amazon Book" className="w-full h-full object-cover" />
+                            </div>
+                        </a>
+                      )
+                  }
+                  if (item.isAmazonFurusatoAd) {
+                      return (
+                        <a key={`ad-furusato-${index}`} href="https://amzn.to/4qnIOEo" target="_blank" rel="nofollow sponsored noopener" className="group block">
+                            <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                                <img src="/images/Amazon/Amazon_furusato.png" alt="Amazon Furusato" className="w-full h-full object-cover" />
+                            </div>
+                        </a>
+                      )
+                  }
+                  if (item.isAmazonRankingAd) {
+                      return (
+                        <a key={`ad-ranking-${index}`} href="https://amzn.to/45hogFa" target="_blank" rel="nofollow sponsored noopener" className="group block">
+                            <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                                <img src="/images/Amazon/Amazon_ranking.png" alt="Amazon Ranking" className="w-full h-full object-cover" />
+                            </div>
+                        </a>
+                      )
+                  }
+                  if (item.isAmazonTimesaleAd) {
+                      return (
+                        <a key={`ad-timesale-${index}`} href="https://amzn.to/3Y7mhiZ" target="_blank" rel="nofollow sponsored noopener" className="group block">
+                            <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                                <img src="/images/Amazon/Amazon_timesale.png" alt="Amazon Timesale" className="w-full h-full object-cover" />
+                            </div>
+                        </a>
+                      )
+                  }
+
+                  // Regular items
+                  const imageUrl = item.item_is_text_item ? null : item.item_image_url
+                  return (
+                    <Link
+                      key={item.item_id}
+                      href={`/items/${encodeURIComponent(item.item_name)}`}
+                      className="group"
+                    >
+                      <div className="aspect-square bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden relative shadow-sm hover:shadow-md transition">
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={item.item_name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-2xl font-bold bg-white dark:bg-zinc-700 text-gray-400">
+                            {item.item_name[0]}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                      </div>
+                      <div className="mt-2 text-sm font-medium text-center truncate px-1 group-hover:text-indigo-600 transition-colors">
+                        {item.item_name}
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          <CommentSection
+            initialComments={initialComments}
             currentUserId={currentUser?.id}
             tierListId={tierList.id}
             tierListOwnerId={tierList.user_id}

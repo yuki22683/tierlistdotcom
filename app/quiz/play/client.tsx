@@ -97,7 +97,8 @@ export default function QuizPlayClient({
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [touchedItemId, setTouchedItemId] = useState<string | null>(null)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
-  
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
   // Item size scale
   const [isDesktop, setIsDesktop] = useState(true)
   const [itemScale, setItemScale] = useState<number>(1)
@@ -117,6 +118,17 @@ export default function QuizPlayClient({
     return () => window.removeEventListener('resize', updateSize)
   }, [])
 
+  // Detect dark mode
+  useEffect(() => {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    setIsDarkMode(darkModeQuery.matches)
+
+    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches)
+    darkModeQuery.addEventListener('change', handleChange)
+
+    return () => darkModeQuery.removeEventListener('change', handleChange)
+  }, [])
+
   // Load itemScale from localStorage on mount
   useEffect(() => {
     try {
@@ -128,6 +140,14 @@ export default function QuizPlayClient({
       console.error('Failed to load itemScale from localStorage', e)
     }
   }, [])
+
+  // Calculate slider background based on current value and dark mode
+  const getSliderBackground = (value: number) => {
+    const percentage = ((value - 0.5) / (2 - 0.5)) * 100
+    const activeColor = 'rgb(79 70 229)' // indigo-600
+    const inactiveColor = isDarkMode ? 'rgb(55 65 81)' : 'rgb(229 231 235)' // gray-700 : gray-200
+    return `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${percentage}%, ${inactiveColor} ${percentage}%, ${inactiveColor} 100%)`
+  }
 
   const handleItemScaleChange = (newScale: number) => {
     setItemScale(newScale)
@@ -474,7 +494,10 @@ export default function QuizPlayClient({
           step="0.01"
           value={itemScale}
           onChange={(e) => handleItemScaleChange(parseFloat(e.target.value))}
-          className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
+          style={{
+            background: getSliderBackground(itemScale)
+          }}
+          className="flex-1 h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-600 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-indigo-600 [&::-moz-range-thumb]:border-0"
         />
         <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
           {Math.round(itemScale * 100)}%
