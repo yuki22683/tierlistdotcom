@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!tierList) {
       console.log('No tier list found for id:', id)
       return {
-        title: 'ティアリスト.com - みんなで決める、最強のティアリスト',
-        description: '誰でも簡単にあらゆるジャンルのティアリストを作成・投票・議論できます。あなたの「推し」を最強のティアに押し上げよう。',
+        title: 'ティアリスト.com - 誰でも気軽に参加できるティアリストの掲示板',
+        description: 'あらゆるジャンルのティアリストを作成・投票・コメントできます。あなたの「推し」を最強ティアへ押し上げよう。',
       }
     }
 
