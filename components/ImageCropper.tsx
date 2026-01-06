@@ -29,13 +29,15 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
     const url = URL.createObjectURL(imageFile)
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setImageSrc(url)
+    // 新しい画像に切り替わった時に処理中状態をリセット
+    setIsProcessing(false)
 
     const img = new Image()
     img.onload = () => {
       const w = img.width
       const h = img.height
       const maxDim = Math.max(w, h)
-      
+
       setImageSize({ width: w, height: h })
       setContainerSize(maxDim)
 
