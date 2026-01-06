@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import RandomAffiliateLink from './RandomAffiliateLink'
 import Pagination from './Pagination'
@@ -24,6 +25,7 @@ export default function RecentlyViewedItems({
   const [items, setItems] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const supabase = createClient()
 
   useEffect(() => {
     const fetchRecentlyViewedItems = async () => {
@@ -47,8 +49,27 @@ export default function RecentlyViewedItems({
           return
         }
 
+        // Verify existence of items in DB
+        const checkPromises = slicedData.map(async (item: any) => {
+             const { data } = await supabase
+                 .from('items')
+                 .select('id')
+                 .eq('name', item.name)
+                 .limit(1)
+             return { item, exists: data && data.length > 0 }
+        });
+        
+        const checkedItems = await Promise.all(checkPromises);
+        const validItems = checkedItems.filter(r => r.exists).map(r => r.item);
+
+        if (validItems.length === 0) {
+          setItems([])
+          setLoading(false)
+          return
+        }
+
         // Add ads to the data
-        const result = [...slicedData];
+        const result = [...validItems];
 
         if (view) {
             // Filtered mode: Insert all 4 ads
