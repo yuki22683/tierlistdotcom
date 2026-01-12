@@ -1002,7 +1002,15 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
         return;
     }
 
-    const list = [...relatedItems];
+    // Deduplicate by item_name (in case SQL doesn't fully deduplicate)
+    const uniqueMap = new Map();
+    relatedItems.forEach((item: any) => {
+        if (!uniqueMap.has(item.item_name)) {
+            uniqueMap.set(item.item_name, item);
+        }
+    });
+    const list = Array.from(uniqueMap.values());
+
     const amazonAds = [
         { isAmazonBookAd: true },
         { isAmazonFurusatoAd: true },
@@ -2415,7 +2423,7 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
                   const imageUrl = item.item_is_text_item ? null : item.item_image_url
                   return (
                     <Link
-                      key={item.item_id}
+                      key={item.item_name}
                       href={`/items/${encodeURIComponent(item.item_name)}`}
                       className="group"
                     >

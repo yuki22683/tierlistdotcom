@@ -1,6 +1,7 @@
 -- Function to get related items based on shared tags
 -- Returns items from tier lists that share tags with the given tier list
 -- Also includes items from the current tier list
+-- Items with the same name are grouped together
 
 -- Drop existing function first
 DROP FUNCTION IF EXISTS get_related_items(uuid, integer);
@@ -18,13 +19,17 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   SELECT
-    i.id as item_id,
+    -- Use the item_id from the most popular tier list (for backwards compatibility)
+    (ARRAY_AGG(i.id ORDER BY tl.vote_count DESC))[1] as item_id,
     i.name as item_name,
-    i.image_url as item_image_url,
-    i.is_text_item as item_is_text_item,
-    tl.id as tier_list_id,
-    tl.title as tier_list_title,
-    tl.vote_count as tier_list_vote_count
+    -- Use image from the most popular tier list that has an image
+    (ARRAY_AGG(i.image_url ORDER BY tl.vote_count DESC) FILTER (WHERE i.image_url IS NOT NULL))[1] as item_image_url,
+    -- is_text_item: false if any occurrence has an image
+    bool_and(COALESCE(i.is_text_item, false)) as item_is_text_item,
+    -- Use tier_list info from the most popular one
+    (ARRAY_AGG(tl.id ORDER BY tl.vote_count DESC))[1] as tier_list_id,
+    (ARRAY_AGG(tl.title ORDER BY tl.vote_count DESC))[1] as tier_list_title,
+    MAX(tl.vote_count) as tier_list_vote_count
   FROM items i
   JOIN tier_lists tl ON i.tier_list_id = tl.id
   WHERE tl.id IN (
@@ -37,10 +42,16 @@ BEGIN
           WHERE tlt2.tier_list_id = p_tier_list_id
       )
   )
-  -- Prefer items with images
+  -- Prefer items with images or text items
   AND (i.image_url IS NOT NULL OR i.is_text_item = true)
-  -- Order by tier list popularity
-  ORDER BY tl.vote_count DESC, i.created_at DESC
+  -- Filter out empty or unnamed items
+  AND i.name IS NOT NULL
+  AND i.name != ''
+  AND i.name != '名無し'
+  -- Group by item name to merge same-named items
+  GROUP BY i.name
+  -- Order by total popularity across all tier lists
+  ORDER BY MAX(tl.vote_count) DESC
   LIMIT p_limit;
 END;
 $$ LANGUAGE plpgsql;
