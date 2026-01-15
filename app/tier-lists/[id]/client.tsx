@@ -835,8 +835,24 @@ export default function TierListClientPage({ tierList, tiers, items, userVote, u
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   // Detect touch device
+  // Note: navigator.maxTouchPoints > 0 can be true on Windows desktop browsers even without touch screens
+  // Use pointer: coarse media query for more reliable detection, combined with actual touch event detection
   useEffect(() => {
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+    const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches
+    const hasTouchCapability = 'ontouchstart' in window
+
+    // Only set as touch device if both conditions are met (actual touch device)
+    // or if a touch event is detected
+    setIsTouchDevice(hasCoarsePointer && hasTouchCapability)
+
+    // Also listen for actual touch events to enable touch mode dynamically
+    const handleTouchStart = () => {
+      setIsTouchDevice(true)
+      window.removeEventListener('touchstart', handleTouchStart)
+    }
+    window.addEventListener('touchstart', handleTouchStart, { once: true })
+
+    return () => window.removeEventListener('touchstart', handleTouchStart)
   }, [])
 
   // Detect dark mode
